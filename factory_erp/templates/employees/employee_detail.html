@@ -1,0 +1,450 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ employee.get_full_name }} - Карточка сотрудника{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <div>
+            <h1 style="margin: 0; color: #333;">
+                👤 {{ employee.get_full_name }}
+            </h1>
+            <p style="margin: 5px 0 0 0; color: #666;">
+                {{ employee.position }} • {{ employee.department }}
+            </p>
+        </div>
+        <div>
+            <a href="{% url 'employees:employee_edit' employee.pk %}" class="btn" style="margin-right: 10px;">
+                ✏️ Редактировать
+            </a>
+            <a href="{% url 'employees:employee_list' %}" class="btn btn-secondary">
+                ⬅️ К списку
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Основная информация -->
+<div style="display: grid; grid-template-columns: 300px 1fr; gap: 30px; margin-bottom: 30px;">
+    <!-- Левая панель - фото и основная инфо -->
+    <div class="card">
+        <div style="text-align: center; margin-bottom: 25px;">
+            {% if employee.photo %}
+                <img src="{{ employee.photo.url }}" alt="Фото" 
+                     style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover; border: 3px solid #e0e0e0;">
+            {% else %}
+                <div style="width: 200px; height: 200px; background: #f5f5f5; border-radius: 50%; 
+                           display: flex; align-items: center; justify-content: center; margin: 0 auto; border: 3px solid #e0e0e0;">
+                    <span style="font-size: 48px; color: #ccc;">👤</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="employee-info">
+            <div class="info-item">
+                <strong>Табельный №:</strong>
+                <span style="font-family: monospace;">{{ employee.employee_id }}</span>
+            </div>
+            
+            <div class="info-item">
+                <strong>Дата приема:</strong>
+                {{ employee.hire_date|date:"d.m.Y" }}
+            </div>
+            
+            <div class="info-item">
+                <strong>RFID карта:</strong>
+                {% if employee.rfid_uid %}
+                    <span style="color: #4caf50;">🎫 {{ employee.rfid_uid }}</span>
+                {% else %}
+                    <span style="color: #f44336;">❌ Не привязана</span>
+                {% endif %}
+            </div>
+            
+            <div class="info-item">
+                <strong>Статус:</strong>
+                {% if employee.is_active %}
+                    <span style="color: #4caf50; font-weight: bold;">✅ Активен</span>
+                {% else %}
+                    <span style="color: #f44336; font-weight: bold;">❌ Неактивен</span>
+                {% endif %}
+            </div>
+            
+            {% if employee.phone %}
+            <div class="info-item">
+                <strong>Телефон:</strong>
+                <a href="tel:{{ employee.phone }}">{{ employee.phone }}</a>
+            </div>
+            {% endif %}
+            
+            {% if employee.email %}
+            <div class="info-item">
+                <strong>Email:</strong>
+                <a href="mailto:{{ employee.email }}">{{ employee.email }}</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Правая панель - статистика -->
+    <div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px;">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.total_work_days }}</div>
+                <div class="stat-label">Рабочих дней за месяц</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.total_hours|floatformat:1 }}</div>
+                <div class="stat-label">Всего часов</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.average_hours|floatformat:1 }}</div>
+                <div class="stat-label">Среднее часов/день</div>
+            </div>
+
+        </div>
+        
+        <!-- Статистика присутствия -->
+        {% if stats.total_work_days > 0 %}
+        <div class="card">
+            <h3 style="margin: 0 0 20px 0; color: #333;">📊 Статистика присутствия (30 дней)</h3>
+            <div style="display: flex; gap: 20px;">
+                <div class="presence-stat">
+                    <div style="font-size: 2em; color: #4caf50;">{{ stats.present_days }}</div>
+                    <div>Присутствовал</div>
+                </div>
+                <div class="presence-stat">
+                    <div style="font-size: 2em; color: #ff9800;">{{ stats.late_days }}</div>
+                    <div>Опоздания</div>
+                </div>
+                <div class="presence-stat">
+                    <div style="font-size: 2em; color: #2196f3;">{{ stats.partial_days }}</div>
+                    <div>Неполные дни</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Навигация по вкладкам -->
+<div class="tab-navigation">
+    <button type="button" class="tab-btn active" onclick="showTab('worktime')">
+        ⏰ Рабочее время
+    </button>
+    <button type="button" class="tab-btn" onclick="showTab('access')">
+        🎫 История доступа
+    </button>
+    <button type="button" class="tab-btn" onclick="showTab('details')">
+        📋 Подробная информация
+    </button>
+</div>
+
+<!-- Вкладка: Рабочее время -->
+<div class="tab-content active" id="tab-worktime">
+    <div class="card">
+        <h3 style="margin: 0 0 20px 0; color: #333;">⏰ Последние записи рабочего времени</h3>
+        
+        {% if recent_worktime %}
+            <div style="overflow-x: auto;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Дата</th>
+                            <th>Приход</th>
+                            <th>Уход</th>
+                            <th>Часы</th>
+                            <th>Статус</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in recent_worktime %}
+                        <tr>
+                            <td>
+                                <strong>{{ entry.date|date:"d.m.Y" }}</strong><br>
+                                <small style="color: #666;">{{ entry.date|date:"l" }}</small>
+                            </td>
+                            <td>
+                                {% if entry.entry_time %}
+                                    {{ entry.entry_time|time:"H:i" }}
+                                {% else %}
+                                    <span style="color: #999;">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if entry.exit_time %}
+                                    {{ entry.exit_time|time:"H:i" }}
+                                {% else %}
+                                    <span style="color: #999;">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if entry.hours_worked %}
+                                    <span style="font-weight: bold;">{{ entry.get_hours_display }}</span>
+                                {% else %}
+                                    <span style="color: #999;">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span style="color: {{ entry.get_status_display_color }}; font-weight: bold;">
+                                    ● {{ entry.get_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 40px; color: #666;">
+                📅 Нет записей рабочего времени
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Вкладка: История доступа -->
+<div class="tab-content" id="tab-access">
+    <div class="card">
+        <h3 style="margin: 0 0 20px 0; color: #333;">🎫 Последние касания карты</h3>
+        
+        {% if recent_accesses %}
+            <div class="access-timeline">
+                {% for access in recent_accesses %}
+                <div class="access-item">
+                    <div class="access-time">
+                        <strong>{{ access.timestamp|date:"d.m.Y" }}</strong><br>
+                        <span style="color: #666;">{{ access.timestamp|time:"H:i:s" }}</span>
+                    </div>
+                    <div class="access-details">
+                        <div style="font-weight: 500;">Касание карты</div>
+                        <small style="color: #666;">Устройство: {{ access.device_id }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 40px; color: #666;">
+                🎫 Нет записей доступа
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Вкладка: Подробная информация -->
+<div class="tab-content" id="tab-details">
+    <div class="card">
+        <h3 style="margin: 0 0 20px 0; color: #333;">📋 Полная информация о сотруднике</h3>
+        
+        <div class="details-grid">
+            <div class="detail-section">
+                <h4>👤 Личные данные</h4>
+                <div class="detail-item">
+                    <strong>ФИО:</strong> {{ employee.get_full_name }}
+                </div>
+                {% if employee.birth_date %}
+                <div class="detail-item">
+                    <strong>Дата рождения:</strong> {{ employee.birth_date|date:"d.m.Y" }}
+                    {% if employee.get_age %}
+                        ({{ employee.get_age }} лет)
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% if employee.gender %}
+                <div class="detail-item">
+                    <strong>Пол:</strong> {{ employee.get_gender_display }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="detail-section">
+                <h4>🏢 Рабочие данные</h4>
+                <div class="detail-item">
+                    <strong>Отдел:</strong> {{ employee.department }}
+                </div>
+                <div class="detail-item">
+                    <strong>Должность:</strong> {{ employee.position }}
+                </div>
+                <div class="detail-item">
+                    <strong>Дата приема:</strong> {{ employee.hire_date|date:"d.m.Y" }}
+                </div>
+            </div>
+            
+            {% if employee.passport_series or employee.inn %}
+            <div class="detail-section">
+                <h4>📋 Документы</h4>
+                {% if employee.passport_series %}
+                <div class="detail-item">
+                    <strong>Паспорт:</strong> {{ employee.get_passport_full }}
+                </div>
+                {% endif %}
+                {% if employee.inn %}
+                <div class="detail-item">
+                    <strong>ИНН:</strong> {{ employee.inn }}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Функция переключения вкладок
+function showTab(tabName) {
+    // Скрываем все вкладки
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Убираем активное состояние с кнопок
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Показываем нужную вкладку
+    document.getElementById('tab-' + tabName).classList.add('active');
+    
+    // Делаем кнопку активной
+    event.target.classList.add('active');
+}
+</script>
+
+<style>
+.info-item {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.stat-number {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #667eea;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 14px;
+}
+
+.presence-stat {
+    text-align: center;
+    flex: 1;
+}
+
+.presence-stat div:first-child {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.tab-navigation {
+    display: flex;
+    background: white;
+    border-radius: 12px;
+    padding: 5px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    gap: 5px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 12px 15px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    color: #666;
+}
+
+.tab-btn:hover {
+    background: #f8f9fa;
+    color: #333;
+}
+
+.tab-btn.active {
+    background: #667eea;
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.access-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.access-item {
+    display: flex;
+    gap: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    align-items: center;
+}
+
+.access-time {
+    min-width: 120px;
+    text-align: center;
+}
+
+.access-details {
+    flex: 1;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.detail-section h4 {
+    margin: 0 0 15px 0;
+    color: #333;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.detail-item {
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.detail-item strong {
+    min-width: 120px;
+    color: #555;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+{% endblock %}

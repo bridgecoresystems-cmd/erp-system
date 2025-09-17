@@ -1,0 +1,772 @@
+{% extends 'base.html' %}
+
+{% block title %}Рабочее время сотрудников{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <div>
+            <h1 style="margin: 0; color: #333;">⏰ Рабочее время сотрудников</h1>
+            <p style="margin: 5px 0 0 0; color: #666;">Учет и контроль рабочего времени</p>
+        </div>
+        <div>
+            <button onclick="showAddTimeModal()" class="btn" style="margin-right: 10px;">➕ Добавить запись</button>
+            <a href="{% url 'employees:employee_list' %}" class="btn btn-secondary">👥 К сотрудникам</a>
+        </div>
+    </div>
+</div>
+    
+<!-- Фильтры -->
+<div class="card" style="margin-bottom: 20px;">
+    <form method="GET" id="filterForm" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
+        <div class="form-group" style="position: relative;">
+            <label class="form-label">Сотрудник</label>
+            <input type="text" 
+                id="filterEmployeeSearch" 
+                placeholder="Введите имя сотрудника..." 
+                class="form-control" 
+                autocomplete="off"
+                value="{% if selected_employee %}{{ selected_employee.get_full_name }} ({{ selected_employee.department }}){% endif %}">
+            <input type="hidden" name="employee" id="filterEmployee" value="{{ request.GET.employee }}">
+            <div id="filterEmployeeResults" class="search-results" style="display: none;"></div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Дата от</label>
+            <input type="date" name="date_from" value="{{ request.GET.date_from }}" class="form-control">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Дата до</label>
+            <input type="date" name="date_to" value="{{ request.GET.date_to }}" class="form-control">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Отдел</label>
+            <select name="department" class="form-control">
+                <option value="">Все отделы</option>
+                {% for dept in departments %}
+                    <option value="{{ dept }}" {% if request.GET.department == dept %}selected{% endif %}>{{ dept }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Статус</label>
+            <select name="status" class="form-control">
+                <option value="">Все статусы</option>
+                <option value="present" {% if request.GET.status == 'present' %}selected{% endif %}>Присутствует</option>
+                <option value="late" {% if request.GET.status == 'late' %}selected{% endif %}>Опоздание</option>
+                <option value="early_leave" {% if request.GET.status == 'early_leave' %}selected{% endif %}>Ранний уход</option>
+                <option value="partial" {% if request.GET.status == 'partial' %}selected{% endif %}>Частичный день</option>
+            </select>
+        </div>
+        
+        <div style="display: flex; gap: 10px;">
+            <button type="submit" class="btn">🔍 Найти</button>
+            <button type="button" onclick="clearFilters()" class="btn btn-secondary">🗑️ Сбросить</button>
+        </div>
+    </form>
+</div>
+
+<!-- Статистика -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 2em; color: #4caf50; margin-bottom: 5px;">{{ stats.total_entries }}</div>
+        <div style="font-weight: bold;">Всего записей</div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 2em; color: #2196f3; margin-bottom: 5px;">{{ stats.total_hours|floatformat:1 }}</div>
+        <div style="font-weight: bold;">Всего часов</div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 2em; color: #ff9800; margin-bottom: 5px;">{{ stats.late_count }}</div>
+        <div style="font-weight: bold;">Опозданий</div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <div style="font-size: 2em; color: #f44336; margin-bottom: 5px;">{{ stats.overtime_hours|floatformat:1 }}</div>
+        <div style="font-weight: bold;">Сверхурочных</div>
+    </div>
+</div>
+
+<!-- Таблица рабочего времени -->
+<div class="card" style="padding: 0; overflow: hidden;">
+    {% if worktime_entries %}
+        <table class="table" style="margin: 0;">
+            <thead style="background: #f8f9fa;">
+                <tr>
+                    <th>Дата</th>
+                    <th>Сотрудник</th>
+                    <th>Отдел</th>
+                    <th>Приход</th>
+                    <th>Уход</th>
+                    <th>Часы</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in worktime_entries %}
+                <tr data-entry-id="{{ entry.id }}">
+                    <td>
+                        <strong>{{ entry.date|date:"d.m.Y" }}</strong><br>
+                        <small style="color: #666;">{{ entry.date|date:"l" }}</small>
+                    </td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            {% if entry.employee.photo %}
+                                <img src="{{ entry.employee.photo.url }}" width="40" height="40" 
+                                     style="border-radius: 50%; object-fit: cover;">
+                            {% else %}
+                                <div style="width:40px;height:40px;background:#ddd;border-radius:50%;
+                                           display:flex;align-items:center;justify-content:center;">👤</div>
+                            {% endif %}
+                            <div>
+                                <strong>{{ entry.employee.get_full_name }}</strong><br>
+                                <small style="color: #666;">{{ entry.employee.employee_id }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span style="background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                            {{ entry.employee.department }}
+                        </span>
+                    </td>
+                    <td class="entry-time">
+                        {% if entry.entry_time %}
+                            <span style="font-family: monospace; font-size: 16px;">{{ entry.entry_time|time:"H:i" }}</span>
+                        {% else %}
+                            <span style="color: #999;">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="exit-time">
+                        {% if entry.exit_time %}
+                            <span style="font-family: monospace; font-size: 16px;">{{ entry.exit_time|time:"H:i" }}</span>
+                        {% else %}
+                            <span style="color: #999;">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="hours-worked">
+                        {% if entry.hours_worked %}
+                            <span style="color: {% if entry.is_full_day %}#4caf50{% else %}#ff9800{% endif %}; font-weight: bold;">
+                                {{ entry.get_hours_display }}
+                            </span>
+                            {% if entry.is_overtime %}
+                                <br><small style="color: #2196f3;">+{{ entry.get_overtime_hours|floatformat:1 }}ч</small>
+                            {% endif %}
+                        {% else %}
+                            <span style="color: #999;">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="status-badge" style="color: {{ entry.get_status_display_color }}; font-weight: bold;">
+                            ● {{ entry.get_status_display }}
+                        </span>
+                        {% if entry.is_manual_entry %}
+                            <br><small style="color: #666;">✏️ ручной ввод</small>
+                        {% endif %}
+                        {% if entry.is_corrected %}
+                            <br><small style="color: #666;">✅ скорректировано</small>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                            <button onclick="editTimeEntry({{ entry.id }})" 
+                                    class="action-btn" 
+                                    style="background: #ff9800; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                ✏️ Изменить
+                            </button>
+                            <button onclick="deleteTimeEntry({{ entry.id }})" 
+                                    class="action-btn" 
+                                    style="background: #f44336; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                                🗑️ Удалить
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div style="text-align: center; padding: 60px 20px; color: #666;">
+            <div style="font-size: 48px; margin-bottom: 20px;">⏰</div>
+            <h3>Записи рабочего времени не найдены</h3>
+            {% if request.GET %}
+                <p>По выбранным фильтрам ничего не найдено.</p>
+                <button onclick="clearFilters()" class="btn">Сбросить фильтры</button>
+            {% else %}
+                <p>Добавьте первую запись рабочего времени.</p>
+                <button onclick="showAddTimeModal()" class="btn">➕ Добавить запись</button>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<!-- Пагинация -->
+{% if is_paginated %}
+<div style="display: flex; justify-content: center; margin-top: 30px;">
+    <div class="pagination-container" style="display: flex; gap: 10px; align-items: center;">
+        {% if page_obj.has_previous %}
+            <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page=1" class="btn btn-secondary">⮬ Первая</a>
+            <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}" class="btn btn-secondary">⬅️ Назад</a>
+        {% endif %}
+        
+        <span style="padding: 10px 15px; background: white; border-radius: 8px; border: 2px solid #e2e8f0;">
+            Страница <strong>{{ page_obj.number }}</strong> из <strong>{{ page_obj.paginator.num_pages }}</strong>
+        </span>
+        
+        {% if page_obj.has_next %}
+            <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}" class="btn btn-secondary">Вперед ➡️</a>
+            <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}" class="btn btn-secondary">Последняя ⭐</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Экспорт -->
+<div style="text-align: center; margin-top: 20px;">
+    <button onclick="exportToCSV()" class="btn btn-secondary">📄 Экспорт в CSV</button>
+</div>
+
+<!-- Модальное окно для добавления/редактирования записи -->
+<div id="timeEntryModal" class="modal" style="display: none;">
+    <div class="modal-overlay" onclick="closeTimeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="modalTitle">Добавить запись рабочего времени</h3>
+                <button onclick="closeTimeModal()" class="modal-close">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="timeEntryForm">
+                    <!-- В модальном окне замени поле сотрудника на: -->
+                    <div class="form-group">
+                        <label class="form-label">Сотрудник *</label>
+                        <input type="text" 
+                            id="modalEmployeeSearch" 
+                            placeholder="Введите имя или фамилию..." 
+                            class="form-control" 
+                            autocomplete="off">
+                        <input type="hidden" id="modalEmployee" name="employee_id" required>
+                        <div id="employeeSearchResults" class="search-results" style="display: none;"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Дата *</label>
+                        <input type="date" id="modalDate" name="date" class="form-control" required>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label class="form-label">Время прихода</label>
+                            <input type="time" id="modalEntryTime" name="entry_time" class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Время ухода</label>
+                            <input type="time" id="modalExitTime" name="exit_time" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Примечания</label>
+                        <textarea id="modalNotes" name="notes" class="form-control" rows="3" 
+                                placeholder="Причина ручного ввода, корректировки и т.д."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="saveTimeEntry()" class="btn" id="saveBtn">Сохранить</button>
+                <button type="button" onclick="closeTimeModal()" class="btn btn-secondary">Отмена</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Очистка фильтров
+function clearFilters() {
+    window.location.href = window.location.pathname;
+}
+
+// Модальное окно для добавления записи
+function showAddTimeModal() {
+    document.getElementById('modalTitle').textContent = 'Добавить запись рабочего времени';
+    document.getElementById('saveBtn').textContent = 'Сохранить';
+    document.getElementById('timeEntryForm').reset();
+    document.getElementById('modalEmployee').disabled = false;
+    document.getElementById('modalDate').disabled = false;
+    
+    // Устанавливаем сегодняшнюю дату по умолчанию
+    document.getElementById('modalDate').value = new Date().toISOString().split('T')[0];
+    
+    document.getElementById('timeEntryModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+// Закрытие модального окна
+function closeTimeModal() {
+    document.getElementById('timeEntryModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+    document.getElementById('timeEntryForm').reset();
+    document.getElementById('timeEntryForm').removeAttribute('data-entry-id');
+}
+
+// Сохранение записи времени
+function saveTimeEntry() {
+    const form = document.getElementById('timeEntryForm');
+    const formData = new FormData(form);
+    const entryId = form.getAttribute('data-entry-id');
+    
+    // Проверяем обязательные поля
+    const employeeId = formData.get('employee_id');
+    const date = formData.get('date');
+    
+    if (!employeeId || !date) {
+        showNotification('Заполните обязательные поля: сотрудник и дата', 'error');
+        return;
+    }
+    
+    // Собираем данные для отправки
+    const data = {
+        employee_id: employeeId,
+        date: date,
+        entry_time: formData.get('entry_time') || '',
+        exit_time: formData.get('exit_time') || '',
+        notes: formData.get('notes') || ''
+    };
+    
+    // Блокируем кнопку во время сохранения
+    const saveBtn = document.getElementById('saveBtn');
+    const originalText = saveBtn.textContent;
+    saveBtn.textContent = 'Сохранение...';
+    saveBtn.disabled = true;
+    
+    // Определяем URL и метод
+    const url = entryId ? `/employees/worktime/update/${entryId}/` : '/employees/worktime/create/';
+    
+    // AJAX запрос
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, 'success');
+            closeTimeModal();
+            window.location.reload();
+        } else {
+            showNotification(data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Произошла ошибка при сохранении записи', 'error');
+    })
+    .finally(() => {
+        saveBtn.textContent = originalText;
+        saveBtn.disabled = false;
+    });
+}
+
+// Редактирование записи времени
+function editTimeEntry(entryId) {
+    fetch(`/employees/worktime/detail/${entryId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const entry = data.entry;
+                
+                document.getElementById('modalTitle').textContent = `Редактировать: ${entry.employee_name}`;
+                document.getElementById('saveBtn').textContent = 'Обновить';
+                
+                document.getElementById('modalEmployee').value = entry.employee_id;
+                document.getElementById('modalEmployee').disabled = true;
+                document.getElementById('modalDate').value = entry.date;
+                document.getElementById('modalDate').disabled = true;
+                document.getElementById('modalEntryTime').value = entry.entry_time;
+                document.getElementById('modalExitTime').value = entry.exit_time;
+                document.getElementById('modalNotes').value = entry.notes;
+                
+                document.getElementById('timeEntryForm').setAttribute('data-entry-id', entryId);
+                
+                document.getElementById('timeEntryModal').style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            } else {
+                showNotification(data.error, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Ошибка при загрузке данных записи', 'error');
+        });
+}
+
+// Удаление записи времени
+function deleteTimeEntry(entryId) {
+    if (confirm('Вы уверены, что хотите удалить эту запись рабочего времени?')) {
+        fetch(`/employees/worktime/delete/${entryId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.querySelector(`tr[data-entry-id="${entryId}"]`).remove();
+                showNotification(data.message, 'success');
+            } else {
+                showNotification(data.error, 'error');
+            }
+        })
+        .catch(error => {
+            showNotification('Произошла ошибка при удалении записи', 'error');
+        });
+    }
+}
+
+// Экспорт в CSV
+function exportToCSV() {
+    const params = new URLSearchParams(window.location.search);
+    params.set('export', 'csv');
+    window.location.href = `${window.location.pathname}?${params.toString()}`;
+}
+
+// Функция для получения CSRF токена
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Уведомления
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : 'error'}`;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        min-width: 300px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    `;
+    
+    const icon = type === 'success' ? '✅' : '❌';
+    notification.innerHTML = `${icon} ${message}`;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 5000);
+}
+
+// Поиск сотрудников при вводе
+let searchTimeout;
+document.getElementById('modalEmployeeSearch').addEventListener('input', function() {
+    const query = this.value.trim();
+    
+    clearTimeout(searchTimeout);
+    
+    if (query.length >= 2) {
+        searchTimeout = setTimeout(() => {
+            searchEmployees(query);
+        }, 300); // Задержка 300мс
+    } else {
+        hideSearchResults();
+    }
+});
+
+function searchEmployees(query) {
+    fetch(`/employees/api/employee-search/?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            showSearchResults(data.employees);
+        })
+        .catch(error => {
+            console.error('Ошибка поиска:', error);
+        });
+}
+
+function showSearchResults(employees) {
+    const resultsDiv = document.getElementById('employeeSearchResults');
+    const inputField = document.getElementById('modalEmployeeSearch');
+    
+    if (employees.length === 0) {
+        resultsDiv.innerHTML = '<div class="search-item">Сотрудники не найдены</div>';
+    } else {
+        resultsDiv.innerHTML = employees.map(emp => 
+            `<div class="search-item" onclick="selectEmployee(${emp.id}, '${emp.full_name}', '${emp.department}')">
+                <strong>${emp.full_name}</strong><br>
+                <small>${emp.department} • ${emp.employee_id}</small>
+            </div>`
+        ).join('');
+    }
+    
+    // Позиционируем dropdown относительно поля ввода
+    const rect = inputField.getBoundingClientRect();
+    resultsDiv.style.top = (rect.bottom + 2) + 'px';
+    resultsDiv.style.left = rect.left + 'px';
+    resultsDiv.style.width = rect.width + 'px';
+    
+    resultsDiv.style.display = 'block';
+}
+
+function selectEmployee(id, name, department) {
+    document.getElementById('modalEmployeeSearch').value = `${name} (${department})`;
+    document.getElementById('modalEmployee').value = id;
+    hideSearchResults();
+}
+
+function hideSearchResults() {
+    document.getElementById('employeeSearchResults').style.display = 'none';
+}
+
+// Скрыть результаты при клике вне поля
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.form-group')) {
+        hideSearchResults();
+    }
+});
+
+// Поиск сотрудников в фильтрах
+let filterSearchTimeout;
+document.getElementById('filterEmployeeSearch').addEventListener('input', function() {
+    const query = this.value.trim();
+    
+    clearTimeout(filterSearchTimeout);
+    
+    if (query.length >= 2) {
+        filterSearchTimeout = setTimeout(() => {
+            searchEmployeesForFilter(query);
+        }, 300);
+    } else {
+        hideFilterResults();
+        // Очищаем скрытое поле если ввод пустой
+        document.getElementById('filterEmployee').value = '';
+    }
+});
+
+function searchEmployeesForFilter(query) {
+    fetch(`/employees/api/employee-search/?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            showFilterResults(data.employees);
+        })
+        .catch(error => {
+            console.error('Ошибка поиска в фильтре:', error);
+        });
+}
+
+function showFilterResults(employees) {
+    const resultsDiv = document.getElementById('filterEmployeeResults');
+    
+    if (employees.length === 0) {
+        resultsDiv.innerHTML = '<div class="search-item">Сотрудники не найдены</div>';
+    } else {
+        resultsDiv.innerHTML = employees.map(emp => 
+            `<div class="search-item" onclick="selectFilterEmployee(${emp.id}, '${emp.full_name}', '${emp.department}')">
+                <strong>${emp.full_name}</strong><br>
+                <small>${emp.department} • ${emp.employee_id}</small>
+            </div>`
+        ).join('');
+    }
+    
+    resultsDiv.style.display = 'block';
+}
+
+function selectFilterEmployee(id, name, department) {
+    document.getElementById('filterEmployeeSearch').value = `${name} (${department})`;
+    document.getElementById('filterEmployee').value = id;
+    hideFilterResults();
+}
+
+function hideFilterResults() {
+    document.getElementById('filterEmployeeResults').style.display = 'none';
+}
+
+// Скрыть результаты при клике вне поля (обновленная версия)
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.form-group')) {
+        hideSearchResults();
+        hideFilterResults();
+    }
+});
+
+// Очистить поле сотрудника при очистке фильтров
+function clearFilters() {
+    document.getElementById('filterEmployeeSearch').value = '';
+    document.getElementById('filterEmployee').value = '';
+    window.location.href = window.location.pathname;
+}
+
+</script>
+
+<style>
+/* Стили для модального окна */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto; /* Вернул скролл */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.3s ease;
+    position: relative;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #666;
+    padding: 5px;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    padding: 20px 25px;
+    border-top: 1px solid #e0e0e0;
+    background: #f8f9fa;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Адаптивность таблицы */
+@media (max-width: 768px) {
+    .table {
+        font-size: 14px;
+    }
+    
+    .modal-content {
+        margin: 10px;
+        max-width: none;
+    }
+    
+    .modal-body {
+        padding: 15px;
+    }
+}
+
+/* Исправленные стили для поиска */
+.search-results {
+    position: absolute;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1002;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    left: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Для поиска в модальном окне - используем фиксированное позиционирование */
+.modal-content .search-results {
+    position: fixed;
+    z-index: 1050; /* Еще выше */
+    min-width: 250px;
+    max-width: 400px;
+}
+
+.modal-content .form-group {
+    position: relative;
+}
+
+.search-item {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.search-item:hover {
+    background: #f8f9fa;
+}
+
+.search-item:last-child {
+    border-bottom: none;
+}
+</style>
+{% endblock %}

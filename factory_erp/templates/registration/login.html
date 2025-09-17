@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Вход в систему - ERP Система</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% load static %}{% static 'css/style.css' %}">
+</head>
+<body class="login-page">
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="card" style="max-width: 450px; width: 100%; margin: 50px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+            
+            <!-- Заголовок -->
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="margin: 0 0 10px 0; color: #333; font-size: 28px;">Вход в ERP систему</h1>
+            </div>
+
+            <!-- Сообщения об ошибках -->
+            {% if form.errors %}
+                <div class="alert alert-error" style="margin-bottom: 20px;">
+                    ❌ Неверный логин или пароль
+                </div>
+            {% endif %}
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" style="margin-bottom: 20px;">
+                        {% if message.tags == 'success' %}✅{% else %}⚠️{% endif %} {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <!-- Форма входа -->
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        👤 Логин
+                    </label>
+                    <input 
+                        type="text" 
+                        name="username" 
+                        class="form-control" 
+                        placeholder="Введите ваш логин" 
+                        required 
+                        autofocus
+                        style="padding: 15px; font-size: 16px;"
+                        value="{{ form.username.value|default:'' }}"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        🔒 Пароль
+                    </label>
+                    <div style="position: relative;">
+                        <input 
+                            type="password" 
+                            name="password" 
+                            id="passwordField" 
+                            class="form-control" 
+                            placeholder="Введите ваш пароль" 
+                            required
+                            style="padding: 15px; font-size: 16px; width: 100%; padding-right: 40px;"
+                        >
+                        <span 
+                            id="togglePassword" 
+                            title="Показать пароль"
+                            style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 18px;"
+                        >👁️</span>
+                    </div>
+                </div>
+
+                
+                <!-- Запомнить меня -->
+                <div class="form-group" style="margin-bottom: 25px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" name="remember_me" style="margin: 0;">
+                        <span style="font-size: 14px; color: #666;">Запомнить меня</span>
+                    </label>
+                </div>
+                
+                <!-- Кнопка входа -->
+                <button type="submit" class="btn" style="width: 100%; padding: 15px; font-size: 16px; font-weight: 600;">
+                    🚀 Войти в систему
+                </button>
+            </form>
+
+            <!-- Дополнительная информация -->
+            <div style="margin-top: 25px; text-align: center; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                <p style="margin: 0; color: #666; font-size: 13px;">
+                    <span style="font-weight: 500;">Доступ только для авторизованного персонала</span><br>
+                    При проблемах со входом обратитесь к администратору
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Автоматический фокус на поле логина
+    document.addEventListener('DOMContentLoaded', function() {
+        const usernameField = document.querySelector('input[name="username"]');
+        if (usernameField && !usernameField.value) {
+            usernameField.focus();
+        }
+        
+        // Функционал показа/скрытия пароля
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordField = document.getElementById('passwordField');
+        
+        togglePassword.addEventListener('click', function() {
+            // Переключаем тип поля
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+            
+            // Меняем иконку
+            if (type === 'text') {
+                togglePassword.textContent = '🙈'; // закрытые глаза
+                togglePassword.title = 'Скрыть пароль';
+            } else {
+                togglePassword.textContent = '👁️'; // открытые глаза
+                togglePassword.title = 'Показать пароль';
+            }
+        });
+    });
+
+    // Анимация при ошибке
+    {% if form.errors %}
+    document.addEventListener('DOMContentLoaded', function() {
+        const card = document.querySelector('.card');
+        card.style.animation = 'shake 0.5s ease-in-out';
+    });
+
+    // CSS анимация shake
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    `;
+    document.head.appendChild(style);
+    {% endif %}
+    </script>
+</body>
+</html>

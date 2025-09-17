@@ -1,0 +1,631 @@
+{% extends 'base.html' %}
+
+{% block title %}Список сотрудников{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <div>
+            <h1 style="margin: 0; color: #333;">👥 Список сотрудников</h1>
+            <p style="margin: 5px 0 0 0; color: #666;">Всего активных сотрудников: <strong>{{ total_employees }}</strong></p>
+        </div>
+        <div>
+            <a href="{% url 'employees:employee_add' %}" class="btn" style="margin-right: 10px;">➕ Добавить сотрудника</a>
+            <a href="{% url 'employees:worktime_list' %}" class="btn btn-secondary"> Рабочее время</a>
+        </div>
+    </div>
+</div>
+
+<!-- Поиск -->
+<div class="card" style="margin-bottom: 20px;">
+    <form method="GET" id="searchForm" style="display: flex; gap: 15px; align-items: center;">
+        <div style="flex: 1; position: relative;">
+            <input 
+                type="text" 
+                id="employeeSearchInput"
+                name="search" 
+                value="{{ search_query }}" 
+                placeholder="🔍 Поиск по имени, должности, цеху или табельному номеру..." 
+                class="form-control"
+                style="margin: 0;"
+                autocomplete="off"
+            >
+            <div id="searchResults" class="search-results" style="display: none;"></div>
+        </div>
+        <button type="submit" class="btn" style="white-space: nowrap;">Найти</button>
+        {% if search_query %}
+            <a href="{% url 'employees:employee_list' %}" class="btn btn-secondary" style="white-space: nowrap;">Сбросить</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Таблица сотрудников -->
+<div class="card" style="padding: 0; overflow: hidden;">
+    {% if employees %}
+        <table class="table" style="margin: 0;">
+            <thead>
+                <tr>
+                    <th style="width: 80px;">Фото</th>
+                    <th>ФИО</th>
+                    <th>Должность</th>
+                    <th>Цех</th>
+                    <th>Табельный №</th>
+                    <th>RFID</th>
+                    <th style="width: 200px;">Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee in employees %}
+                <tr style="{% if not employee.is_active %}opacity: 0.6;{% endif %}">
+                    <td>
+                        <div style="width: 60px; height: 60px; border-radius: 50%; overflow: hidden; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                            {% if employee.photo %}
+                                <img src="{{ employee.photo.url }}" alt="Фото" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                                <span style="font-size: 24px; color: #999;">👤</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            <strong style="display: block; margin-bottom: 2px;">{{ employee.get_full_name }}</strong>
+                            <small style="color: #666;">Принят: {{ employee.hire_date|date:"d.m.Y" }}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <span style="background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                            {{ employee.position }}
+                        </span>
+                    </td>
+                    <td>
+                        <span style="background: #f3e5f5; color: #7b1fa2; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                            {{ employee.department }}
+                        </span>
+                    </td>
+                    <td>
+                        <code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px; font-family: monospace;">
+                            {{ employee.employee_id }}
+                        </code>
+                    </td>
+                    <td>
+                        {% if employee.rfid_uid %}
+                            <span style="color: #4caf50; font-size: 20px;" title="RFID привязан">🎫</span>
+                            <small style="display: block; color: #666; font-family: monospace;">{{ employee.rfid_uid }}</small>
+                        {% else %}
+                            <span style="color: #f44336; font-size: 20px;" title="RFID не привязан">❌</span>
+                            <small style="display: block; color: #999;">Нет карты</small>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <button 
+                                onclick="viewEmployee({{ employee.id }})" 
+                                class="action-btn view-btn" 
+                                title="Просмотр"
+                                style="background: #2196f3; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;"
+                            >
+                                👁️ Смотреть
+                            </button>
+                            <button 
+                                onclick="editEmployee({{ employee.id }})" 
+                                class="action-btn edit-btn"
+                                title="Редактировать"
+                                style="background: #ff9800; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;"
+                            >
+                                ✏️ Редактировать
+                            </button>
+                            <button 
+                                onclick="deleteEmployee({{ employee.id }}, '{{ employee.get_full_name }}')" 
+                                class="action-btn delete-btn"
+                                title="Удалить"
+                                style="background: #f44336; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;"
+                            >
+                                🗑️ Удалить
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div style="text-align: center; padding: 60px 20px; color: #666;">
+            <div style="font-size: 48px; margin-bottom: 20px;">🔍</div>
+            {% if search_query %}
+                <h3>Сотрудники не найдены</h3>
+                <p>По запросу "<strong>{{ search_query }}</strong>" ничего не найдено.</p>
+                <a href="{% url 'employees:employee_list' %}" class="btn">Показать всех сотрудников</a>
+            {% else %}
+                <h3>Список сотрудников пуст</h3>
+                <p>Добавьте первого сотрудника в систему.</p>
+                <a href="{% url 'employees:employee_add' %}" class="btn">➕ Добавить сотрудника</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<!-- Пагинация -->
+{% if is_paginated %}
+<div style="display: flex; justify-content: center; margin-top: 30px;">
+    <div class="pagination-container" style="display: flex; gap: 10px; align-items: center;">
+        {% if page_obj.has_previous %}
+            <a href="?{% if search_query %}search={{ search_query }}&{% endif %}page=1" class="btn btn-secondary" style="padding: 8px 12px;">⏮️ Первая</a>
+            <a href="?{% if search_query %}search={{ search_query }}&{% endif %}page={{ page_obj.previous_page_number }}" class="btn btn-secondary" style="padding: 8px 12px;">⬅️ Назад</a>
+        {% endif %}
+        
+        <span style="padding: 10px 15px; background: white; border-radius: 8px; border: 2px solid #e2e8f0;">
+            Страница <strong>{{ page_obj.number }}</strong> из <strong>{{ page_obj.paginator.num_pages }}</strong>
+        </span>
+        
+        {% if page_obj.has_next %}
+            <a href="?{% if search_query %}search={{ search_query }}&{% endif %}page={{ page_obj.next_page_number }}" class="btn btn-secondary" style="padding: 8px 12px;">Вперед ➡️</a>
+            <a href="?{% if search_query %}search={{ search_query }}&{% endif %}page={{ page_obj.paginator.num_pages }}" class="btn btn-secondary" style="padding: 8px 12px;">Последняя ⏭️</a>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<script>
+// Функции для кнопок действий
+function viewEmployee(employeeId) {
+    // Откроем детальную информацию о сотруднике
+    window.open(`/employees/api/employee/${employeeId}/`, '_blank');
+}
+
+function viewEmployee(employeeId) {
+    window.location.href = `/employees/employee/${employeeId}/`;
+}
+
+function closeEmployeeModal() {
+    const modal = document.querySelector('.employee-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+function editEmployee(employeeId) {
+    // Перейдем к редактированию
+    window.location.href = `/employees/edit/${employeeId}/`;
+}
+
+function deleteEmployee(employeeId, employeeName) {
+    if (confirm(`Вы уверены, что хотите удалить сотрудника:\n${employeeName}?\n\nСотрудник будет деактивирован и не сможет входить в систему.`)) {
+        
+        const deleteBtn = event.target;
+        const originalText = deleteBtn.innerHTML;
+        deleteBtn.innerHTML = '⏳ Удаление...';
+        deleteBtn.disabled = true;
+        
+        fetch(`/employees/delete/${employeeId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+                
+                const row = deleteBtn.closest('tr');
+                row.style.opacity = '0.5';
+                row.style.transform = 'translateX(-100%)';
+                
+                setTimeout(() => {
+                    row.remove();
+                    updateEmployeeCount();
+                }, 500);
+                
+            } else {
+                showNotification(data.error || 'Ошибка при удалении сотрудника', 'error');
+                deleteBtn.innerHTML = originalText;
+                deleteBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Произошла ошибка при удалении сотрудника', 'error');
+            deleteBtn.innerHTML = originalText;
+            deleteBtn.disabled = false;
+        });
+    }
+}
+
+// Подсветка найденного текста
+document.addEventListener('DOMContentLoaded', function() {
+    const searchQuery = "{{ search_query|escapejs }}";
+    if (searchQuery) {
+        // Подсвечиваем найденный текст в таблице (можно добавить позже)
+        console.log('Поиск по запросу:', searchQuery);
+    }
+});
+
+// Добавь ЭТУ функцию в employee_list.html
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : 'error'}`;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        min-width: 300px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    `;
+    
+    const icon = type === 'success' ? '✅' : '❌';
+    notification.innerHTML = `${icon} ${message}`;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 5000);
+}
+
+function updateEmployeeCount() {
+    const activeRows = document.querySelectorAll('tbody tr').length;
+    const countElement = document.querySelector('.page-header p strong');
+    if (countElement) {
+        countElement.textContent = activeRows;
+    }
+}
+
+// Поиск сотрудников в главном поле
+let mainSearchTimeout;
+document.getElementById('employeeSearchInput').addEventListener('input', function() {
+    const query = this.value.trim();
+    
+    clearTimeout(mainSearchTimeout);
+    
+    if (query.length >= 2) {
+        mainSearchTimeout = setTimeout(() => {
+            searchEmployeesMain(query);
+        }, 300);
+    } else {
+        hideMainSearchResults();
+    }
+});
+
+function searchEmployeesMain(query) {
+    fetch(`/employees/api/employee-search/?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            showMainSearchResults(data.employees, query);
+        })
+        .catch(error => {
+            console.error('Ошибка поиска:', error);
+        });
+}
+
+function showMainSearchResults(employees, query) {
+    const resultsDiv = document.getElementById('searchResults');
+    
+    if (employees.length === 0) {
+        resultsDiv.innerHTML = `
+            <div class="search-item search-action" onclick="submitSearch('${query}')">
+                🔍 Искать "${query}" во всех полях
+            </div>
+        `;
+    } else {
+        let html = employees.map(emp => 
+            `<div class="search-item" onclick="selectMainEmployee('${emp.full_name}')">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 20px;">👤</span>
+                    <div>
+                        <strong>${emp.full_name}</strong><br>
+                        <small style="color: #666;">${emp.department} • ${emp.employee_id}</small>
+                    </div>
+                </div>
+            </div>`
+        ).join('');
+        
+        html += `<div class="search-item search-action" onclick="submitSearch('${query}')">
+            🔍 Искать "${query}" во всех полях
+        </div>`;
+        
+        resultsDiv.innerHTML = html;
+    }
+    
+    resultsDiv.style.display = 'block';
+}
+
+function selectMainEmployee(name) {
+    document.getElementById('employeeSearchInput').value = name;
+    hideMainSearchResults();
+    document.getElementById('searchForm').submit();
+}
+
+function submitSearch(query) {
+    document.getElementById('employeeSearchInput').value = query;
+    hideMainSearchResults();
+    document.getElementById('searchForm').submit();
+}
+
+function hideMainSearchResults() {
+    document.getElementById('searchResults').style.display = 'none';
+}
+
+// Скрыть результаты при клике вне поля
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('#searchForm')) {
+        hideMainSearchResults();
+    }
+});
+
+// Скрыть при нажатии Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        hideMainSearchResults();
+    }
+});
+
+</script>
+
+<style>
+/* Дополнительные стили для кнопок */
+.action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.pagination-container a {
+    font-size: 14px;
+}
+
+/* Стили для модального окна */
+.employee-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.3s ease;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #666;
+    padding: 5px;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+    color: #666;
+}
+
+.employee-details {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 25px;
+    margin-bottom: 25px;
+}
+
+.employee-modal-photo {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e0e0e0;
+}
+
+.employee-info-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.info-row strong {
+    color: #333;
+    min-width: 120px;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-badge.active {
+    background: #e8f5e8;
+    color: #2e7d32;
+}
+
+.status-badge.inactive {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.recent-accesses {
+    margin-bottom: 25px;
+}
+
+.recent-accesses h4 {
+    margin: 0 0 15px 0;
+    color: #333;
+}
+
+.access-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.access-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.access-time {
+    color: #333;
+}
+
+.access-device {
+    color: #666;
+    font-family: monospace;
+}
+
+.no-accesses {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.error-message {
+    text-align: center;
+    padding: 40px;
+    color: #f44336;
+    font-size: 16px;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Стили для автодополнения поиска */
+.search-results {
+    position: absolute;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    top: 100%;
+    left: 0;
+}
+
+.search-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+}
+
+.search-item:hover {
+    background: #f8f9fa;
+}
+
+.search-item:last-child {
+    border-bottom: none;
+}
+
+.search-action {
+    background: #e3f2fd !important;
+    color: #1976d2;
+    font-weight: 500;
+}
+
+.search-action:hover {
+    background: #bbdefb !important;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% load group_filters %}
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo-menu-title">
+            
+            {% if user.is_authenticated %}
+                <div class="nav-links">
+                    <a href="/employees/">Главная</a>
+                    
+                    {% if user.groups.all|length > 0 %}
+                        {% for group in user.groups.all %}
+                            {% if group.name == "HR_Admins" %}
+                                <div class="dropdown">
+                                    <a href="#">Сотрудники</a>
+                                    <div class="dropdown-content">
+                                        <a href="{% url 'employees:employee_list' %}">Список сотрудников</a>
+                                        <a href="{% url 'employees:employee_add' %}">Добавить сотрудника</a>
+                                    </div>
+                                </div>
+                                <a href="{% url 'employees:worktime_list' %}">Рабочее время</a>
+                                <div class="dropdown">
+                                    <a href="#">Отчеты</a>
+                                    <div class="dropdown-content">
+                                        <a href="#">По времени</a>
+                                        <a href="#">По отделам</a>
+                                        <a href="#">Экспорт данных</a>
+                                    </div>
+                                </div>                                
+                            {% elif group.name == "HR_Users" %}
+                                <div class="dropdown">
+                                    <a href="#">Сотрудники</a>
+                                    <div class="dropdown-content">
+                                        <a href="{% url 'employees:employee_list' %}">Список сотрудников</a>
+                                        <a href="{% url 'employees:employee_add' %}">Добавить сотрудника</a>
+                                    </div>
+                                </div>
+                                <a href="{% url 'employees:security_display' %}">Контроль доступа</a>
+                                <div class="dropdown">
+                                    <a href="#">Отчеты</a>
+                                    <div class="dropdown-content">
+                                        <a href="#">По времени</a>
+                                        <a href="#">По отделам</a>
+                                    </div>
+                                </div>
+                            {% elif group.name == "Security_Users" %}
+                                <a href="{% url 'employees:security_display' %}">Контроль доступа</a>
+                            {% elif group.name == "Department_Managers" %}
+                                <a href="{% url 'employees:employee_list' %}">Мои сотрудники</a>
+                                <a href="{% url 'employees:security_display' %}">Контроль доступа</a>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <!-- Для пользователей без групп показываем базовое меню -->
+                        <a href="{% url 'employees:employee_list' %}">Сотрудники</a>
+                        <a href="{% url 'employees:security_display' %}">Контроль доступа</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        
+        {% if user.is_authenticated %}
+            <div class="header-right">
+                <span class="username">{{ user.username }}</span>
+                <form action="/logout/" method="post">
+                    {% csrf_token %}
+                    <button type="submit">выход</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+    </div>
+    
+    <script>
+        // Здесь будут скрипты если нужно
+    </script>
+</body>
+</html>

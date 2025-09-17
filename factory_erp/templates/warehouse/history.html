@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📝 История операций - Склад кафеля</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .btn {
+            padding: 12px 24px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .filters select {
+            padding: 10px;
+            margin-right: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        .history-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .history-table th, .history-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .history-table th {
+            background: #343a40;
+            color: white;
+            font-weight: bold;
+        }
+        .history-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .operation-in {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .operation-out {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .no-data {
+            text-align: center;
+            color: #666;
+            padding: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📝 История операций</h1>
+        <a href="{% url 'warehouse:index' %}" class="btn btn-primary">⬅️ Назад к складу</a>
+    </div>
+
+    <!-- Фильтры -->
+    <div class="filters">
+        <h3>🔍 Фильтры:</h3>
+        <form method="get" style="display: inline;">
+            <select name="tile_type">
+                <option value="">Все типы кафеля</option>
+                {% for tile_type in tile_types %}
+                    <option value="{{ tile_type.id }}" {% if selected_tile_type == tile_type.id|stringformat:"s" %}selected{% endif %}>
+                        {{ tile_type.name }} {{ tile_type.size }}
+                    </option>
+                {% endfor %}
+            </select>
+            
+            <select name="operation">
+                <option value="">Все операции</option>
+                <option value="IN" {% if selected_operation == "IN" %}selected{% endif %}>Приход</option>
+                <option value="OUT" {% if selected_operation == "OUT" %}selected{% endif %}>Расход</option>
+            </select>
+            
+            <button type="submit" class="btn btn-secondary">Применить</button>
+            <a href="{% url 'warehouse:history' %}" class="btn btn-secondary">Сбросить</a>
+        </form>
+    </div>
+
+    <!-- Таблица истории -->
+    <table class="history-table">
+        <thead>
+            <tr>
+                <th>Дата/Время</th>
+                <th>Операция</th>
+                <th>Тип кафеля</th>
+                <th>Количество</th>
+                <th>Пользователь</th>
+                <th>Комментарий</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction.created_at|date:"d.m.Y H:i" }}</td>
+                    <td>
+                        {% if transaction.operation == 'IN' %}
+                            <span class="operation-in">➕ Приход</span>
+                        {% else %}
+                            <span class="operation-out">➖ Расход</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong>{{ transaction.tile_type.name }}</strong><br>
+                        <small>{{ transaction.tile_type.size }} | {{ transaction.tile_type.article }}</small>
+                    </td>
+                    <td>
+                        {% if transaction.operation == 'IN' %}
+                            <span class="operation-in">+{{ transaction.quantity }} шт</span>
+                        {% else %}
+                            <span class="operation-out">-{{ transaction.quantity }} шт</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ transaction.user.username }}</td>
+                    <td>
+                        {% if transaction.comment %}
+                            {{ transaction.comment }}
+                        {% else %}
+                            <em style="color: #999;">—</em>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6" class="no-data">
+                        {% if selected_tile_type or selected_operation %}
+                            📭 Операций с выбранными фильтрами не найдено
+                        {% else %}
+                            📭 История операций пуста
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if transactions %}
+        <div style="background: white; padding: 20px; border-radius: 10px; margin-top: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <p><strong>📊 Показано операций:</strong> {{ transactions|length }}</p>
+            <p><small style="color: #666;">* Отображаются последние 100 операций</small></p>
+        </div>
+    {% endif %}
+
+</body>
+</html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Система контроля доступа</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+            color: white;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-display {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+        }
+
+        .employee-card {
+            flex: 2;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            min-height: 400px;
+        }
+
+        .waiting-message {
+            font-size: 2.5em;
+            opacity: 0.7;
+            animation: pulse 2s infinite;
+        }
+
+        .employee-info {
+            display: none;
+        }
+
+        .employee-photo {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid rgba(255,255,255,0.3);
+            margin-bottom: 30px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+
+        .employee-name {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .employee-details {
+            font-size: 1.3em;
+            opacity: 0.9;
+        }
+
+        .employee-details div {
+            margin: 8px 0;
+        }
+
+        .stats-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1.1em;
+            opacity: 0.8;
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            opacity: 0.7;
+        }
+
+        .welcome-animation {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+
+        .time-display {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 1.5em;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="time-display" id="currentTime"></div>
+        <div class="status-indicator" id="statusIndicator"></div>
+        
+        <div class="header">
+            <h1>🏭 СИСТЕМА КОНТРОЛЯ ДОСТУПА</h1>
+            <div class="subtitle">Приложите карту к считывателю</div>
+        </div>
+        
+        <div class="main-display">
+            <div class="employee-card" id="employeeCard">
+                <div class="waiting-message" id="waitingMessage">
+                    👤 Ожидание карты...
+                </div>
+                
+                <div class="employee-info" id="employeeInfo">
+                    <img src="" alt="Фото сотрудника" class="employee-photo" id="employeePhoto">
+                    <div class="employee-name" id="employeeName"></div>
+                    <div class="employee-details">
+                        <div><strong>Цех:</strong> <span id="employeeDepartment"></span></div>
+                        <div><strong>Должность:</strong> <span id="employeePosition"></span></div>
+                        <div><strong>Табельный №:</strong> <span id="employeeId"></span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats-panel">
+                <div class="stat-card">
+                    <span class="stat-number" id="todayAccesses">0</span>
+                    <div class="stat-label">Проходов сегодня</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-number" id="uniqueEmployees">0</span>
+                    <div class="stat-label">Сотрудников на работе</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-number" id="totalEmployees">0</span>
+                    <div class="stat-label">Всего сотрудников</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>🤖 ERP Система | Последнее обновление: <span id="lastUpdate">--:--:--</span></p>
+        </div>
+    </div>
+
+    <script>
+        // Переменная для хранения последнего времени касания
+        let lastAccessTime = null;
+        
+        // Обновление времени
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('ru-RU');
+            document.getElementById('currentTime').textContent = timeString;
+        }
+        
+        // Обновление статистики
+        async function updateStats() {
+            try {
+                const response = await fetch('/api/dashboard-stats/');
+                const data = await response.json();
+                
+                document.getElementById('todayAccesses').textContent = data.today_accesses;
+                document.getElementById('uniqueEmployees').textContent = data.unique_employees_today;
+                document.getElementById('totalEmployees').textContent = data.total_active_employees;
+                document.getElementById('lastUpdate').textContent = data.last_update;
+                
+                // Зеленый индикатор - система работает
+                document.getElementById('statusIndicator').style.background = '#4CAF50';
+                
+            } catch (error) {
+                console.error('Ошибка получения статистики:', error);
+                // Красный индикатор - ошибка связи
+                document.getElementById('statusIndicator').style.background = '#F44336';
+            }
+        }
+        
+        // Показ информации о сотруднике
+        function showEmployee(employeeData) {
+            console.log('Показываем сотрудника:', employeeData);
+            
+            const waitingMsg = document.getElementById('waitingMessage');
+            const employeeInfo = document.getElementById('employeeInfo');
+            const employeeCard = document.getElementById('employeeCard');
+            
+            // Заполняем данные
+            document.getElementById('employeePhoto').src = employeeData.photo_url;
+            document.getElementById('employeeName').textContent = employeeData.full_name;
+            document.getElementById('employeeDepartment').textContent = employeeData.department;
+            document.getElementById('employeePosition').textContent = employeeData.position;
+            document.getElementById('employeeId').textContent = employeeData.employee_id;
+            
+            // Показываем информацию о сотруднике
+            waitingMsg.style.display = 'none';
+            employeeInfo.style.display = 'block';
+            employeeCard.classList.add('welcome-animation');
+            
+            // Возвращаемся к ожиданию через 5 секунд
+            setTimeout(() => {
+                employeeInfo.style.display = 'none';
+                waitingMsg.style.display = 'block';
+                employeeCard.classList.remove('welcome-animation');
+            }, 5000);
+        }
+        
+        // ИСПРАВЛЕННАЯ ФУНКЦИЯ - проверка новых касаний
+        async function checkForNewAccess() {
+            try {
+                const response = await fetch('/api/latest-access/');
+                const data = await response.json();
+                
+                console.log('Проверка новых касаний:', data);
+                
+                if (data.success && data.has_new_access) {
+                    // Проверяем, новое ли это касание
+                    const currentAccessTime = data.access_time;
+                    
+                    if (lastAccessTime !== currentAccessTime) {
+                        console.log('Найдено новое касание!');
+                        lastAccessTime = currentAccessTime;
+                        
+                        // Показываем информацию о сотруднике
+                        showEmployee(data.employee);
+                        
+                        // Обновляем статистику
+                        updateStats();
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Ошибка проверки новых касаний:', error);
+            }
+        }
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Инициализация системы...');
+            
+            updateTime();
+            updateStats();
+            
+            // Обновляем время каждую секунду
+            setInterval(updateTime, 1000);
+            
+            // Обновляем статистику каждые 10 секунд
+            setInterval(updateStats, 10000);
+            
+            // ГЛАВНОЕ: Проверяем новые касания каждую секунду!
+            setInterval(checkForNewAccess, 1000);
+            
+            console.log('Система инициализирована. Ожидание касаний карт...');
+        });
+        
+        // Тестовая функция для демонстрации (можно удалить в продакшене)
+        function testEmployee() {
+            const testData = {
+                full_name: "Тестовый Сотрудник",
+                department: "IT Отдел",
+                position: "Разработчик",
+                employee_id: "TEST001",
+                photo_url: "/static/images/no-photo.png"
+            };
+            showEmployee(testData);
+        }
+        
+        // Для тестирования - двойной клик показывает тестового сотрудника
+        document.addEventListener('dblclick', testEmployee);
+    </script>
+</body>
+</html>
