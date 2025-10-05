@@ -174,8 +174,7 @@ class CardAccessAdmin(admin.ModelAdmin):
     ]
     
     list_filter = [
-        'success', 'device_id', 'timestamp', 
-        'employee__department', 'employee__is_active'
+        'success', 'device_id', 'timestamp'
     ]
     
     search_fields = [
@@ -186,10 +185,20 @@ class CardAccessAdmin(admin.ModelAdmin):
     readonly_fields = ['timestamp']
     date_hierarchy = 'timestamp'
     
-    # Убираем slice из get_queryset для избежания ошибки
+    # Исправляем ошибку с distinct() в фильтрах
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.select_related('employee').order_by('-timestamp')
+    
+    def get_list_filter(self, request):
+        """Исправляем фильтры для избежания ошибки distinct"""
+        filters = super().get_list_filter(request)
+        # Убираем проблемные фильтры
+        safe_filters = []
+        for filter_item in filters:
+            if isinstance(filter_item, str) and 'employee__' not in filter_item:
+                safe_filters.append(filter_item)
+        return safe_filters
     
     # Пагинация для лучшей производительности
     list_per_page = 100
@@ -286,8 +295,7 @@ class WorkTimeEntryAdmin(admin.ModelAdmin):
     ]
     
     list_filter = [
-        'status', 'date', 'is_manual_entry', 'is_corrected',
-        'employee__department', 'employee__is_active'
+        'status', 'date', 'is_manual_entry', 'is_corrected'
     ]
     
     search_fields = [
@@ -330,16 +338,14 @@ class WorkTimeEntryAdmin(admin.ModelAdmin):
     get_employee_name.admin_order_field = 'employee__last_name'
     
     def get_hours_display(self, obj):
-        """Отображение отработанных часов"""
+        """Отображение отработанных часов в формате ЧЧ:ММ"""
         if obj.hours_worked:
-            hours = int(obj.hours_worked)
-            minutes = int((obj.hours_worked - hours) * 60)
             color = '#4caf50' if obj.is_full_day() else '#ff9800'
             return format_html(
-                '<span style="color: {}; font-weight: bold;">{}ч {}м</span>',
-                color, hours, minutes
+                '<span style="color: {}; font-weight: bold; font-family: monospace;">{}</span>',
+                color, obj.get_hours_display()
             )
-        return format_html('<span style="color: #999;">—</span>')
+        return format_html('<span style="color: #999;">00:00</span>')
     get_hours_display.short_description = 'Часы'
     get_hours_display.admin_order_field = 'hours_worked'
     
@@ -354,12 +360,11 @@ class WorkTimeEntryAdmin(admin.ModelAdmin):
     get_status_display.admin_order_field = 'status'
     
     def get_overtime_display(self, obj):
-        """Отображение сверхурочных"""
+        """Отображение сверхурочных в формате ЧЧ:ММ"""
         if obj.is_overtime():
-            overtime = obj.get_overtime_hours()
             return format_html(
-                '<span style="color: #2196f3; font-weight: bold;">+{:.1f}ч</span>',
-                overtime
+                '<span style="color: #2196f3; font-weight: bold; font-family: monospace;">+{}</span>',
+                obj.get_overtime_display()
             )
         return ''
     get_overtime_display.short_description = 'Сверхурочные'
@@ -400,7 +405,7 @@ class WorkTimeEntryAdmin(admin.ModelAdmin):
                 entry.employee.department,
                 entry.entry_time.strftime('%H:%M') if entry.entry_time else '',
                 entry.exit_time.strftime('%H:%M') if entry.exit_time else '',
-                f'{entry.hours_worked:.2f}' if entry.hours_worked else '',
+                entry.get_hours_display() if entry.hours_worked else '00:00',
                 entry.get_status_display(),
                 entry.notes or ''
             ])

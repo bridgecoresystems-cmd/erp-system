@@ -75,7 +75,7 @@
         <div style="font-weight: bold;">Всего записей</div>
     </div>
     <div class="card" style="text-align: center;">
-        <div style="font-size: 2em; color: #2196f3; margin-bottom: 5px;">{{ stats.total_hours|floatformat:1 }}</div>
+        <div style="font-size: 2em; color: #2196f3; margin-bottom: 5px;">{{ stats.total_hours|floatformat:0 }}ч</div>
         <div style="font-weight: bold;">Всего часов</div>
     </div>
     <div class="card" style="text-align: center;">
@@ -83,7 +83,7 @@
         <div style="font-weight: bold;">Опозданий</div>
     </div>
     <div class="card" style="text-align: center;">
-        <div style="font-size: 2em; color: #f44336; margin-bottom: 5px;">{{ stats.overtime_hours|floatformat:1 }}</div>
+        <div style="font-size: 2em; color: #f44336; margin-bottom: 5px;">{{ stats.overtime_hours|floatformat:0 }}ч</div>
         <div style="font-weight: bold;">Сверхурочных</div>
     </div>
 </div>
@@ -151,7 +151,7 @@
                                 {{ entry.get_hours_display }}
                             </span>
                             {% if entry.is_overtime %}
-                                <br><small style="color: #2196f3;">+{{ entry.get_overtime_hours|floatformat:1 }}ч</small>
+                                <br><small style="color: #2196f3;">+{{ entry.get_overtime_display }}</small>
                             {% endif %}
                         {% else %}
                             <span style="color: #999;">—</span>
@@ -282,12 +282,69 @@
 </div>
 
 <script>
-// Очистка фильтров
-function clearFilters() {
-    window.location.href = window.location.pathname;
+// ===== ПЕРЕМЕННЫЕ ДЛЯ АВТООБНОВЛЕНИЯ =====
+let lastEntryId = null;
+let checkInterval = null;
+
+// ===== АВТООБНОВЛЕНИЕ (КАК В SECURITY) =====
+async function checkForNewEntries() {
+    try {
+        const response = await fetch('/employees/api/worktime-latest/');
+        const data = await response.json();
+        
+        if (data.success && data.has_new_entry) {
+            const currentEntryId = data.entry.id;
+            
+            if (lastEntryId !== currentEntryId) {
+                lastEntryId = currentEntryId;
+                
+                // Показываем уведомление о новой записи
+                showNewEntryNotification(data.entry);
+                
+                // Перезагружаем страницу через 2 секунды
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            }
+        }
+        
+    } catch (error) {
+        console.error('Ошибка проверки новых записей:', error);
+    }
 }
 
-// Модальное окно для добавления записи
+// Показать уведомление о новой записи
+function showNewEntryNotification(entry) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #4caf50;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        max-width: 350px;
+    `;
+    
+    notification.innerHTML = `
+        <strong>📝 Новая запись!</strong><br>
+        ${entry.employee_name}<br>
+        <small>${entry.department} • ${entry.entry_time || 'Время не указано'}</small>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 3000);
+}
+
+// ===== МОДАЛЬНЫЕ ОКНА =====
 function showAddTimeModal() {
     document.getElementById('modalTitle').textContent = 'Добавить запись рабочего времени';
     document.getElementById('saveBtn').textContent = 'Сохранить';
@@ -302,7 +359,6 @@ function showAddTimeModal() {
     document.body.style.overflow = 'hidden';
 }
 
-// Закрытие модального окна
 function closeTimeModal() {
     document.getElementById('timeEntryModal').style.display = 'none';
     document.body.style.overflow = 'auto';
@@ -310,29 +366,31 @@ function closeTimeModal() {
     document.getElementById('timeEntryForm').removeAttribute('data-entry-id');
 }
 
-// Сохранение записи времени
 function saveTimeEntry() {
     const form = document.getElementById('timeEntryForm');
     const formData = new FormData(form);
     const entryId = form.getAttribute('data-entry-id');
     
-    // Проверяем обязательные поля
-    const employeeId = formData.get('employee_id');
-    const date = formData.get('date');
-    
-    if (!employeeId || !date) {
-        showNotification('Заполните обязательные поля: сотрудник и дата', 'error');
-        return;
-    }
-    
     // Собираем данные для отправки
     const data = {
-        employee_id: employeeId,
-        date: date,
         entry_time: formData.get('entry_time') || '',
         exit_time: formData.get('exit_time') || '',
         notes: formData.get('notes') || ''
     };
+    
+    // Для создания новой записи добавляем employee_id и date
+    if (!entryId) {
+        const employeeId = formData.get('employee_id');
+        const date = formData.get('date');
+        
+        if (!employeeId || !date) {
+            showNotification('Заполните обязательные поля: сотрудник и дата', 'error');
+            return;
+        }
+        
+        data.employee_id = employeeId;
+        data.date = date;
+    }
     
     // Блокируем кнопку во время сохранения
     const saveBtn = document.getElementById('saveBtn');
@@ -340,7 +398,7 @@ function saveTimeEntry() {
     saveBtn.textContent = 'Сохранение...';
     saveBtn.disabled = true;
     
-    // Определяем URL и метод
+    // Определяем URL
     const url = entryId ? `/employees/worktime/update/${entryId}/` : '/employees/worktime/create/';
     
     // AJAX запрос
@@ -372,7 +430,6 @@ function saveTimeEntry() {
     });
 }
 
-// Редактирование записи времени
 function editTimeEntry(entryId) {
     fetch(`/employees/worktime/detail/${entryId}/`)
         .then(response => response.json())
@@ -383,10 +440,21 @@ function editTimeEntry(entryId) {
                 document.getElementById('modalTitle').textContent = `Редактировать: ${entry.employee_name}`;
                 document.getElementById('saveBtn').textContent = 'Обновить';
                 
+                // Скрываем поле сотрудника при редактировании
+                const employeeGroup = document.querySelector('.form-group:has(#modalEmployeeSearch)');
+                if (employeeGroup) {
+                    employeeGroup.style.display = 'none';
+                }
+                
+                // Скрываем поле даты при редактировании  
+                const dateGroup = document.querySelector('.form-group:has(#modalDate)');
+                if (dateGroup) {
+                    dateGroup.style.display = 'none';
+                }
+                
+                // Устанавливаем значения (но скрытые поля остаются для отправки)
                 document.getElementById('modalEmployee').value = entry.employee_id;
-                document.getElementById('modalEmployee').disabled = true;
                 document.getElementById('modalDate').value = entry.date;
-                document.getElementById('modalDate').disabled = true;
                 document.getElementById('modalEntryTime').value = entry.entry_time;
                 document.getElementById('modalExitTime').value = entry.exit_time;
                 document.getElementById('modalNotes').value = entry.notes;
@@ -405,7 +473,95 @@ function editTimeEntry(entryId) {
         });
 }
 
-// Удаление записи времени
+function showAddTimeModal() {
+    // Сбрасываем форму
+    document.getElementById('timeEntryForm').reset();
+    document.getElementById('timeEntryForm').removeAttribute('data-entry-id');
+    
+    // Показываем все поля для создания новой записи
+    const employeeGroup = document.querySelector('.form-group:has(#modalEmployeeSearch)');
+    const dateGroup = document.querySelector('.form-group:has(#modalDate)');
+    
+    if (employeeGroup) employeeGroup.style.display = 'block';
+    if (dateGroup) dateGroup.style.display = 'block';
+    
+    // Очищаем поиск сотрудника
+    document.getElementById('modalEmployeeSearch').value = '';
+    document.getElementById('modalEmployee').value = '';
+    
+    document.getElementById('modalTitle').textContent = 'Добавить запись рабочего времени';
+    document.getElementById('saveBtn').textContent = 'Сохранить';
+    
+    // Устанавливаем сегодняшнюю дату по умолчанию
+    document.getElementById('modalDate').value = new Date().toISOString().split('T')[0];
+    
+    document.getElementById('timeEntryModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function saveTimeEntry() {
+    const form = document.getElementById('timeEntryForm');
+    const formData = new FormData(form);
+    const entryId = form.getAttribute('data-entry-id');
+    
+    // Собираем данные для отправки
+    const data = {
+        entry_time: document.getElementById('modalEntryTime').value || '',
+        exit_time: document.getElementById('modalExitTime').value || '',
+        notes: document.getElementById('modalNotes').value || ''
+    };
+    
+    // Для создания новой записи добавляем employee_id и date
+    if (!entryId) {
+        const employeeId = document.getElementById('modalEmployee').value;
+        const date = document.getElementById('modalDate').value;
+        
+        if (!employeeId || !date) {
+            showNotification('Заполните обязательные поля: сотрудник и дата', 'error');
+            return;
+        }
+        
+        data.employee_id = employeeId;
+        data.date = date;
+    }
+    
+    // Блокируем кнопку во время сохранения
+    const saveBtn = document.getElementById('saveBtn');
+    const originalText = saveBtn.textContent;
+    saveBtn.textContent = 'Сохранение...';
+    saveBtn.disabled = true;
+    
+    // Определяем URL
+    const url = entryId ? `/employees/worktime/update/${entryId}/` : '/employees/worktime/create/';
+    
+    // AJAX запрос
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, 'success');
+            closeTimeModal();
+            window.location.reload();
+        } else {
+            showNotification(data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Произошла ошибка при сохранении записи', 'error');
+    })
+    .finally(() => {
+        saveBtn.textContent = originalText;
+        saveBtn.disabled = false;
+    });
+}
 function deleteTimeEntry(entryId) {
     if (confirm('Вы уверены, что хотите удалить эту запись рабочего времени?')) {
         fetch(`/employees/worktime/delete/${entryId}/`, {
@@ -430,14 +586,153 @@ function deleteTimeEntry(entryId) {
     }
 }
 
-// Экспорт в CSV
+// ===== ПОИСК СОТРУДНИКОВ =====
+let searchTimeout;
+document.addEventListener('DOMContentLoaded', function() {
+    const modalEmployeeSearch = document.getElementById('modalEmployeeSearch');
+    if (modalEmployeeSearch) {
+        modalEmployeeSearch.addEventListener('input', function() {
+            const query = this.value.trim();
+            
+            clearTimeout(searchTimeout);
+            
+            if (query.length >= 2) {
+                searchTimeout = setTimeout(() => {
+                    searchEmployees(query);
+                }, 300);
+            } else {
+                hideSearchResults();
+            }
+        });
+    }
+});
+
+function searchEmployees(query) {
+    fetch(`/employees/api/employee-search/?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            showSearchResults(data.employees);
+        })
+        .catch(error => {
+            console.error('Ошибка поиска:', error);
+        });
+}
+
+function showSearchResults(employees) {
+    const resultsDiv = document.getElementById('employeeSearchResults');
+    const inputField = document.getElementById('modalEmployeeSearch');
+    
+    if (!resultsDiv || !inputField) return;
+    
+    if (employees.length === 0) {
+        resultsDiv.innerHTML = '<div class="search-item">Сотрудники не найдены</div>';
+    } else {
+        resultsDiv.innerHTML = employees.map(emp => 
+            `<div class="search-item" onclick="selectEmployee(${emp.id}, '${emp.full_name}', '${emp.department}')">
+                <strong>${emp.full_name}</strong><br>
+                <small>${emp.department} • ${emp.employee_id}</small>
+            </div>`
+        ).join('');
+    }
+    
+    const rect = inputField.getBoundingClientRect();
+    resultsDiv.style.top = (rect.bottom + 2) + 'px';
+    resultsDiv.style.left = rect.left + 'px';
+    resultsDiv.style.width = rect.width + 'px';
+    resultsDiv.style.display = 'block';
+}
+
+function selectEmployee(id, name, department) {
+    document.getElementById('modalEmployeeSearch').value = `${name} (${department})`;
+    document.getElementById('modalEmployee').value = id;
+    hideSearchResults();
+}
+
+function hideSearchResults() {
+    const resultsDiv = document.getElementById('employeeSearchResults');
+    if (resultsDiv) {
+        resultsDiv.style.display = 'none';
+    }
+}
+
+// ===== ПОИСК В ФИЛЬТРАХ =====
+let filterSearchTimeout;
+document.addEventListener('DOMContentLoaded', function() {
+    const filterEmployeeSearch = document.getElementById('filterEmployeeSearch');
+    if (filterEmployeeSearch) {
+        filterEmployeeSearch.addEventListener('input', function() {
+            const query = this.value.trim();
+            
+            clearTimeout(filterSearchTimeout);
+            
+            if (query.length >= 2) {
+                filterSearchTimeout = setTimeout(() => {
+                    searchEmployeesForFilter(query);
+                }, 300);
+            } else {
+                hideFilterResults();
+                document.getElementById('filterEmployee').value = '';
+            }
+        });
+    }
+});
+
+function searchEmployeesForFilter(query) {
+    fetch(`/employees/api/employee-search/?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            showFilterResults(data.employees);
+        })
+        .catch(error => {
+            console.error('Ошибка поиска в фильтре:', error);
+        });
+}
+
+function showFilterResults(employees) {
+    const resultsDiv = document.getElementById('filterEmployeeResults');
+    
+    if (!resultsDiv) return;
+    
+    if (employees.length === 0) {
+        resultsDiv.innerHTML = '<div class="search-item">Сотрудники не найдены</div>';
+    } else {
+        resultsDiv.innerHTML = employees.map(emp => 
+            `<div class="search-item" onclick="selectFilterEmployee(${emp.id}, '${emp.full_name}', '${emp.department}')">
+                <strong>${emp.full_name}</strong><br>
+                <small>${emp.department} • ${emp.employee_id}</small>
+            </div>`
+        ).join('');
+    }
+    
+    resultsDiv.style.display = 'block';
+}
+
+function selectFilterEmployee(id, name, department) {
+    document.getElementById('filterEmployeeSearch').value = `${name} (${department})`;
+    document.getElementById('filterEmployee').value = id;
+    hideFilterResults();
+}
+
+function hideFilterResults() {
+    const resultsDiv = document.getElementById('filterEmployeeResults');
+    if (resultsDiv) {
+        resultsDiv.style.display = 'none';
+    }
+}
+
+// ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
+function clearFilters() {
+    document.getElementById('filterEmployeeSearch').value = '';
+    document.getElementById('filterEmployee').value = '';
+    window.location.href = window.location.pathname;
+}
+
 function exportToCSV() {
     const params = new URLSearchParams(window.location.search);
     params.set('export', 'csv');
     window.location.href = `${window.location.pathname}?${params.toString()}`;
 }
 
-// Функция для получения CSRF токена
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -453,7 +748,6 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// Уведомления
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `alert alert-${type === 'success' ? 'success' : 'error'}`;
@@ -480,293 +774,28 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
-// Поиск сотрудников при вводе
-let searchTimeout;
-document.getElementById('modalEmployeeSearch').addEventListener('input', function() {
-    const query = this.value.trim();
+// ===== ИНИЦИАЛИЗАЦИЯ =====
+document.addEventListener('DOMContentLoaded', function() {
+    // Запускаем автообновление каждые 3 секунды (как в security)
+    checkInterval = setInterval(checkForNewEntries, 3000);
+    console.log('Worktime автообновление включено (3 сек)');
     
-    clearTimeout(searchTimeout);
-    
-    if (query.length >= 2) {
-        searchTimeout = setTimeout(() => {
-            searchEmployees(query);
-        }, 300); // Задержка 300мс
-    } else {
-        hideSearchResults();
-    }
+    // Обработчики для скрытия результатов поиска
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.form-group')) {
+            hideSearchResults();
+            hideFilterResults();
+        }
+    });
 });
 
-function searchEmployees(query) {
-    fetch(`/employees/api/employee-search/?q=${encodeURIComponent(query)}`)
-        .then(response => response.json())
-        .then(data => {
-            showSearchResults(data.employees);
-        })
-        .catch(error => {
-            console.error('Ошибка поиска:', error);
-        });
-}
-
-function showSearchResults(employees) {
-    const resultsDiv = document.getElementById('employeeSearchResults');
-    const inputField = document.getElementById('modalEmployeeSearch');
-    
-    if (employees.length === 0) {
-        resultsDiv.innerHTML = '<div class="search-item">Сотрудники не найдены</div>';
-    } else {
-        resultsDiv.innerHTML = employees.map(emp => 
-            `<div class="search-item" onclick="selectEmployee(${emp.id}, '${emp.full_name}', '${emp.department}')">
-                <strong>${emp.full_name}</strong><br>
-                <small>${emp.department} • ${emp.employee_id}</small>
-            </div>`
-        ).join('');
-    }
-    
-    // Позиционируем dropdown относительно поля ввода
-    const rect = inputField.getBoundingClientRect();
-    resultsDiv.style.top = (rect.bottom + 2) + 'px';
-    resultsDiv.style.left = rect.left + 'px';
-    resultsDiv.style.width = rect.width + 'px';
-    
-    resultsDiv.style.display = 'block';
-}
-
-function selectEmployee(id, name, department) {
-    document.getElementById('modalEmployeeSearch').value = `${name} (${department})`;
-    document.getElementById('modalEmployee').value = id;
-    hideSearchResults();
-}
-
-function hideSearchResults() {
-    document.getElementById('employeeSearchResults').style.display = 'none';
-}
-
-// Скрыть результаты при клике вне поля
-document.addEventListener('click', function(e) {
-    if (!e.target.closest('.form-group')) {
-        hideSearchResults();
+// Остановка при выходе
+window.addEventListener('beforeunload', function() {
+    if (checkInterval) {
+        clearInterval(checkInterval);
     }
 });
-
-// Поиск сотрудников в фильтрах
-let filterSearchTimeout;
-document.getElementById('filterEmployeeSearch').addEventListener('input', function() {
-    const query = this.value.trim();
-    
-    clearTimeout(filterSearchTimeout);
-    
-    if (query.length >= 2) {
-        filterSearchTimeout = setTimeout(() => {
-            searchEmployeesForFilter(query);
-        }, 300);
-    } else {
-        hideFilterResults();
-        // Очищаем скрытое поле если ввод пустой
-        document.getElementById('filterEmployee').value = '';
-    }
-});
-
-function searchEmployeesForFilter(query) {
-    fetch(`/employees/api/employee-search/?q=${encodeURIComponent(query)}`)
-        .then(response => response.json())
-        .then(data => {
-            showFilterResults(data.employees);
-        })
-        .catch(error => {
-            console.error('Ошибка поиска в фильтре:', error);
-        });
-}
-
-function showFilterResults(employees) {
-    const resultsDiv = document.getElementById('filterEmployeeResults');
-    
-    if (employees.length === 0) {
-        resultsDiv.innerHTML = '<div class="search-item">Сотрудники не найдены</div>';
-    } else {
-        resultsDiv.innerHTML = employees.map(emp => 
-            `<div class="search-item" onclick="selectFilterEmployee(${emp.id}, '${emp.full_name}', '${emp.department}')">
-                <strong>${emp.full_name}</strong><br>
-                <small>${emp.department} • ${emp.employee_id}</small>
-            </div>`
-        ).join('');
-    }
-    
-    resultsDiv.style.display = 'block';
-}
-
-function selectFilterEmployee(id, name, department) {
-    document.getElementById('filterEmployeeSearch').value = `${name} (${department})`;
-    document.getElementById('filterEmployee').value = id;
-    hideFilterResults();
-}
-
-function hideFilterResults() {
-    document.getElementById('filterEmployeeResults').style.display = 'none';
-}
-
-// Скрыть результаты при клике вне поля (обновленная версия)
-document.addEventListener('click', function(e) {
-    if (!e.target.closest('.form-group')) {
-        hideSearchResults();
-        hideFilterResults();
-    }
-});
-
-// Очистить поле сотрудника при очистке фильтров
-function clearFilters() {
-    document.getElementById('filterEmployeeSearch').value = '';
-    document.getElementById('filterEmployee').value = '';
-    window.location.href = window.location.pathname;
-}
-
 </script>
 
-<style>
-/* Стили для модального окна */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1000;
-    animation: fadeIn 0.3s ease;
-}
-
-.modal-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-
-.modal-content {
-    background: white;
-    border-radius: 12px;
-    max-width: 600px;
-    width: 100%;
-    max-height: 80vh;
-    overflow-y: auto; /* Вернул скролл */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    animation: slideIn 0.3s ease;
-    position: relative;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 25px;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.modal-header h3 {
-    margin: 0;
-    color: #333;
-}
-
-.modal-close {
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    color: #666;
-    padding: 5px;
-    border-radius: 3px;
-    transition: all 0.2s ease;
-}
-
-.modal-close:hover {
-    background: #f0f0f0;
-    color: #333;
-}
-
-.modal-body {
-    padding: 25px;
-}
-
-.modal-footer {
-    display: flex;
-    gap: 15px;
-    justify-content: flex-end;
-    padding: 20px 25px;
-    border-top: 1px solid #e0e0e0;
-    background: #f8f9fa;
-}
-
-@keyframes slideIn {
-    from {
-        transform: translateY(-50px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-/* Адаптивность таблицы */
-@media (max-width: 768px) {
-    .table {
-        font-size: 14px;
-    }
-    
-    .modal-content {
-        margin: 10px;
-        max-width: none;
-    }
-    
-    .modal-body {
-        padding: 15px;
-    }
-}
-
-/* Исправленные стили для поиска */
-.search-results {
-    position: absolute;
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 1002;
-    width: 100%;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    left: 0;
-    max-width: 100%;
-    box-sizing: border-box;
-}
-
-/* Для поиска в модальном окне - используем фиксированное позиционирование */
-.modal-content .search-results {
-    position: fixed;
-    z-index: 1050; /* Еще выше */
-    min-width: 250px;
-    max-width: 400px;
-}
-
-.modal-content .form-group {
-    position: relative;
-}
-
-.search-item {
-    padding: 10px;
-    cursor: pointer;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.search-item:hover {
-    background: #f8f9fa;
-}
-
-.search-item:last-child {
-    border-bottom: none;
-}
-</style>
+<!-- Стили перенесены в style.css -->
 {% endblock %}

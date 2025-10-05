@@ -6,12 +6,15 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-your-secret-key-here-change-in-production'
+SECRET_KEY = 'django-insecure-factory-erp-2024-secure-key-change-in-production-now'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']  # замените на ваш IP
+ALLOWED_HOSTS = ['*',
+    '192.168.1.101',
+    
+]  # замените на ваш IP
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -21,23 +24,25 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'django_filters',
+    'django_filters',  # Установлен
     'crispy_forms',
-    'django_tables2',
-    'django_extensions',
-    'admin_interface',
-    'mptt',
-    'simple_history',
+    'django_tables2',  # Установлен
+    'django_extensions',  # Установлен
+    'admin_interface',  # Установлен
+    'mptt',  # Установлен
+    'simple_history',  # Установлен
     'import_export',
     'corsheaders',
-    'colorfield',
+    'colorfield',  # Установлен
     'employees',
-    'tile_counter',
-    'warehouse',
+    'security',  # Теперь с openpyxl
+    'django_celery_beat',  # Установлен
+    'lohia_monitor',  # Мониторинг станка Lohia
+    
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+     'corsheaders.middleware.CorsMiddleware',  # Не установлен
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -47,7 +52,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-REST_FRAMEWORK = {
+REST_FRAMEWORK = {  # Не установлен
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
@@ -79,16 +84,12 @@ WSGI_APPLICATION = 'factory_erp.wsgi.application'
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',  # Для начала SQLite
-        'NAME': BASE_DIR / 'db.sqlite3',
-        
-        # Для PostgreSQL (рекомендуется для продакшена):
-        # 'ENGINE': 'django.db.backends.postgresql',
-        # 'NAME': 'factory_erp',
-        # 'USER': 'your_username',
-        # 'PASSWORD': 'your_password',
-        # 'HOST': 'localhost',
-        # 'PORT': '5432',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'factory_erp_db',
+        'USER': 'erp_user',
+        'PASSWORD': 'erp_password123',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -182,3 +183,11 @@ LOGOUT_REDIRECT_URL = '/login/'  # Куда перенаправлять пос�
 SESSION_COOKIE_AGE = 86400  # 24 часа в секундах
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Не закрывать сессию при закрытии браузера
 SESSION_SAVE_EVERY_REQUEST = True  # Обновлять время жизни при каждом запросе
+
+# Дополнительные настройки для предотвращения SessionInterrupted
+SESSION_COOKIE_SECURE = False  # Для разработки
+SESSION_COOKIE_HTTPONLY = True  # Защита от XSS
+SESSION_COOKIE_SAMESITE = 'Lax'  # Защита от CSRF
+SESSION_ENGINE = 'django.contrib.sessions.backends.file'  # Использовать файлы для сессий
+SESSION_FILE_PATH = '/tmp/django_sessions'  # Путь для файлов сессий
+

@@ -15,8 +15,8 @@ from django.urls import reverse_lazy
 import json
 import logging
 import csv
-from datetime import datetime, date, timedelta
-
+from datetime import datetime, date, timedelta, time
+from django.utils import timezone
 from .models import Employee, CardAccess, WorkTimeEntry
 from .forms import EmployeeForm
 
@@ -111,9 +111,9 @@ class WorkTimeListView(LoginRequiredMixin, ListView):
                 entry.employee.get_full_name(),
                 entry.employee.employee_id,
                 entry.employee.department,
-                entry.entry_time.strftime('%H:%M') if entry.entry_time else '',
-                entry.exit_time.strftime('%H:%M') if entry.exit_time else '',
-                f'{entry.hours_worked:.2f}' if entry.hours_worked else '',
+                timezone.localtime(entry.entry_time).strftime('%H:%M') if entry.entry_time else '',
+                timezone.localtime(entry.exit_time).strftime('%H:%M') if entry.exit_time else '',
+                entry.get_hours_display() if entry.hours_worked else '00:00',
                 entry.get_status_display(),
                 entry.notes or ''
             ])
@@ -163,9 +163,9 @@ def worktime_entry_detail(request, entry_id):
                 'employee_id': entry.employee.id,
                 'employee_name': entry.employee.get_full_name(),
                 'date': entry.date.strftime('%Y-%m-%d'),
-                'entry_time': entry.entry_time.strftime('%H:%M') if entry.entry_time else '',
-                'exit_time': entry.exit_time.strftime('%H:%M') if entry.exit_time else '',
-                'hours_worked': float(entry.hours_worked) if entry.hours_worked else 0,
+                'entry_time': timezone.localtime(entry.entry_time).strftime('%H:%M') if entry.entry_time else '',
+                'exit_time': timezone.localtime(entry.exit_time).strftime('%H:%M') if entry.exit_time else '',
+                'hours_worked': entry.get_hours_display() if entry.hours_worked else '00:00',
                 'status': entry.status,
                 'notes': entry.notes or '',
                 'is_manual_entry': entry.is_manual_entry,
@@ -179,63 +179,11 @@ def worktime_entry_detail(request, entry_id):
             'error': 'Запись не найдена'
         }, status=404)
 
-
-@login_required
-@require_http_methods(["POST"])
-def worktime_entry_update(request, entry_id):
-    """AJAX обновление записи рабочего времени"""
-    try:
-        entry = get_object_or_404(WorkTimeEntry, id=entry_id)
-        
-        # Получаем данные из POST запроса
-        import json
-        data = json.loads(request.body)
-        
-        # Обновляем поля
-        if 'entry_time' in data and data['entry_time']:
-            entry.entry_time = datetime.strptime(data['entry_time'], '%H:%M').time()
-        
-        if 'exit_time' in data and data['exit_time']:
-            entry.exit_time = datetime.strptime(data['exit_time'], '%H:%M').time()
-        
-        if 'notes' in data:
-            entry.notes = data['notes']
-        
-        # Отмечаем как скорректированное HR
-        entry.is_corrected = True
-        entry.created_by = request.user
-        
-        entry.save()  # Часы пересчитаются автоматически
-        
-        return JsonResponse({
-            'success': True,
-            'message': f'Запись для {entry.employee.get_full_name()} обновлена',
-            'entry': {
-                'hours_worked': float(entry.hours_worked) if entry.hours_worked else 0,
-                'status': entry.get_status_display(),
-                'status_color': entry.get_status_display_color()
-            }
-        })
-        
-    except WorkTimeEntry.DoesNotExist:
-        return JsonResponse({
-            'success': False,
-            'error': 'Запись не найдена'
-        }, status=404)
-        
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': f'Ошибка при обновлении: {str(e)}'
-        }, status=500)
-
-
 @login_required
 @require_http_methods(["POST"])
 def worktime_entry_create(request):
     """AJAX создание новой записи рабочего времени"""
     try:
-        import json
         data = json.loads(request.body)
         
         employee = get_object_or_404(Employee, id=data['employee_id'])
@@ -276,7 +224,48 @@ def worktime_entry_create(request):
             'success': False,
             'error': f'Ошибка при создании записи: {str(e)}'
         }, status=500)
-
+    
+@login_required
+@require_http_methods(["POST"])
+def worktime_entry_update(request, entry_id):
+    """AJAX обновление записи рабочего времени"""
+    try:
+        entry = get_object_or_404(WorkTimeEntry, id=entry_id)
+        
+        # Получаем данные из POST запроса
+        data = json.loads(request.body)
+        
+        # Обновляем только время, НЕ трогаем employee и date
+        if 'entry_time' in data and data['entry_time']:
+            entry.entry_time = datetime.strptime(data['entry_time'], '%H:%M').time()
+        elif 'entry_time' in data and not data['entry_time']:
+            entry.entry_time = None
+        
+        if 'exit_time' in data and data['exit_time']:
+            entry.exit_time = datetime.strptime(data['exit_time'], '%H:%M').time()
+        elif 'exit_time' in data and not data['exit_time']:
+            entry.exit_time = None
+        
+        if 'notes' in data:
+            entry.notes = data['notes']
+        
+        # Отмечаем как скорректированное HR
+        entry.is_corrected = True
+        entry.created_by = request.user
+        
+        entry.save()  # Часы пересчитаются автоматически
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Запись для {entry.employee.get_full_name()} обновлена'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': f'Ошибка при обновлении: {str(e)}'
+        }, status=500)
+    
 
 def worktime_stats_api(request):
     """API для получения статистики рабочего времени"""
@@ -335,13 +324,17 @@ class HomeView(TemplateView):
     template_name = 'employees/home.html'
     
     def get(self, request, *args, **kwargs):
-        # Перенаправление для HR пользователей
+        # Перенаправление для пользователей с группами
         if request.user.is_authenticated:
-            if request.user.groups.filter(name='HR_Admins').exists():
+            user_groups = [g.name for g in request.user.groups.all()]
+            
+            if 'HR_Admins' in user_groups:
                 return redirect('employees:employee_list')
-            elif request.user.groups.filter(name='HR_Users').exists():
+            elif 'HR_Users' in user_groups:
                 return redirect('employees:worktime_list')
-            elif request.user.groups.filter(name='Security_Users').exists():
+            elif 'Security' in user_groups:
+                return redirect('security:dashboard')
+            elif 'Security_Users' in user_groups:
                 return redirect('employees:security_display')
         
         return super().get(request, *args, **kwargs)
@@ -449,16 +442,33 @@ class EmployeeListView(LoginRequiredMixin, ListView):
         queryset = Employee.objects.filter(is_active=True)
         
         # Поиск по имени/фамилии/должности/цеху
-        search_query = self.request.GET.get('search', '')
+        search_query = self.request.GET.get('search', '').strip()
         if search_query:
-            queryset = queryset.filter(
-                Q(first_name__icontains=search_query) |
-                Q(last_name__icontains=search_query) |
-                Q(middle_name__icontains=search_query) |
-                Q(position__icontains=search_query) |
-                Q(department__icontains=search_query) |
-                Q(employee_id__icontains=search_query)
-            )
+            # Разбиваем поисковый запрос на слова
+            search_words = search_query.split()
+            
+            if len(search_words) == 1:
+                # Один поисковый термин - ищем по всем полям
+                queryset = queryset.filter(
+                    Q(first_name__icontains=search_query) |
+                    Q(last_name__icontains=search_query) |
+                    Q(middle_name__icontains=search_query) |
+                    Q(position__icontains=search_query) |
+                    Q(department__icontains=search_query) |
+                    Q(employee_id__icontains=search_query)
+                )
+            else:
+                # Несколько слов - умный поиск по ФИО
+                # Применяем фильтр для каждого слова (все слова должны присутствовать)
+                for word in search_words:
+                    queryset = queryset.filter(
+                        Q(first_name__icontains=word) |
+                        Q(last_name__icontains=word) |
+                        Q(middle_name__icontains=word) |
+                        Q(position__icontains=word) |
+                        Q(department__icontains=word) |
+                        Q(employee_id__icontains=word)
+                    )
         
         return queryset
     
@@ -474,7 +484,7 @@ class EmployeeListView(LoginRequiredMixin, ListView):
 @require_http_methods(["POST"])
 def rfid_scan(request):
     """
-    API endpoint для ESP32
+    API endpoint для ESP32 - универсальный для всех модулей
     POST /api/rfid-scan/
     {
         "rfid_uid": "04A1B2C3",
@@ -513,6 +523,49 @@ def rfid_scan(request):
                 device_id=device_id,
                 success=True
             )
+            
+            
+            # Проверяем, это устройство lohia_monitor?
+            if device_id.startswith('LOHIA-'):
+                # Логика для lohia_monitor
+                return handle_lohia_rfid(employee, device_id, rfid_uid)
+            
+            # Обычная логика для employees (контроль доступа)
+            # Создаем или обновляем запись рабочего времени
+            today = date.today()
+            work_entry, created = WorkTimeEntry.objects.get_or_create(
+                employee=employee,
+                date=today,
+                defaults={
+                    'entry_time': timezone.now().time(),
+                    'is_manual_entry': False,
+                    'status': 'present'
+                }
+            )
+
+            # Логика входа/выхода
+            if created:
+                # Новая запись - это вход
+                action = 'entry'
+                work_entry.entry_time = timezone.now().time()
+            elif work_entry.exit_time is None:
+                # Запись существует, но нет времени выхода - это выход
+                action = 'exit'
+                work_entry.exit_time = timezone.now().time()
+            else:
+                # Уже есть и вход и выход - создаем новую запись для повторного входа
+                work_entry = WorkTimeEntry.objects.create(
+                    employee=employee,
+                    date=today,
+                    entry_time=timezone.now().time(),
+                    is_manual_entry=False,
+                    status='present'
+                )
+                action = 'entry'
+
+            work_entry.save()  # Статус обновится автоматически
+            
+            logger.info(f"WorkTime {action} recorded for {employee.get_full_name()}")
             
             logger.info(f"Access logged with ID: {access_log.id}")
             
@@ -570,6 +623,116 @@ def rfid_scan(request):
         }, status=500)
 
 
+def handle_lohia_rfid(employee, device_id, rfid_uid):
+    """Обработка RFID для lohia_monitor"""
+    try:
+        from lohia_monitor.models import Machine, Shift, MaintenanceCall
+        
+        # Находим станок по device_id
+        try:
+            machine = Machine.objects.get(esp32_id=device_id, is_active=True)
+        except Machine.DoesNotExist:
+            return JsonResponse({'error': 'Station not found'}, status=404)
+        
+        # Логика в зависимости от роли сотрудника
+        if employee.department in ['Сотрудник_bag', 'Операторы']:
+            # Оператор - начало/окончание смены
+            # Проверяем активную смену этого оператора
+            active_shift = Shift.objects.filter(
+                machine=machine, 
+                operator=employee, 
+                status='active'
+            ).first()
+            
+            if active_shift:
+                # У оператора есть активная смена - завершаем её
+                active_shift.total_pulses = machine.current_pulse_count
+                active_shift.total_meters = machine.current_meters
+                active_shift.complete_shift()
+                
+                machine.end_shift()
+                action = 'shift_ended'
+                message = f'Смена завершена, {employee.get_full_name()}'
+            else:
+                # У оператора нет активной смены - начинаем новую
+                # Сначала завершаем любую другую активную смену на этом станке
+                other_active_shift = Shift.objects.filter(
+                    machine=machine, 
+                    status='active'
+                ).exclude(operator=employee).first()
+                
+                if other_active_shift:
+                    # Завершаем смену другого оператора
+                    other_active_shift.total_pulses = machine.current_pulse_count
+                    other_active_shift.total_meters = machine.current_meters
+                    other_active_shift.complete_shift()
+                    logger.info(f"Completed other operator's shift: {other_active_shift.operator.get_full_name()}")
+                
+                # Начинаем новую смену
+                machine.start_shift(employee)
+                shift = Shift.objects.create(
+                    operator=employee,
+                    machine=machine,
+                    start_time=timezone.now()
+                )
+                action = 'shift_started'
+                message = f'Смена начата, {employee.get_full_name()}'
+                
+        elif employee.department == 'Механики':
+            # Мастер - принимаем/решаем активные вызовы
+            active_call = MaintenanceCall.objects.filter(
+                machine=machine, 
+                status='pending'
+            ).first()
+            
+            if active_call:
+                # Начинаем ремонт
+                active_call.start_maintenance(employee)
+                action = 'maintenance_started'
+                message = f'Ремонт начат мастером {employee.get_full_name()}'
+            else:
+                # Проверяем, есть ли активный ремонт
+                in_progress_call = MaintenanceCall.objects.filter(
+                    machine=machine, 
+                    status='in_progress',
+                    master=employee
+                ).first()
+                
+                if in_progress_call:
+                    # Завершаем ремонт
+                    in_progress_call.complete_maintenance('Ремонт завершен')
+                    action = 'maintenance_completed'
+                    message = f'Ремонт завершен мастером {employee.get_full_name()}'
+                else:
+                    action = 'no_maintenance'
+                    message = f'Нет активных вызовов для {employee.get_full_name()}'
+        else:
+            # Начальник цеха или другие - информационное сообщение
+            action = 'info_only'
+            message = f'Информация: {employee.get_full_name()} - {employee.department}'
+        
+        return JsonResponse({
+            'success': True,
+            'action': action,
+            'message': message,
+            'employee': {
+                'name': employee.get_full_name(),
+                'department': employee.department,
+            },
+            'machine': {
+                'name': machine.name,
+                'status': machine.status,
+                'current_operator': machine.current_operator.get_full_name() if machine.current_operator else None,
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in lohia RFID handling: {str(e)}")
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+
+
 class SecurityDisplayView(TemplateView):
     """Экран для охраны - показывает информацию о сотруднике"""
     template_name = 'employees/security_display.html'
@@ -584,6 +747,48 @@ class SecurityDisplayView(TemplateView):
         context['total_employees'] = Employee.objects.filter(is_active=True).count()
         
         return context
+
+@csrf_exempt
+def worktime_latest_api(request):
+    """API для получения последней записи worktime"""
+    try:
+        # Получаем последнюю запись
+        latest_entry = WorkTimeEntry.objects.select_related('employee').order_by('-id').first()
+        
+        if latest_entry:
+            # Проверяем, была ли запись создана в последние 10 секунд
+            # Используем created_at если есть, иначе сравниваем с текущим временем
+            time_diff = timezone.now() - timezone.make_aware(datetime.combine(latest_entry.date, latest_entry.entry_time or timezone.now().time()))
+            is_new = time_diff.total_seconds() <= 10
+            
+            entry_data = {
+                'id': latest_entry.id,
+                'employee_name': latest_entry.employee.get_full_name(),
+                'employee_id': latest_entry.employee.employee_id,
+                'department': latest_entry.employee.department,
+                'entry_time': timezone.localtime(latest_entry.entry_time).strftime('%H:%M') if latest_entry.entry_time else '',
+                'exit_time': timezone.localtime(latest_entry.exit_time).strftime('%H:%M') if latest_entry.exit_time else '',
+                'date': latest_entry.date.strftime('%d.%m.%Y'),
+                'photo_url': latest_entry.employee.get_photo_url(),
+            }
+            
+            return JsonResponse({
+                'success': True,
+                'has_new_entry': is_new,
+                'entry_time': latest_entry.date.isoformat(),
+                'entry': entry_data
+            })
+        else:
+            return JsonResponse({
+                'success': True,
+                'has_new_entry': False
+            })
+            
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
 
 @login_required
 def employee_detail_api(request, employee_id):
@@ -616,7 +821,7 @@ def employee_detail_api(request, employee_id):
             },
             'recent_accesses': [
                 {
-                    'timestamp': access.timestamp.strftime('%d.%m.%Y %H:%M:%S'),
+                    'timestamp': timezone.localtime(access.timestamp).strftime('%d.%m.%Y %H:%M:%S'),
                     'device_id': access.device_id
                 }
                 for access in recent_accesses
@@ -633,7 +838,7 @@ def employee_detail_api(request, employee_id):
 @login_required
 def dashboard_stats(request):
     """API для статистики на главной странице"""
-    today = datetime.now().date()
+    today = date.today()
     
     # Статистика за сегодня
     today_accesses = CardAccess.objects.filter(
@@ -650,7 +855,7 @@ def dashboard_stats(request):
         'today_accesses': today_accesses,
         'unique_employees_today': unique_employees_today,
         'total_active_employees': Employee.objects.filter(is_active=True).count(),
-        'last_update': datetime.now().strftime('%H:%M:%S')
+        'last_update': timezone.localtime(timezone.now()).strftime('%H:%M:%S')
     })
 
 @login_required
@@ -737,8 +942,7 @@ class EmployeeDetailView(LoginRequiredMixin, DetailView):
         ).order_by('-timestamp')[:20]
         
         # Записи рабочего времени за последние 30 дней
-        from datetime import datetime, timedelta
-        thirty_days_ago = datetime.now().date() - timedelta(days=30)
+        thirty_days_ago = date.today() - timedelta(days=30)
         
         context['recent_worktime'] = WorkTimeEntry.objects.filter(
             employee=employee,

@@ -52,6 +52,16 @@
                     <h3 style="margin: 0 0 20px 0; color: #333; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">
                         👤 Основная информация
                     </h3>
+                    <div class="form-group">
+                        <label class="form-label">{{ form.user.label_tag }}</label>
+                        {{ form.user }}
+                        {% if form.user.errors %}
+                            <div class="field-error">{{ form.user.errors.0 }}</div>
+                        {% endif %}
+                        <small style="color: #666; font-size: 12px;">
+                            Выберите пользователя для доступа в систему или оставьте пустым
+                        </small>
+                    </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                         <div class="form-group">

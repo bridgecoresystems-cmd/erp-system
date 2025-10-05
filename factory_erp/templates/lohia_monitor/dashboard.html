@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tz %}
+
+{% block title %}Дашборд станка Lohia{% endblock %}
+
+{% block content %}
+<div class="lohia-container">
+    <div class="lohia-card">
+        <div class="lohia-card-header">
+            🏭 Мониторинг станка Lohia
+        </div>
+    </div>
+
+    <!-- Статус станка -->
+    <div class="lohia-grid lohia-grid-3">
+        <div class="lohia-card">
+            <div class="lohia-card-header">
+                📊 Статус станка
+            </div>
+            <div class="lohia-card-body">
+                    {% if machine %}
+                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <div class="lohia-status-indicator 
+                                {% if machine.status == 'working' %}lohia-status-working
+                                {% elif machine.status == 'maintenance' %}lohia-status-maintenance
+                                {% elif machine.status == 'stopped' %}lohia-status-stopped
+                                {% else %}lohia-status-idle{% endif %}">
+                            </div>
+                            <div>
+                                <h4 style="margin: 0; font-size: 18px;">{{ machine.name }}</h4>
+                                <p style="margin: 0; color: #666; font-size: 14px;">
+                                    {% if machine.status == 'working' %}🟢 Работает
+                                    {% elif machine.status == 'maintenance' %}🟡 В ремонте
+                                    {% elif machine.status == 'stopped' %}🔴 Остановлен
+                                    {% else %}⚪ Простой{% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        {% if machine.current_operator %}
+                            <p><strong>Оператор:</strong> <span class="current-operator">{{ machine.current_operator.get_full_name }}</span></p>
+                        {% else %}
+                            <p class="text-muted current-operator">Нет оператора</p>
+                        {% endif %}
+                        
+                        <p><strong>Импульсы:</strong> <span class="current-pulses">{{ machine.current_pulse_count }}</span></p>
+                        <p><strong>Метраж:</strong> <span class="current-meters">{{ machine.current_meters|floatformat:6 }} м</span></p>
+                        <p><strong>Коэффициент:</strong> {{ machine.meters_per_pulse|floatformat:6 }} м/импульс</p>
+                    {% else %}
+                        <p class="text-muted">Станок не настроен</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Активная смена -->
+        <div class="lohia-card">
+            <div class="lohia-card-header">
+                ⏰ Активная смена
+            </div>
+            <div class="lohia-card-body">
+                    {% if active_shift %}
+                        <p><strong>Оператор:</strong> {{ active_shift.operator.get_full_name }}</p>
+                        <p><strong>Начало:</strong> {{ active_shift.start_time|localtime|date:"H:i" }}</p>
+                        <p><strong>Длительность:</strong> <span class="shift-duration">{{ active_shift.duration_hours|floatformat:1 }} ч</span></p>
+                        <p><strong>Импульсы:</strong> <span class="shift-pulses">{{ active_shift.total_pulses }}</span></p>
+                        <p><strong>Метраж:</strong> <span class="shift-meters">{{ active_shift.total_meters|floatformat:6 }} м</span></p>
+                    {% else %}
+                        <p class="text-muted">Нет активной смены</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Активный вызов мастера -->
+        <div class="lohia-card">
+            <div class="lohia-card-header">
+                🔧 Вызов мастера
+            </div>
+            <div class="lohia-card-body call-status">
+                    {% if active_call %}
+                        <div class="alert alert-warning">
+                            <p><strong>Статус:</strong> 
+                                {% if active_call.status == 'pending' %}⏳ Ожидает мастера
+                                {% elif active_call.status == 'in_progress' %}🔧 В работе
+                                {% else %}✅ Завершен{% endif %}
+                            </p>
+                            <p><strong>Оператор:</strong> {{ active_call.operator.get_full_name }}</p>
+                            <p><strong>Время вызова:</strong> {{ active_call.call_time|localtime|date:"H:i" }}</p>
+                            
+                            {% if active_call.master %}
+                                <p><strong>Мастер:</strong> {{ active_call.master.get_full_name }}</p>
+                            {% endif %}
+                            
+                            {% if active_call.response_time %}
+                                <p><strong>Время реакции:</strong> {{ active_call.response_time }}</p>
+                            {% endif %}
+                            
+                            {% if active_call.repair_time %}
+                                <p><strong>Время ремонта:</strong> {{ active_call.repair_time }}</p>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <p class="text-success">✅ Нет активных вызовов</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- График импульсов -->
+    <div class="lohia-card">
+        <div class="lohia-card-header">
+            📈 График импульсов (последние 20 записей)
+        </div>
+        <div class="lohia-card-body">
+            {% if recent_pulses %}
+                <div class="lohia-table-wrapper">
+                    <table class="lohia-table">
+                                <thead>
+                                    <tr>
+                                        <th>Время</th>
+                                        <th>Импульсы</th>
+                                        <th>Всего импульсов</th>
+                                        <th>Метраж</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for pulse in recent_pulses %}
+                                    <tr>
+                                        <td>{{ pulse.timestamp|localtime|date:"H:i:s" }}</td>
+                                        <td>{{ pulse.pulse_count }}</td>
+                                        <td>{{ pulse.total_pulses }}</td>
+                                        <td>{{ pulse.meters_produced|floatformat:6 }} м</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Нет данных об импульсах</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Навигация -->
+    <div class="lohia-card">
+        <div class="lohia-card-body">
+            <h5 style="margin-bottom: 15px; text-align: center;">📋 Навигация</h5>
+            <div class="lohia-nav-buttons">
+                <a href="{% url 'lohia_monitor:shifts_history' %}" class="lohia-nav-btn lohia-nav-btn-outline">
+                    📊 История смен
+                </a>
+                <a href="{% url 'lohia_monitor:maintenance_history' %}" class="lohia-nav-btn lohia-nav-btn-outline">
+                    🔧 История вызовов
+                </a>
+                <a href="{% url 'lohia_monitor:machine_stats' %}" class="lohia-nav-btn lohia-nav-btn-outline">
+                    📈 Статистика
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+// Автообновление через AJAX каждые 5 секунд
+let updateInterval;
+
+async function updateDashboard() {
+    try {
+        const response = await fetch('/lohia/api/dashboard-status/');
+        const data = await response.json();
+        
+        if (data.success) {
+            // Обновляем статус станка
+            updateMachineStatus(data.machine);
+            
+            // Обновляем активную смену
+            updateActiveShift(data.active_shift);
+            
+            // Обновляем вызов мастера
+            updateMaintenanceCall(data.active_call);
+        }
+    } catch (error) {
+        console.error('Ошибка обновления дашборда:', error);
+    }
+}
+
+function updateMachineStatus(machine) {
+    if (!machine) return;
+    
+    // Обновляем статус, оператора, импульсы, метраж
+    const operatorEl = document.querySelector('.current-operator');
+    const pulsesEl = document.querySelector('.current-pulses');
+    const metersEl = document.querySelector('.current-meters');
+    
+    if (operatorEl) {
+        operatorEl.textContent = machine.current_operator || 'Нет оператора';
+    }
+    
+    if (pulsesEl) {
+        pulsesEl.textContent = machine.current_pulse_count;
+    }
+    
+    if (metersEl) {
+        metersEl.textContent = machine.current_meters.toFixed(6) + ' м';
+    }
+}
+
+function updateActiveShift(shift) {
+    // Обновляем данные активной смены
+    if (shift) {
+        const durationEl = document.querySelector('.shift-duration');
+        const shiftPulsesEl = document.querySelector('.shift-pulses');
+        const shiftMetersEl = document.querySelector('.shift-meters');
+        
+        if (durationEl) durationEl.textContent = shift.duration_hours.toFixed(1) + ' ч';
+        if (shiftPulsesEl) shiftPulsesEl.textContent = shift.total_pulses;
+        if (shiftMetersEl) shiftMetersEl.textContent = shift.total_meters.toFixed(6) + ' м';
+    }
+}
+
+function updateMaintenanceCall(call) {
+    // Обновляем статус вызова мастера
+    const callStatusEl = document.querySelector('.call-status');
+    
+    if (call) {
+        if (callStatusEl) {
+            callStatusEl.innerHTML = `
+                <div class="alert alert-warning">
+                    <p><strong>Статус:</strong> ${call.status_display}</p>
+                    <p><strong>Время вызова:</strong> ${call.call_time}</p>
+                    ${call.master ? `<p><strong>Мастер:</strong> ${call.master}</p>` : ''}
+                </div>
+            `;
+        }
+    } else {
+        if (callStatusEl) {
+            callStatusEl.innerHTML = '<p class="text-success">✅ Нет активных вызовов</p>';
+        }
+    }
+}
+
+// Запускаем автообновление при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    updateInterval = setInterval(updateDashboard, 5000); // Каждые 5 секунд
+    console.log('🔄 Автообновление дашборда включено (5 сек)');
+});
+
+// Останавливаем при выходе со страницы
+window.addEventListener('beforeunload', function() {
+    if (updateInterval) {
+        clearInterval(updateInterval);
+    }
+});
+</script>
+{% endblock %}

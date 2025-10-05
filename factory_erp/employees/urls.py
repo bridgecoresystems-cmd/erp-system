@@ -31,4 +31,5 @@ urlpatterns = [
     path('api/employee/<int:employee_id>/', views.employee_detail_api, name='employee_detail_api'),
     path('api/dashboard-stats/', views.dashboard_stats, name='dashboard_stats'),
     path('api/latest-access/', views.latest_access_api, name='latest_access_api'),
+    path('api/worktime-latest/', views.worktime_latest_api, name='worktime_latest_api'),
 ]

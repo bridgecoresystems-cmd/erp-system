@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load tz %}
+
+{% block title %}Статистика станка - Станок Lohia{% endblock %}
+
+{% block content %}
+<div class="lohia-container">
+    <div class="lohia-card">
+        <div class="lohia-card-header">
+            📈 Статистика станка
+        </div>
+    </div>
+
+    {% if machine %}
+    <!-- Общая статистика -->
+    <div class="lohia-grid lohia-grid-4">
+        <div class="lohia-stat-card">
+            <div class="lohia-stat-number">{{ total_shifts }}</div>
+            <div class="lohia-stat-label">📊 Всего смен</div>
+        </div>
+        <div class="lohia-stat-card">
+            <div class="lohia-stat-number">{{ total_meters|floatformat:0 }} м</div>
+            <div class="lohia-stat-label">📏 Общий метраж</div>
+        </div>
+        <div class="lohia-stat-card">
+            <div class="lohia-stat-number">{{ total_calls }}</div>
+            <div class="lohia-stat-label">🔧 Вызовов мастера</div>
+        </div>
+        <div class="lohia-stat-card">
+            <div class="lohia-stat-number">
+                {% if avg_response_time %}
+                    {{ avg_response_time|floatformat:1 }} мин
+                {% else %}
+                    —
+                {% endif %}
+            </div>
+            <div class="lohia-stat-label">⏱️ Среднее время реакции</div>
+        </div>
+    </div>
+
+    <!-- Информация о станке -->
+    <div class="lohia-card">
+        <div class="lohia-card-header">
+            🏭 Информация о станке
+        </div>
+        <div class="lohia-card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div>
+                            <p><strong>Название:</strong> {{ machine.name }}</p>
+                            <p><strong>ID ESP32:</strong> {{ machine.esp32_id }}</p>
+                            <p><strong>Метров за импульс:</strong> {{ machine.meters_per_pulse|floatformat:6 }}</p>
+                            <p><strong>Статус:</strong> 
+                                {% if machine.status == 'working' %}🟢 Работает
+                                {% elif machine.status == 'maintenance' %}🟡 В ремонте
+                                {% elif machine.status == 'stopped' %}🔴 Остановлен
+                                {% else %}⚪ Простой{% endif %}
+                            </p>
+                        </div>
+                        <div>
+                            <h6 style="margin-bottom: 10px; color: #667eea;">🔧 Параметры станка:</h6>
+                            <p><strong>Transmit Pulse:</strong> {{ machine.transmit_pulse }}</p>
+                            <p><strong>Gear box ratio:</strong> {{ machine.gear_box_ratio }}</p>
+                            <p><strong>Sprocket gear box:</strong> {{ machine.sprocket_gear_box }}</p>
+                            <p><strong>Sprocket takeup roller:</strong> {{ machine.sprocket_takeup_roller }}</p>
+                            <p><strong>Roller diameter:</strong> {{ machine.roller_diameter_cm }} см</p>
+                            <p><strong>P-Ctrl. Ampl.:</strong> {{ machine.p_ctrl_ampl }}</p>
+                </div>
+                <div>
+                            <p><strong>Текущий оператор:</strong> 
+                                {% if machine.current_operator %}
+                                    {{ machine.current_operator.get_full_name }}
+                                {% else %}
+                                    <span class="text-muted">Нет оператора</span>
+                                {% endif %}
+                            </p>
+                            <p><strong>Текущие импульсы:</strong> {{ machine.current_pulse_count }}</p>
+                            <p><strong>Текущий метраж:</strong> {{ machine.current_meters|floatformat:2 }} м</p>
+                            <p><strong>Активен:</strong> 
+                                {% if machine.is_active %}
+                                    <span class="text-success">✅ Да</span>
+                                {% else %}
+                                    <span class="text-danger">❌ Нет</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Производительность -->
+    <div class="lohia-card">
+        <div class="lohia-card-header">
+            📊 Производительность
+        </div>
+        <div class="lohia-card-body">
+            <div class="lohia-grid lohia-grid-3">
+                <div class="lohia-stat-card">
+                    <div class="lohia-stat-number">
+                        {% if total_shifts > 0 %}
+                            {{ avg_meters_per_shift|floatformat:0 }} м/смена
+                        {% else %}
+                            —
+                        {% endif %}
+                    </div>
+                    <div class="lohia-stat-label">Средняя производительность за смену</div>
+                </div>
+                <div class="lohia-stat-card">
+                    <div class="lohia-stat-number">{{ machine.meters_per_pulse|floatformat:6 }} м/импульс</div>
+                    <div class="lohia-stat-label">Коэффициент пересчета</div>
+                </div>
+                <div class="lohia-stat-card">
+                    <div class="lohia-stat-number">
+                        {% if total_shifts > 0 %}
+                            {{ calls_per_shift|floatformat:2 }} вызовов/смену
+                        {% else %}
+                            —
+                        {% endif %}
+                    </div>
+                    <div class="lohia-stat-label">Эффективность</div>
+                </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="lohia-card">
+        <div class="lohia-card-body">
+            <div style="text-align: center; padding: 40px;">
+                <h4 style="color: #856404; margin-bottom: 15px;">⚠️ Станок не настроен</h4>
+                <p style="color: #666;">Для отображения статистики необходимо настроить станок в системе.</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Навигация -->
+    <div class="lohia-card">
+        <div class="lohia-card-body">
+            <h5 style="margin-bottom: 15px; text-align: center;">📋 Навигация</h5>
+            <div class="lohia-nav-buttons">
+                <a href="{% url 'lohia_monitor:dashboard' %}" class="lohia-nav-btn lohia-nav-btn-outline">
+                    🏠 Дашборд
+                </a>
+                <a href="{% url 'lohia_monitor:shifts_history' %}" class="lohia-nav-btn lohia-nav-btn-outline">
+                    📊 История смен
+                </a>
+                <a href="{% url 'lohia_monitor:maintenance_history' %}" class="lohia-nav-btn lohia-nav-btn-outline">
+                    🔧 История вызовов
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

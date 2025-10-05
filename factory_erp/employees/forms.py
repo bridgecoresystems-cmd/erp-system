@@ -1,4 +1,5 @@
 # employees/forms.py
+from django.contrib.auth.models import User
 from django import forms
 from django.core.exceptions import ValidationError
 from .models import Employee
@@ -10,6 +11,7 @@ class EmployeeForm(forms.ModelForm):
     class Meta:
         model = Employee
         fields = [
+            'user',
             # Основные данные
             'first_name', 'last_name', 'middle_name',
             # Персональные данные
@@ -26,6 +28,9 @@ class EmployeeForm(forms.ModelForm):
         ]
         
         widgets = {
+            'user': forms.Select(attrs={
+                'class': 'form-control'
+            }),
             # ОСНОВНЫЕ ДАННЫЕ
             'first_name': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -140,6 +145,7 @@ class EmployeeForm(forms.ModelForm):
         }
         
         labels = {
+            'user': 'Пользователь системы',
             # Основные данные
             'first_name': 'Имя *',
             'last_name': 'Фамилия *',
@@ -190,14 +196,9 @@ class EmployeeForm(forms.ModelForm):
         # Список цехов/отделов
         DEPARTMENT_CHOICES = [
             ('', 'Выберите цех/отдел'),
-            ('Дробилка', 'Дробилка'),
-            ('ММС', 'ММС'),
-            ('Пресс', 'Пресс'),
-            ('АТМ', 'АТМ'),
-            ('Tilecut', 'Tilecut'),
-            ('LGV', 'LGV'),
             ('Механики', 'Механики'),
-            ('Глазур', 'Глазур'),
+            ('Сотрудник', 'Сотрудник'),
+            ('Сотрудник_bag', 'Сотрудник_bag'),
             ('IT отдел', 'IT отдел'),
             ('Бухгалтерия', 'Бухгалтерия'),
             ('Администрация', 'Администрация'),
@@ -223,6 +224,15 @@ class EmployeeForm(forms.ModelForm):
             ('widowed', 'Вдовец/Вдова'),
         ]
         self.fields['marital_status'].widget.choices = MARITAL_CHOICES
+        
+        if 'user' in self.fields:
+            print("DEBUG: Поле user найдено в форме")  # Для отладки
+            self.fields['user'].required = False
+            self.fields['user'].queryset = User.objects.all()
+            self.fields['user'].empty_label = "Не назначен"
+        else:
+            print("DEBUG: Поле user НЕ найдено в форме!")  # Для отладки
+        
     
     def generate_employee_id(self):
         """Генерирует уникальный табельный номер"""
@@ -296,8 +306,8 @@ class EmployeeForm(forms.ModelForm):
         
         if rfid_uid:
             # Проверяем формат RFID (обычно 8-10 символов hex)
-            if not re.match(r'^[0-9A-F]{8,10}$', rfid_uid):
-                raise ValidationError('RFID должен содержать 8-10 символов в формате HEX (0-9, A-F)')
+            if not re.match(r'^[0-9A-F]{8,14}$', rfid_uid):
+                raise ValidationError('RFID должен содержать 8-14 символов в формате HEX (0-9, A-F)')
             
             # Проверяем уникальность
             existing_employee = Employee.objects.filter(rfid_uid=rfid_uid).exclude(pk=self.instance.pk).first()

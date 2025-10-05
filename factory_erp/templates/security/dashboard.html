@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tz %}
+
+{% block content %}
+<div class="security-body">
+    <div class="security-container">
+        <!-- Заголовок и статус смены -->
+        <div class="security-header">
+            <h1>🛡️ Панель охраны</h1>
+            <div class="shift-controls">
+                {% if active_shift %}
+                    <span class="shift-status shift-active">
+                        ✅ Смена активна с {{ active_shift.start_time|localtime|date:"d.m.Y H:i" }}
+                    </span>
+                    <a href="{% url 'security:end_shift' %}" class="btn btn-danger">Завершить смену</a>
+                {% else %}
+                    <span class="shift-status shift-inactive">
+                        ❌ Смена не начата
+                    </span>
+                    <a href="{% url 'security:start_shift' %}" class="btn btn-success">Начать смену</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Левая колонка - Сканирование карт -->
+            <div class="security-card">
+                <h3>📱 Сканирование карт</h3>
+                <div class="scan-area" id="scanArea">
+                    <div class="waiting-scan" id="waitingScan">
+                        <div class="scan-icon">🏷️</div>
+                        <div class="scan-text">Ожидание карты...</div>
+                        <div class="scan-subtext">Приложите карту к считывателю</div>
+                    </div>
+                    
+                    <div class="employee-scan-info" id="employeeScanInfo" style="display: none;">
+                        <div class="scan-photo-large">
+                            <img src="" alt="Фото" id="scanEmployeePhoto">
+                        </div>
+                        <div class="scan-details-extended">
+                            <div class="scan-name" id="scanEmployeeName"></div>
+                            <div class="scan-info-grid">
+                                <div class="info-item">
+                                    <span class="info-label">Отдел:</span>
+                                    <span class="info-value" id="scanEmployeeDepartment"></span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Должность:</span>
+                                    <span class="info-value" id="scanEmployeePosition"></span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Табельный №:</span>
+                                    <span class="info-value" id="scanEmployeeId"></span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Карта:</span>
+                                    <span class="info-value" id="scanEmployeeCard"></span>
+                                </div>
+                            </div>
+                            <div class="scan-action" id="scanAction"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Правая колонка - Статус и логи -->
+            <div>
+                <!-- Статус офиса -->
+                <div class="security-card office-status">
+                    <div class="office-counter">
+                        <h4>{{ employees_in_office|length }}</h4>
+                        <div>сотрудников в офисе</div>
+                    </div>
+                    {% if employees_in_office %}
+                    <div>
+                        <strong>Сейчас в офисе:</strong>
+                        <ul style="margin-top: 10px; padding-left: 20px;">
+                            {% for employee in employees_in_office %}
+                            <li>{{ employee.get_full_name }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Последние записи -->
+                <div class="security-card">
+                    <h3>📋 Последние записи</h3>
+                    <div class="recent-logs">
+                        {% for log in recent_logs %}
+                        <div class="log-entry log-{{ log.action }}">
+                            <div class="log-time">{{ log.timestamp|localtime|date:"d.m.Y H:i" }}</div>
+                            <div class="log-action">
+                                {{ log.employee.get_full_name }} - {{ log.get_action_display }}
+                            </div>
+                            <div style="font-size: 12px; color: #7f8c8d;">
+                                Охранник: {{ log.security_guard.username|default:"Неизвестно" }}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div style="text-align: center; color: #7f8c8d;">
+                            Записей пока нет
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Управление и экспорт -->
+        <div class="controls-section">
+            <h3>📊 Отчеты и экспорт</h3>
+            <div class="export-controls">
+                <a href="{% url 'security:logs_report' %}" class="btn">
+                    📈 Отчет по логам
+                </a>
+                <a href="{% url 'security:export_excel' %}" class="btn btn-success">
+                    📊 Экспорт в Excel (неделя)
+                </a>
+                <a href="{% url 'security:export_excel' %}?date_from={{ today|date:'Y-m-d' }}" class="btn btn-warning">
+                    📅 Экспорт за сегодня
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if messages %}
+<div id="messages" style="position: fixed; top: 20px; right: 20px; z-index: 1000;">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+<script>
+    setTimeout(function() {
+        document.getElementById('messages').style.display = 'none';
+    }, 3000);
+</script>
+{% endif %}
+
+<style>
+/* Расширенные стили для блока сотрудника */
+.scan-photo-large img {
+    width: 160px;  /* В два раза крупнее */
+    height: 160px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #e9ecef;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.scan-details-extended {
+    flex: 1;
+    padding-left: 25px;
+}
+
+.scan-name {
+    font-size: 1.6em;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.scan-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.info-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #7f8c8d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #2c3e50;
+    background: #f8f9fa;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.scan-action {
+    font-size: 1.2em;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-align: center;
+    margin-top: 15px;
+}
+</style>
+
+<script>
+// Переменная для хранения последнего времени касания
+let lastAccessId = null;
+let checkInterval = null;
+let isPageReloading = false;
+
+// Показ информации о сотруднике при сканировании
+function showScannedEmployee(employeeData, action) {
+    const waitingScan = document.getElementById('waitingScan');
+    const employeeScanInfo = document.getElementById('employeeScanInfo');
+    
+    // Заполняем данные
+    document.getElementById('scanEmployeePhoto').src = employeeData.photo_url || '/static/images/no-photo.png';
+    document.getElementById('scanEmployeeName').textContent = employeeData.full_name;
+    document.getElementById('scanEmployeeDepartment').textContent = employeeData.department || '—';
+    document.getElementById('scanEmployeePosition').textContent = employeeData.position || '—';
+    document.getElementById('scanEmployeeId').textContent = employeeData.employee_id || '—';
+    document.getElementById('scanEmployeeCard').textContent = employeeData.rfid_uid || '—';
+    
+    // Устанавливаем действие с цветом
+    const scanAction = document.getElementById('scanAction');
+    if (action === 'in') {
+        scanAction.textContent = '✅ ВХОД РАЗРЕШЕН';
+        scanAction.style.color = '#27ae60';
+        scanAction.style.backgroundColor = 'rgba(39, 174, 96, 0.1)';
+        scanAction.style.border = '2px solid #27ae60';
+    } else {
+        scanAction.textContent = '❌ ВЫХОД ЗАРЕГИСТРИРОВАН';
+        scanAction.style.color = '#e74c3c';
+        scanAction.style.backgroundColor = 'rgba(231, 76, 60, 0.1)';
+        scanAction.style.border = '2px solid #e74c3c';
+    }
+    
+    // Показываем информацию о сотруднике
+    waitingScan.style.display = 'none';
+    employeeScanInfo.style.display = 'flex';
+    
+    // Останавливаем проверку на время показа
+    if (checkInterval) {
+        clearInterval(checkInterval);
+    }
+    
+    // Возвращаемся к ожиданию и перезагружаем страницу
+    setTimeout(() => {
+        if (!isPageReloading) {
+            isPageReloading = true;
+            location.reload();
+        }
+    }, 5000); // Увеличили до 5 секунд
+}
+
+// Проверка новых касаний
+async function checkForNewAccess() {
+    if (isPageReloading) {
+        return; // Не делаем запросы если страница перезагружается
+    }
+    
+    try {
+        const response = await fetch('/security/api/latest-access/');
+        const data = await response.json();
+        
+        if (data.success && data.has_new_access) {
+            const currentAccessId = data.access_id;
+            
+            if (lastAccessId !== currentAccessId) {
+                lastAccessId = currentAccessId;
+                showScannedEmployee(data.employee, data.action);
+            }
+        }
+        
+    } catch (error) {
+        console.error('Ошибка проверки новых касаний:', error);
+    }
+}
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    // Проверяем новые касания каждые 3 секунды (увеличили интервал)
+    checkInterval = setInterval(checkForNewAccess, 3000);
+    
+    console.log('Dashboard инициализирован. Ожидание сканирования карт...');
+});
+
+// Останавливаем проверки при выгрузке страницы
+window.addEventListener('beforeunload', function() {
+    isPageReloading = true;
+    if (checkInterval) {
+        clearInterval(checkInterval);
+    }
+});
+</script>
+{% endblock %}
