@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load tz %}
+
+{% block title %}История вызовов мастера - Станок Lohia{% endblock %}
+
+{% block content %}
+<div class="lohia-container">
+    <div class="lohia-card">
+        <div class="lohia-card-header">
+            🔧 История вызовов мастера
+        </div>
+    </div>
+
+    <div class="lohia-card">
+        <div class="lohia-card-header">
+            Все вызовы
+        </div>
+        <div class="lohia-card-body">
+            {% if calls %}
+                <div class="lohia-table-wrapper">
+                    <table class="lohia-table">
+                                <thead>
+                                    <tr>
+                                        <th>Дата</th>
+                                        <th>Время вызова</th>
+                                        <th>Оператор</th>
+                                        <th>Мастер</th>
+                                        <th>Время реакции</th>
+                                        <th>Время ремонта</th>
+                                        <th>Статус</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="maintenance-table-body">
+                                    {% for call in calls %}
+                                    <tr>
+                                        <td>{{ call.call_time|localtime|date:"d.m.Y" }}</td>
+                                        <td>{{ call.call_time|localtime|date:"H:i" }}</td>
+                                        <td>{{ call.operator.get_full_name }}</td>
+                                        <td>
+                                            {% if call.master %}
+                                                {{ call.master.get_full_name }}
+                                            {% else %}
+                                                <span class="text-muted">—</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if call.response_time %}
+                                                {{ call.response_time }}
+                                            {% else %}
+                                                <span class="text-muted">—</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if call.repair_time %}
+                                                {{ call.repair_time }}
+                                            {% else %}
+                                                <span class="text-muted">—</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if call.status == 'pending' %}
+                                                <span class="lohia-badge lohia-badge-warning">Ожидает</span>
+                                            {% elif call.status == 'in_progress' %}
+                                                <span class="lohia-badge lohia-badge-info">В работе</span>
+                                            {% else %}
+                                                <span class="lohia-badge lohia-badge-success">Завершен</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if call.description %}
+                                                {{ call.description|truncatechars:50 }}
+                                            {% else %}
+                                                <span class="text-muted">—</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+            {% else %}
+                <p style="text-align: center; color: #666; padding: 40px;">Нет данных о вызовах мастера</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Навигация -->
+    <div class="lohia-card">
+        <div class="lohia-card-body">
+            <h5 style="margin-bottom: 15px; text-align: center;">📋 Навигация</h5>
+            <div class="lohia-nav-buttons">
+                <a href="{% url 'lohia_monitor:dashboard' %}" class="lohia-nav-btn lohia-nav-btn-outline">
+                    🏠 Дашборд
+                </a>
+                <a href="{% url 'lohia_monitor:shifts_history' %}" class="lohia-nav-btn lohia-nav-btn-outline">
+                    📊 История смен
+                </a>
+                <a href="{% url 'lohia_monitor:machine_stats' %}" class="lohia-nav-btn lohia-nav-btn-outline">
+                    📈 Статистика
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateMaintenanceHistory() {
+    fetch('/lohia/api/maintenance-history/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const tbody = document.getElementById('maintenance-table-body');
+                tbody.innerHTML = '';
+                
+                data.calls.forEach(call => {
+                    const row = document.createElement('tr');
+                    
+                    // Определяем статус badge
+                    let statusBadge = '';
+                    if (call.status === 'Ожидает') {
+                        statusBadge = '<span class="badge bg-warning">Ожидает</span>';
+                    } else if (call.status === 'В работе') {
+                        statusBadge = '<span class="badge bg-info">В работе</span>';
+                    } else {
+                        statusBadge = '<span class="badge bg-success">Завершен</span>';
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${call.call_time.split(' ')[0]}</td>
+                        <td>${call.call_time.split(' ')[1]}</td>
+                        <td>${call.operator}</td>
+                        <td>${call.master || '<span class="text-muted">—</span>'}</td>
+                        <td>${call.response_time || '<span class="text-muted">—</span>'}</td>
+                        <td>${call.repair_time || '<span class="text-muted">—</span>'}</td>
+                        <td>${statusBadge}</td>
+                        <td><span class="text-muted">—</span></td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error updating maintenance history:', error);
+        });
+}
+
+// Обновляем каждые 5 секунд
+setInterval(updateMaintenanceHistory, 5000);
+
+// Первое обновление через 2 секунды после загрузки страницы
+setTimeout(updateMaintenanceHistory, 2000);
+</script>
+
+{% endblock %}

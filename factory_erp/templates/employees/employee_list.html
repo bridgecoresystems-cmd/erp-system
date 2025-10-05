@@ -329,7 +329,7 @@ function showMainSearchResults(employees, query) {
         `;
     } else {
         let html = employees.map(emp => 
-            `<div class="search-item" onclick="selectMainEmployee('${emp.full_name}')">
+            `<div class="search-item" onclick="goToEmployee(${emp.id})">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <span style="font-size: 20px;">👤</span>
                     <div>
@@ -350,10 +350,16 @@ function showMainSearchResults(employees, query) {
     resultsDiv.style.display = 'block';
 }
 
+function goToEmployee(employeeId) {
+    // Перенаправляем на страницу детализации сотрудника
+    window.location.href = `/employees/employee/${employeeId}/`;
+}
+
 function selectMainEmployee(name) {
+    // Вместо отправки формы сразу, просто заполняем поле и скрываем результаты
+    // Пользователь может нажать Enter или кнопку "Найти"
     document.getElementById('employeeSearchInput').value = name;
     hideMainSearchResults();
-    document.getElementById('searchForm').submit();
 }
 
 function submitSearch(query) {

@@ -35,26 +35,32 @@
         
         {% if user.is_authenticated %}
             <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                {% if user.groups.all|length > 0 %}
-                    {% for group in user.groups.all %}
-                        {% if group.name == "HR_Admins" or group.name == "HR_Users" %}
-                            <a href="{% url 'employees:employee_list' %}" class="btn">
-                                👥 Управление сотрудниками
-                            </a>
-                            <a href="{% url 'employees:employee_add' %}" class="btn btn-secondary">
-                                ➕ Добавить сотрудника
-                            </a>
-                        {% endif %}
-                    {% endfor %}
-                {% else %}
+                {% for group in user.groups.all %}
+                    {% if group.name == "HR_Admins" %}
+                        <a href="{% url 'employees:employee_list' %}" class="btn">
+                            👥 Управление сотрудниками
+                        </a>
+                        <a href="{% url 'employees:employee_add' %}" class="btn btn-secondary">
+                            ➕ Добавить сотрудника
+                        </a>
+                    {% elif group.name == "HR_Users" %}
+                        <a href="{% url 'employees:worktime_list' %}" class="btn">
+                            ⏰ Рабочее время
+                        </a>
+                    {% elif group.name == "Security" %}
+                        <a href="{% url 'security:dashboard' %}" class="btn">
+                            🛡️ Панель безопасности
+                        </a>
+                    {% elif group.name == "Security_Users" %}
+                        <a href="{% url 'employees:security_display' %}" class="btn">
+                            🖥️ Экран безопасности
+                        </a>
+                    {% endif %}
+                {% empty %}
                     <a href="{% url 'employees:employee_list' %}" class="btn">
                         👥 Просмотр сотрудников
                     </a>
-                {% endif %}
-                
-                <a href="{% url 'employees:security_display' %}" class="btn btn-secondary">
-                    🖥️ Экран безопасности
-                </a>
+                {% endfor %}
             </div>
         {% else %}
             <div>

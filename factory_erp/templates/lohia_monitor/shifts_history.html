@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load tz %}
+
+{% block title %}История смен - Станок Lohia{% endblock %}
+
+{% block content %}
+<div class="lohia-container">
+    <div class="lohia-card">
+        <div class="lohia-card-header">
+            📊 История смен
+        </div>
+    </div>
+
+    <div class="lohia-card">
+        <div class="lohia-card-header">
+            Все смены
+        </div>
+        <div class="lohia-card-body">
+            {% if shifts %}
+                <div class="lohia-table-wrapper">
+                    <table class="lohia-table">
+                                <thead>
+                                    <tr>
+                                        <th>Дата</th>
+                                        <th>Оператор</th>
+                                        <th>Станок</th>
+                                        <th>Начало</th>
+                                        <th>Окончание</th>
+                                        <th>Длительность</th>
+                                        <th>Импульсы</th>
+                                        <th>Метраж</th>
+                                        <th>Статус</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="shifts-table-body">
+                                    {% for shift in shifts %}
+                                    <tr>
+                                        <td>{{ shift.start_time|localtime|date:"d.m.Y" }}</td>
+                                        <td>{{ shift.operator.get_full_name }}</td>
+                                        <td>{{ shift.machine.name }}</td>
+                                        <td>{{ shift.start_time|localtime|date:"H:i" }}</td>
+                                        <td>
+                                            {% if shift.end_time %}
+                                                {{ shift.end_time|localtime|date:"H:i" }}
+                                            {% else %}
+                                                <span class="text-muted">—</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if shift.end_time %}
+                                                {{ shift.duration_hours|floatformat:1 }} ч
+                                            {% else %}
+                                                <span class="text-primary">{{ shift.duration_hours|floatformat:1 }} ч</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ shift.total_pulses }}</td>
+                                        <td>{{ shift.total_meters|floatformat:6 }} м</td>
+                                        <td>
+                                            {% if shift.status == 'active' %}
+                                                <span class="lohia-badge lohia-badge-primary">Активна</span>
+                                            {% else %}
+                                                <span class="lohia-badge lohia-badge-success">Завершена</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+            {% else %}
+                <p style="text-align: center; color: #666; padding: 40px;">Нет данных о сменах</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Навигация -->
+    <div class="lohia-card">
+        <div class="lohia-card-body">
+            <h5 style="margin-bottom: 15px; text-align: center;">📋 Навигация</h5>
+            <div class="lohia-nav-buttons">
+                <a href="{% url 'lohia_monitor:dashboard' %}" class="lohia-nav-btn lohia-nav-btn-outline">
+                    🏠 Дашборд
+                </a>
+                <a href="{% url 'lohia_monitor:maintenance_history' %}" class="lohia-nav-btn lohia-nav-btn-outline">
+                    🔧 История вызовов
+                </a>
+                <a href="{% url 'lohia_monitor:machine_stats' %}" class="lohia-nav-btn lohia-nav-btn-outline">
+                    📈 Статистика
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateShiftsHistory() {
+    fetch('/lohia/api/shifts-history/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const tbody = document.getElementById('shifts-table-body');
+                tbody.innerHTML = '';
+                
+                data.shifts.forEach(shift => {
+                    const row = document.createElement('tr');
+                    
+                    // Определяем статус badge
+                    let statusBadge = '';
+                    if (shift.status === 'Активна') {
+                        statusBadge = '<span class="badge bg-primary">Активна</span>';
+                    } else {
+                        statusBadge = '<span class="badge bg-success">Завершена</span>';
+                    }
+                    
+                    // Определяем длительность с цветом
+                    let durationDisplay = '';
+                    if (shift.end_time === 'Активна') {
+                        durationDisplay = `<span class="text-primary">${shift.duration}</span>`;
+                    } else {
+                        durationDisplay = shift.duration;
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${shift.start_time.split(' ')[0]}</td>
+                        <td>${shift.operator}</td>
+                        <td>Станок Lohia #1</td>
+                        <td>${shift.start_time.split(' ')[1]}</td>
+                        <td>${shift.end_time === 'Активна' ? '<span class="text-muted">—</span>' : shift.end_time.split(' ')[1]}</td>
+                        <td>${durationDisplay}</td>
+                        <td>${shift.total_pulses}</td>
+                        <td>${shift.total_meters.toFixed(6)} м</td>
+                        <td>${statusBadge}</td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error updating shifts history:', error);
+        });
+}
+
+// Обновляем каждые 5 секунд
+setInterval(updateShiftsHistory, 5000);
+
+// Первое обновление через 2 секунды после загрузки страницы
+setTimeout(updateShiftsHistory, 2000);
+</script>
+
+{% endblock %}

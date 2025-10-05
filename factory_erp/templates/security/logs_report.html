@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tz %}
+
+{% block content %}
+<div class="security-body">
+    <div class="security-container" style="max-width: 1200px;">
+        <div class="security-header text-center">
+            <h1>📊 Отчет по логам охраны</h1>
+            <a href="{% url 'security:dashboard' %}" class="back-btn">← Назад к панели</a>
+        </div>
+
+        <div class="filters">
+            <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="date_from" class="form-label">Дата с:</label>
+                    <input type="date" id="date_from" name="date_from" value="{{ date_from }}" class="form-control">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="date_to" class="form-label">Дата по:</label>
+                    <input type="date" id="date_to" name="date_to" value="{{ date_to }}" class="form-control">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="employee" class="form-label">Сотрудник:</label>
+                    <select id="employee" name="employee" class="form-control">
+                        <option value="">Все сотрудники</option>
+                        {% for employee in employees %}
+                        <option value="{{ employee.id }}" 
+                                {% if employee.id|stringformat:"s" == selected_employee %}selected{% endif %}>
+                            {{ employee.get_full_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div style="display: flex; gap: 10px; flex-wrap: nowrap;">
+                    <button type="submit" class="btn" style="flex: 1; min-width: 100px;">🔍 Фильтр</button>
+                    <a href="{% url 'security:logs_report' %}" class="btn btn-secondary" style="flex: 1; min-width: 100px;">🔄 Сброс</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="logs-table">
+            <h3>Результаты (показано последние 100 записей)</h3>
+            {% if logs %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Время</th>
+                        <th>Сотрудник</th>
+                        <th>Действие</th>
+                        <th>Охранник</th>
+                        <th>Примечания</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log.timestamp|date:"d.m.Y" }}</td>
+                        <td>{{ log.timestamp|localtime|date:"H:i" }}</td>
+                        <td>{{ log.employee.get_full_name }}</td>
+                        <td class="action-{{ log.action }}">
+                            {% if log.action == 'in' %}
+                                ➡️ {{ log.get_action_display }}
+                            {% else %}
+                                ⬅️ {{ log.get_action_display }}
+                            {% endif %}
+                        </td>
+                        <td>{{ log.security_guard.username|default:"—" }}</td>
+                        <td>{{ log.notes|default:"—" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="no-data">
+                📋 Записей по заданным критериям не найдено
+            </div>
+            {% endif %}
+        </div>
+
+        {% if logs %}
+        <div class="export-section">
+            <h3>💾 Экспорт данных</h3>
+            <a href="{% url 'security:export_excel' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" 
+               class="btn btn-success">
+                📊 Скачать Excel с текущими фильтрами
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,13 +1,24 @@
 # employees/models.py
 from django.db import models
 from django.contrib.auth.models import User
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, time
 from django.core.validators import RegexValidator
 
 
 class Employee(models.Model):
     # Основные данные сотрудника
-    rfid_uid = models.CharField(max_length=20, unique=True, blank=True, null=True, verbose_name="RFID UID")
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='employee_profile', verbose_name="Пользователь системы")
+    rfid_uid = models.CharField(
+        max_length=20, 
+        unique=True, 
+        blank=True, 
+        null=True, 
+        verbose_name="RFID UID",
+        validators=[RegexValidator(
+            regex=r'^[0-9A-F]{8,14}$',
+            message="RFID должен содержать 8-14 символов в формате HEX (0-9, A-F)"
+        )]
+    )
     first_name = models.CharField(max_length=50, verbose_name="Имя")
     last_name = models.CharField(max_length=50, verbose_name="Фамилия")
     middle_name = models.CharField(max_length=50, blank=True, verbose_name="Отчество")
@@ -195,7 +206,7 @@ class WorkTimeEntry(models.Model):
         return f"{self.employee.get_full_name()} - {self.date.strftime('%d.%m.%Y')}"
     
     def save(self, *args, **kwargs):
-        """Автоматический расчет часов при сохранении"""
+        """Автоматический расчет часов и статуса при сохранении"""
         if self.entry_time and self.exit_time:
             # Создаем datetime объекты для расчета
             entry_datetime = datetime.combine(self.date, self.entry_time)
@@ -205,31 +216,37 @@ class WorkTimeEntry(models.Model):
             if self.exit_time < self.entry_time:
                 exit_datetime += timedelta(days=1)
             
-            # Рассчитываем часы
+            # Рассчитываем часы (с вычетом обеда для длинных смен)
             time_diff = exit_datetime - entry_datetime
-            self.hours_worked = round(time_diff.total_seconds() / 3600, 2)
+            total_hours = time_diff.total_seconds() / 3600
             
-            # Определяем статус
-            if self.hours_worked < 4:
-                self.status = 'partial'
-            elif self.entry_time > datetime.strptime('09:30', '%H:%M').time():
-                self.status = 'late'
-            elif self.hours_worked < 7:
-                self.status = 'early_leave'
-            else:
-                self.status = 'present'
+            # Автоматически вычитаем обед если работал больше 6 часов
+            if total_hours > 6:
+                total_hours -= 2  # обед 2 часа
+            
+            self.hours_worked = round(max(0, total_hours), 2)
+            
+            # Определяем статус ТОЛЬКО если не установлен вручную или это автоматический ввод
+            if not self.is_manual_entry or self.status == 'present':
+                if self.hours_worked < 4:
+                    self.status = 'partial'
+                elif self.entry_time > time(9, 30):  # 09:30
+                    self.status = 'late'
+                elif self.hours_worked < 7:
+                    self.status = 'early_leave'
+                else:
+                    self.status = 'present'
         
         super().save(*args, **kwargs)
-    
+        
     def get_hours_display(self):
-        """Красивое отображение часов"""
+        """Красивое отображение часов в формате ЧЧ:ММ"""
         if self.hours_worked:
-            hours = int(self.hours_worked)
-            minutes = int((self.hours_worked - hours) * 60)
-            if minutes > 0:
-                return f"{hours}ч {minutes}мин"
-            return f"{hours}ч"
-        return "0ч"
+            total_minutes = int(self.hours_worked * 60)
+            hours = total_minutes // 60
+            minutes = total_minutes % 60
+            return f"{hours:02d}:{minutes:02d}"
+        return "00:00"
 
     def get_status_display_color(self):
         """Цвет для отображения статуса"""
@@ -255,36 +272,18 @@ class WorkTimeEntry(models.Model):
     def get_overtime_hours(self):
         """Количество сверхурочных часов"""
         if self.is_overtime():
-            return self.hours_worked - 8
+            return round(self.hours_worked - 8, 2)
         return 0
     
-    def calculate_hours_worked(self):
-        """Расчет отработанных часов с учетом обеда"""
-        if self.entry_time and self.exit_time:
-            # Создаем datetime объекты для расчета
-            today = datetime.now().date()
-            entry_datetime = datetime.combine(today, self.entry_time)
-            exit_datetime = datetime.combine(today, self.exit_time)
-            
-            # Если ушел на следующий день (ночная смена)
-            if self.exit_time < self.entry_time:
-                exit_datetime += timedelta(days=1)
-            
-            # Вычисляем общее время
-            total_time = exit_datetime - entry_datetime
-            
-            # Автоматически вычитаем обед если работал больше 6 часов
-            if total_time > timedelta(hours=6):
-                total_time -= timedelta(hours=2)  # обед 2 часа
-            
-            return max(0, total_time.total_seconds() / 3600)  # не меньше 0
-        return 0
-    
-    def save(self, *args, **kwargs):
-        """Автоматически пересчитываем часы при сохранении"""
-        if self.entry_time and self.exit_time:
-            self.hours_worked = self.calculate_hours_worked()
-        super().save(*args, **kwargs)
+    def get_overtime_display(self):
+        """Отображение сверхурочных в формате ЧЧ:ММ"""
+        if self.is_overtime():
+            overtime_hours = self.get_overtime_hours()
+            total_minutes = int(overtime_hours * 60)
+            hours = total_minutes // 60
+            minutes = total_minutes % 60
+            return f"{hours:02d}:{minutes:02d}"
+        return "00:00"
     
     @classmethod
     def get_monthly_stats(cls, employee, year, month):
