@@ -7,7 +7,12 @@
     <div class="security-container">
         <!-- Заголовок и статус смены -->
         <div class="security-header">
-            <h1>🛡️ Панель охраны</h1>
+            <h1>
+                🛡️ Панель охраны
+                <div id="websocket-status" style="display: inline-block; margin-left: 10px; font-size: 12px; padding: 4px 8px; border-radius: 4px; background: #f8d7da; color: #721c24;">
+                    🔴 WebSocket отключен
+                </div>
+            </h1>
             <div class="shift-controls">
                 {% if active_shift %}
                     <span class="shift-status shift-active">
@@ -206,10 +211,113 @@
 </style>
 
 <script>
-// Переменная для хранения последнего времени касания
+// WebSocket подключение для реального времени
+let securitySocket = null;
+let reconnectAttempts = 0;
+const maxReconnectAttempts = 5;
+const reconnectDelay = 3000;
 let lastAccessId = null;
-let checkInterval = null;
 let isPageReloading = false;
+
+function updateWebSocketStatus(status, message) {
+    const statusEl = document.getElementById('websocket-status');
+    if (statusEl) {
+        if (status === 'connected') {
+            statusEl.style.background = '#d4edda';
+            statusEl.style.color = '#155724';
+            statusEl.innerHTML = '🟢 WebSocket подключен';
+        } else if (status === 'connecting') {
+            statusEl.style.background = '#fff3cd';
+            statusEl.style.color = '#856404';
+            statusEl.innerHTML = '🟡 WebSocket подключается...';
+        } else {
+            statusEl.style.background = '#f8d7da';
+            statusEl.style.color = '#721c24';
+            statusEl.innerHTML = '🔴 WebSocket отключен';
+        }
+    }
+}
+
+function connectWebSocket() {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws/security/`;
+    
+    console.log('🔌 Подключение к Security WebSocket:', wsUrl);
+    updateWebSocketStatus('connecting', 'Подключение...');
+    
+    securitySocket = new WebSocket(wsUrl);
+    
+    securitySocket.onopen = function(event) {
+        console.log('✅ Security WebSocket подключен');
+        updateWebSocketStatus('connected', 'Подключен');
+        reconnectAttempts = 0;
+        
+        // Запрашиваем данные безопасности
+        requestSecurityData();
+    };
+    
+    securitySocket.onmessage = function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            console.log('📨 Получены данные безопасности:', data);
+            
+            // Обрабатываем события доступа
+            if (data.type === 'access_event' || data.type === 'security_update') {
+                handleAccessEvent(data.data);
+            } else if (data.type === 'security_data') {
+                updateSecurityData(data.data);
+            }
+        } catch (error) {
+            console.error('❌ Ошибка парсинга WebSocket данных:', error);
+        }
+    };
+    
+    securitySocket.onclose = function(event) {
+        console.log('❌ Security WebSocket отключен:', event.code, event.reason);
+        updateWebSocketStatus('disconnected', 'Отключен');
+        securitySocket = null;
+        
+        // Попытка переподключения
+        if (reconnectAttempts < maxReconnectAttempts) {
+            reconnectAttempts++;
+            console.log(`🔄 Попытка переподключения ${reconnectAttempts}/${maxReconnectAttempts} через ${reconnectDelay/1000} сек`);
+            setTimeout(connectWebSocket, reconnectDelay);
+        } else {
+            console.error('💥 Превышено максимальное количество попыток переподключения');
+            updateWebSocketStatus('disconnected', 'Ошибка подключения');
+            // Fallback на AJAX
+            startAjaxFallback();
+        }
+    };
+    
+    securitySocket.onerror = function(error) {
+        console.error('❌ Security WebSocket ошибка:', error);
+    };
+}
+
+function requestSecurityData() {
+    if (securitySocket && securitySocket.readyState === WebSocket.OPEN) {
+        securitySocket.send(JSON.stringify({type: 'get_security_data'}));
+    }
+}
+
+function handleAccessEvent(accessData) {
+    if (!accessData) return;
+    
+    console.log('🔔 Событие доступа получено:', accessData);
+    
+    // Показываем информацию о сотруднике
+    showScannedEmployee(accessData.employee, accessData.action);
+}
+
+function updateSecurityData(securityData) {
+    if (!securityData) return;
+    
+    console.log('📊 Данные безопасности обновлены:', securityData);
+    
+    // Здесь можно добавить обновление других элементов интерфейса
+    // Например, количество сотрудников в офисе, последние записи и т.д.
+}
 
 // Показ информации о сотруднике при сканировании
 function showScannedEmployee(employeeData, action) {
@@ -242,24 +350,25 @@ function showScannedEmployee(employeeData, action) {
     waitingScan.style.display = 'none';
     employeeScanInfo.style.display = 'flex';
     
-    // Останавливаем проверку на время показа
-    if (checkInterval) {
-        clearInterval(checkInterval);
-    }
-    
     // Возвращаемся к ожиданию и перезагружаем страницу
     setTimeout(() => {
         if (!isPageReloading) {
             isPageReloading = true;
             location.reload();
         }
-    }, 5000); // Увеличили до 5 секунд
+    }, 5000);
 }
 
-// Проверка новых касаний
+// Fallback на AJAX если WebSocket не работает
+function startAjaxFallback() {
+    console.log('🔄 Переключение на AJAX fallback для безопасности');
+    checkInterval = setInterval(checkForNewAccess, 3000);
+}
+
+// Проверка новых касаний (AJAX fallback)
 async function checkForNewAccess() {
     if (isPageReloading) {
-        return; // Не делаем запросы если страница перезагружается
+        return;
     }
     
     try {
@@ -282,15 +391,16 @@ async function checkForNewAccess() {
 
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
-    // Проверяем новые касания каждые 3 секунды (увеличили интервал)
-    checkInterval = setInterval(checkForNewAccess, 3000);
-    
-    console.log('Dashboard инициализирован. Ожидание сканирования карт...');
+    console.log('🚀 Инициализация Security dashboard с WebSocket');
+    connectWebSocket();
 });
 
-// Останавливаем проверки при выгрузке страницы
+// Останавливаем WebSocket при выгрузке страницы
 window.addEventListener('beforeunload', function() {
     isPageReloading = true;
+    if (securitySocket) {
+        securitySocket.close();
+    }
     if (checkInterval) {
         clearInterval(checkInterval);
     }
