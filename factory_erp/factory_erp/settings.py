@@ -34,6 +34,8 @@ INSTALLED_APPS = [
     'import_export',
     'corsheaders',
     'colorfield',  # Установлен
+    'channels',  # WebSocket support
+    'channels_redis',  # Redis backend for channels
     'employees',
     'security',  # Теперь с openpyxl
     'django_celery_beat',  # Установлен
@@ -190,4 +192,19 @@ SESSION_COOKIE_HTTPONLY = True  # Защита от XSS
 SESSION_COOKIE_SAMESITE = 'Lax'  # Защита от CSRF
 SESSION_ENGINE = 'django.contrib.sessions.backends.file'  # Использовать файлы для сессий
 SESSION_FILE_PATH = '/tmp/django_sessions'  # Путь для файлов сессий
+
+# WebSocket Configuration
+ASGI_APPLICATION = 'factory_erp.asgi.application'
+
+# Channel Layers Configuration
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
+
+# WebSocket Settings
+WEBSOCKET_URL = '/ws/'
+WEBSOCKET_RECONNECT_DELAY = 3  # seconds
+WEBSOCKET_MAX_RECONNECT_ATTEMPTS = 5
 
