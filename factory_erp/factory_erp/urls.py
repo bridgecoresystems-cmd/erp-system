@@ -3,7 +3,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.http import HttpResponse
 from django.views.generic import RedirectView
 
@@ -73,6 +73,11 @@ def favicon_view(request):
         return HttpResponse(buffer.getvalue(), content_type='image/x-icon')
 
 
+def websocket_test_view(request):
+    """Тестовая страница для WebSocket"""
+    return render(request, 'websocket_test.html')
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', redirect_to_employees, name='home'),
@@ -90,7 +95,10 @@ urlpatterns = [
         template_name='registration/login.html',
         redirect_authenticated_user=True
     ), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),      
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    
+    # WebSocket тест
+    path('websocket-test/', websocket_test_view, name='websocket_test'),
 ]
 
 # Медиа файлы для разработки
