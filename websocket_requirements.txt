@@ -1,0 +1,12 @@
+asgiref==3.9.1
+autobahn==24.4.2
+channels @ file:///home/batyr/projects/requirements/channels-4.3.1-py3-none-any.whl
+channels_redis @ file:///home/batyr/projects/requirements/channels_redis-4.3.0-py3-none-any.whl
+daphne @ file:///home/batyr/projects/requirements/daphne-4.2.1-py3-none-any.whl
+hyperlink==21.0.0
+msgpack==1.1.1
+pyOpenSSL @ file:///home/batyr/projects/requirements/pyopenssl-25.3.0-py3-none-any.whl
+redis==6.4.0
+service-identity @ file:///home/batyr/projects/requirements/service_identity-24.2.0-py3-none-any.whl
+Twisted @ file:///home/batyr/projects/requirements/twisted-25.5.0-py3-none-any.whl
+txaio @ file:///home/batyr/projects/requirements/txaio-25.9.2-py3-none-any.whl

@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV /media/batyr/8E5A03F15A03D4BD/projects/erp-system/venv
+set -gx VIRTUAL_ENV /home/batyr/projects/erp-system/venv
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/"bin $PATH
