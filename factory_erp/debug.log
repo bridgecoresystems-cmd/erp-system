@@ -20127,3 +20127,23 @@ Traceback (most recent call last):
   File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 38, in _get_storage_path
     raise ImproperlyConfigured(
 django.core.exceptions.ImproperlyConfigured: The session storage path '/tmp/django_sessions' doesn't exist. Please set your SESSION_FILE_PATH setting to an existing directory in which Django can store session data.
+WARNING 2025-10-06 11:56:15,837 log Not Found: /ws/lohia/machine1/
+WARNING 2025-10-06 11:56:20,071 log Not Found: /ws/lohia/machine1/
+WARNING 2025-10-06 11:56:20,958 log Not Found: /ws/lohia/machine1/
+WARNING 2025-10-06 11:56:24,432 log Not Found: /ws/lohia/machine1/
+WARNING 2025-10-06 11:56:24,898 log Not Found: /ws/lohia/machine1/
+WARNING 2025-10-06 11:56:25,155 log Not Found: /ws/lohia/machine1/
+WARNING 2025-10-06 11:56:25,364 log Not Found: /ws/lohia/machine1/
+WARNING 2025-10-06 11:56:26,422 log Not Found: /ws/lohia/machine1/
+WARNING 2025-10-06 11:56:26,443 log Not Found: /ws/employees/
+WARNING 2025-10-06 11:56:26,461 log Not Found: /ws/notifications/
+WARNING 2025-10-06 11:56:26,537 log Not Found: /ws/security/
+WARNING 2025-10-06 11:56:29,992 log Not Found: /ws/lohia/machine1/
+WARNING 2025-10-06 11:56:30,297 log Not Found: /ws/employees/
+WARNING 2025-10-06 11:56:30,571 log Not Found: /ws/security/
+WARNING 2025-10-06 11:56:30,931 log Not Found: /ws/notifications/
+WARNING 2025-10-06 12:14:20,976 log Not Found: /ws/lohia/machine1/
+WARNING 2025-10-06 12:14:23,823 log Not Found: /ws/employees/
+WARNING 2025-10-06 12:14:25,892 log Not Found: /ws/notifications/
+WARNING 2025-10-06 12:14:26,871 log Not Found: /ws/security/
+WARNING 2025-10-06 12:14:28,802 log Not Found: /ws/lohia/machine1/

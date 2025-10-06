@@ -9,6 +9,9 @@
     <div class="lohia-card">
         <div class="lohia-card-header">
             🏭 Мониторинг станка Lohia
+            <div id="websocket-status" style="float: right; font-size: 12px; padding: 4px 8px; border-radius: 4px; background: #f8d7da; color: #721c24;">
+                🔴 WebSocket отключен
+            </div>
         </div>
     </div>
 
@@ -167,8 +170,108 @@
 
 
 <script>
-// Автообновление через AJAX каждые 5 секунд
-let updateInterval;
+// WebSocket подключение для реального времени
+let lohiaSocket = null;
+let reconnectAttempts = 0;
+const maxReconnectAttempts = 5;
+const reconnectDelay = 3000;
+
+function updateWebSocketStatus(status, message) {
+    const statusEl = document.getElementById('websocket-status');
+    if (statusEl) {
+        if (status === 'connected') {
+            statusEl.style.background = '#d4edda';
+            statusEl.style.color = '#155724';
+            statusEl.innerHTML = '🟢 WebSocket подключен';
+        } else if (status === 'connecting') {
+            statusEl.style.background = '#fff3cd';
+            statusEl.style.color = '#856404';
+            statusEl.innerHTML = '🟡 WebSocket подключается...';
+        } else {
+            statusEl.style.background = '#f8d7da';
+            statusEl.style.color = '#721c24';
+            statusEl.innerHTML = '🔴 WebSocket отключен';
+        }
+    }
+}
+
+function connectWebSocket() {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws/lohia/machine1/`;
+    
+    console.log('🔌 Подключение к WebSocket:', wsUrl);
+    updateWebSocketStatus('connecting', 'Подключение...');
+    
+    lohiaSocket = new WebSocket(wsUrl);
+    
+    lohiaSocket.onopen = function(event) {
+        console.log('✅ WebSocket подключен к Lohia monitor');
+        updateWebSocketStatus('connected', 'Подключен');
+        reconnectAttempts = 0;
+        
+        // Запрашиваем начальные данные
+        requestInitialData();
+    };
+    
+    lohiaSocket.onmessage = function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            console.log('📨 Получены данные:', data);
+            
+            // Обрабатываем разные типы сообщений
+            if (data.type === 'machine_status') {
+                updateMachineStatus(data.data);
+            } else if (data.type === 'shift_data') {
+                updateActiveShift(data.data);
+            } else if (data.type === 'pulse_data') {
+                updatePulseData(data.data);
+            } else if (data.type === 'machine_update') {
+                updateMachineStatus(data.data);
+            } else if (data.type === 'shift_update') {
+                updateActiveShift(data.data);
+            }
+        } catch (error) {
+            console.error('❌ Ошибка парсинга WebSocket данных:', error);
+        }
+    };
+    
+    lohiaSocket.onclose = function(event) {
+        console.log('❌ WebSocket отключен:', event.code, event.reason);
+        updateWebSocketStatus('disconnected', 'Отключен');
+        lohiaSocket = null;
+        
+        // Попытка переподключения
+        if (reconnectAttempts < maxReconnectAttempts) {
+            reconnectAttempts++;
+            console.log(`🔄 Попытка переподключения ${reconnectAttempts}/${maxReconnectAttempts} через ${reconnectDelay/1000} сек`);
+            setTimeout(connectWebSocket, reconnectDelay);
+        } else {
+            console.error('💥 Превышено максимальное количество попыток переподключения');
+            updateWebSocketStatus('disconnected', 'Ошибка подключения');
+            // Fallback на AJAX
+            startAjaxFallback();
+        }
+    };
+    
+    lohiaSocket.onerror = function(error) {
+        console.error('❌ WebSocket ошибка:', error);
+    };
+}
+
+function requestInitialData() {
+    if (lohiaSocket && lohiaSocket.readyState === WebSocket.OPEN) {
+        // Запрашиваем все необходимые данные
+        lohiaSocket.send(JSON.stringify({type: 'get_machine_status'}));
+        lohiaSocket.send(JSON.stringify({type: 'get_shift_data'}));
+        lohiaSocket.send(JSON.stringify({type: 'get_pulse_data'}));
+    }
+}
+
+// Fallback на AJAX если WebSocket не работает
+function startAjaxFallback() {
+    console.log('🔄 Переключение на AJAX fallback');
+    updateInterval = setInterval(updateDashboard, 5000);
+}
 
 async function updateDashboard() {
     try {
@@ -245,14 +348,25 @@ function updateMaintenanceCall(call) {
     }
 }
 
-// Запускаем автообновление при загрузке страницы
+function updatePulseData(pulseData) {
+    // Обновляем данные о пульсах
+    if (pulseData && Array.isArray(pulseData)) {
+        // Здесь можно добавить обновление графика пульсов
+        console.log('📊 Обновлены данные пульсов:', pulseData.length, 'записей');
+    }
+}
+
+// Запускаем WebSocket при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
-    updateInterval = setInterval(updateDashboard, 5000); // Каждые 5 секунд
-    console.log('🔄 Автообновление дашборда включено (5 сек)');
+    console.log('🚀 Инициализация Lohia dashboard с WebSocket');
+    connectWebSocket();
 });
 
-// Останавливаем при выходе со страницы
+// Останавливаем WebSocket при выходе со страницы
 window.addEventListener('beforeunload', function() {
+    if (lohiaSocket) {
+        lohiaSocket.close();
+    }
     if (updateInterval) {
         clearInterval(updateInterval);
     }

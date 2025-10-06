@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Простой тест WebSocket</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .connected { background-color: #d4edda; color: #155724; }
+        .disconnected { background-color: #f8d7da; color: #721c24; }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #6c757d; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 Простой тест WebSocket</h1>
+        
+        <div id="status" class="status disconnected">
+            ❌ Отключено
+        </div>
+        
+        <div>
+            <button onclick="testLohia()">Тест Lohia</button>
+            <button onclick="testEmployees()">Тест Employees</button>
+            <button onclick="testNotifications()">Тест Notifications</button>
+            <button onclick="testSecurity()">Тест Security</button>
+            <button onclick="clearLog()">Очистить лог</button>
+        </div>
+        
+        <h3>📋 Лог:</h3>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'red' : type === 'success' ? 'green' : 'black';
+            logDiv.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function updateStatus(message, isConnected) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = isConnected ? 'status connected' : 'status disconnected';
+            statusDiv.innerHTML = message;
+        }
+
+        function testWebSocket(url, name) {
+            log(`🔌 Тестирование ${name}: ${url}`);
+            updateStatus(`🔄 Подключение к ${name}...`, false);
+            
+            const socket = new WebSocket(url);
+            
+            socket.onopen = function(event) {
+                log(`✅ ${name} подключен!`, 'success');
+                updateStatus(`✅ ${name} подключен`, true);
+                
+                // Отправляем тестовое сообщение
+                const testMessage = {
+                    type: name === 'Lohia' ? 'get_machine_status' : 
+                          name === 'Employees' ? 'get_employee_data' : 'test'
+                };
+                
+                socket.send(JSON.stringify(testMessage));
+                log(`📤 Отправлено: ${JSON.stringify(testMessage)}`);
+            };
+            
+            socket.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    log(`📨 ${name} ответ: ${JSON.stringify(data, null, 2)}`, 'success');
+                } catch (e) {
+                    log(`📨 ${name} ответ: ${event.data}`, 'success');
+                }
+            };
+            
+            socket.onclose = function(event) {
+                log(`❌ ${name} отключен (код: ${event.code})`, 'error');
+                updateStatus('❌ Отключено', false);
+            };
+            
+            socket.onerror = function(error) {
+                log(`❌ ${name} ошибка: ${error}`, 'error');
+                updateStatus('❌ Ошибка подключения', false);
+            };
+            
+            // Закрываем соединение через 10 секунд
+            setTimeout(() => {
+                if (socket.readyState === WebSocket.OPEN) {
+                    socket.close();
+                    log(`⏰ ${name} соединение закрыто по таймауту`);
+                }
+            }, 10000);
+        }
+
+        function testLohia() {
+            const url = `ws://${window.location.host}/ws/lohia/machine1/`;
+            testWebSocket(url, 'Lohia');
+        }
+
+        function testEmployees() {
+            const url = `ws://${window.location.host}/ws/employees/`;
+            testWebSocket(url, 'Employees');
+        }
+
+        function testNotifications() {
+            const url = `ws://${window.location.host}/ws/notifications/`;
+            testWebSocket(url, 'Notifications');
+        }
+
+        function testSecurity() {
+            const url = `ws://${window.location.host}/ws/security/`;
+            testWebSocket(url, 'Security');
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        // Инициализация
+        log('🚀 Простой тест WebSocket готов к использованию');
+        log('💡 Нажмите кнопки для тестирования различных WebSocket endpoints');
+    </script>
+</body>
+</html>

@@ -78,6 +78,22 @@ def websocket_test_view(request):
     return render(request, 'websocket_test.html')
 
 
+def websocket_simple_test_view(request):
+    """Простая тестовая страница для WebSocket"""
+    import os
+    from django.http import FileResponse
+    
+    # Читаем HTML файл напрямую
+    html_path = os.path.join(settings.BASE_DIR, '..', 'websocket_simple_test.html')
+    
+    if os.path.exists(html_path):
+        with open(html_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return HttpResponse(content, content_type='text/html')
+    else:
+        return HttpResponse("Файл теста не найден", status=404)
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', redirect_to_employees, name='home'),
@@ -99,6 +115,7 @@ urlpatterns = [
     
     # WebSocket тест
     path('websocket-test/', websocket_test_view, name='websocket_test'),
+    path('websocket-simple/', websocket_simple_test_view, name='websocket_simple_test'),
 ]
 
 # Медиа файлы для разработки
