@@ -6,8 +6,13 @@
 <div class="page-header">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <div>
-            <h1 style="margin: 0; color: #333;">👥 Список сотрудников</h1>
-            <p style="margin: 5px 0 0 0; color: #666;">Всего активных сотрудников: <strong>{{ total_employees }}</strong></p>
+            <h1 style="margin: 0; color: #333;">
+                👥 Список сотрудников
+                <div id="websocket-status" style="display: inline-block; margin-left: 10px; font-size: 12px; padding: 4px 8px; border-radius: 4px; background: #f8d7da; color: #721c24;">
+                    🔴 WebSocket отключен
+                </div>
+            </h1>
+            <p style="margin: 5px 0 0 0; color: #666;">Всего активных сотрудников: <strong id="total-employees-count">{{ total_employees }}</strong></p>
         </div>
         <div>
             <a href="{% url 'employees:employee_add' %}" class="btn" style="margin-right: 10px;">➕ Добавить сотрудника</a>
@@ -383,6 +388,119 @@ document.addEventListener('click', function(e) {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         hideMainSearchResults();
+    }
+});
+
+// WebSocket подключение для реального времени
+let employeeSocket = null;
+let reconnectAttempts = 0;
+const maxReconnectAttempts = 5;
+const reconnectDelay = 3000;
+
+function updateWebSocketStatus(status, message) {
+    const statusEl = document.getElementById('websocket-status');
+    if (statusEl) {
+        if (status === 'connected') {
+            statusEl.style.background = '#d4edda';
+            statusEl.style.color = '#155724';
+            statusEl.innerHTML = '🟢 WebSocket подключен';
+        } else if (status === 'connecting') {
+            statusEl.style.background = '#fff3cd';
+            statusEl.style.color = '#856404';
+            statusEl.innerHTML = '🟡 WebSocket подключается...';
+        } else {
+            statusEl.style.background = '#f8d7da';
+            statusEl.style.color = '#721c24';
+            statusEl.innerHTML = '🔴 WebSocket отключен';
+        }
+    }
+}
+
+function connectWebSocket() {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws/employees/`;
+    
+    console.log('🔌 Подключение к Employee WebSocket для списка:', wsUrl);
+    updateWebSocketStatus('connecting', 'Подключение...');
+    
+    employeeSocket = new WebSocket(wsUrl);
+    
+    employeeSocket.onopen = function(event) {
+        console.log('✅ Employee WebSocket подключен для списка');
+        updateWebSocketStatus('connected', 'Подключен');
+        reconnectAttempts = 0;
+        
+        // Запрашиваем данные сотрудников
+        requestEmployeeList();
+    };
+    
+    employeeSocket.onmessage = function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            console.log('📨 Получены данные списка сотрудников:', data);
+            
+            // Обрабатываем обновления списка
+            if (data.type === 'employee_data' || data.type === 'employee_update') {
+                updateEmployeeList(data.data);
+            }
+        } catch (error) {
+            console.error('❌ Ошибка парсинга WebSocket данных:', error);
+        }
+    };
+    
+    employeeSocket.onclose = function(event) {
+        console.log('❌ Employee WebSocket отключен:', event.code, event.reason);
+        updateWebSocketStatus('disconnected', 'Отключен');
+        employeeSocket = null;
+        
+        // Попытка переподключения
+        if (reconnectAttempts < maxReconnectAttempts) {
+            reconnectAttempts++;
+            console.log(`🔄 Попытка переподключения ${reconnectAttempts}/${maxReconnectAttempts} через ${reconnectDelay/1000} сек`);
+            setTimeout(connectWebSocket, reconnectDelay);
+        } else {
+            console.error('💥 Превышено максимальное количество попыток переподключения');
+            updateWebSocketStatus('disconnected', 'Ошибка подключения');
+        }
+    };
+    
+    employeeSocket.onerror = function(error) {
+        console.error('❌ Employee WebSocket ошибка:', error);
+    };
+}
+
+function requestEmployeeList() {
+    if (employeeSocket && employeeSocket.readyState === WebSocket.OPEN) {
+        employeeSocket.send(JSON.stringify({type: 'get_employee_data'}));
+    }
+}
+
+function updateEmployeeList(employeeData) {
+    if (!employeeData || !Array.isArray(employeeData)) return;
+    
+    // Обновляем счетчик
+    const totalCount = employeeData.length;
+    const totalEl = document.getElementById('total-employees-count');
+    if (totalEl) {
+        totalEl.textContent = totalCount;
+    }
+    
+    console.log(`📊 Список сотрудников обновлен: ${totalCount} сотрудников`);
+    
+    // Здесь можно добавить обновление таблицы, если нужно
+    // Пока просто обновляем счетчик
+}
+
+// Запускаем WebSocket при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Инициализация списка сотрудников с WebSocket');
+    connectWebSocket();
+});
+
+// Останавливаем WebSocket при выходе со страницы
+window.addEventListener('beforeunload', function() {
+    if (employeeSocket) {
+        employeeSocket.close();
     }
 });
 

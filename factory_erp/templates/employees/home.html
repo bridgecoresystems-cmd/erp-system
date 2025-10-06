@@ -73,23 +73,28 @@
     {% if user.is_authenticated %}
         <div style="margin-top: 40px;">
             <div class="card">
-                <h3 style="text-align: center; margin-bottom: 20px;">Быстрая статистика</h3>
+                <h3 style="text-align: center; margin-bottom: 20px;">
+                    Быстрая статистика
+                    <div id="websocket-status" style="display: inline-block; margin-left: 10px; font-size: 12px; padding: 4px 8px; border-radius: 4px; background: #f8d7da; color: #721c24;">
+                        🔴 WebSocket отключен
+                    </div>
+                </h3>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; text-align: center;">
                     <div>
-                        <div style="font-size: 2em; color: #667eea;">—</div>
+                        <div id="total-employees" style="font-size: 2em; color: #667eea;">—</div>
                         <div style="font-weight: bold;">Всего сотрудников</div>
                     </div>
                     <div>
-                        <div style="font-size: 2em; color: #4caf50;">—</div>
+                        <div id="active-employees" style="font-size: 2em; color: #4caf50;">—</div>
                         <div style="font-weight: bold;">Активных</div>
                     </div>
                     <div>
-                        <div style="font-size: 2em; color: #ff9800;">—</div>
+                        <div id="today-at-work" style="font-size: 2em; color: #ff9800;">—</div>
                         <div style="font-weight: bold;">Сегодня на работе</div>
                     </div>
                 </div>
                 <p style="text-align: center; margin-top: 15px; color: #666; font-size: 0.9em;">
-                    Статистика обновляется в реальном времени
+                    Статистика обновляется в реальном времени через WebSocket
                 </p>
             </div>
         </div>
@@ -97,10 +102,150 @@
 </div>
 
 <script>
-// Здесь можно добавить загрузку статистики через API
+// WebSocket подключение для реального времени
+let employeeSocket = null;
+let reconnectAttempts = 0;
+const maxReconnectAttempts = 5;
+const reconnectDelay = 3000;
+
+function updateWebSocketStatus(status, message) {
+    const statusEl = document.getElementById('websocket-status');
+    if (statusEl) {
+        if (status === 'connected') {
+            statusEl.style.background = '#d4edda';
+            statusEl.style.color = '#155724';
+            statusEl.innerHTML = '🟢 WebSocket подключен';
+        } else if (status === 'connecting') {
+            statusEl.style.background = '#fff3cd';
+            statusEl.style.color = '#856404';
+            statusEl.innerHTML = '🟡 WebSocket подключается...';
+        } else {
+            statusEl.style.background = '#f8d7da';
+            statusEl.style.color = '#721c24';
+            statusEl.innerHTML = '🔴 WebSocket отключен';
+        }
+    }
+}
+
+function connectWebSocket() {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws/employees/`;
+    
+    console.log('🔌 Подключение к Employee WebSocket:', wsUrl);
+    updateWebSocketStatus('connecting', 'Подключение...');
+    
+    employeeSocket = new WebSocket(wsUrl);
+    
+    employeeSocket.onopen = function(event) {
+        console.log('✅ Employee WebSocket подключен');
+        updateWebSocketStatus('connected', 'Подключен');
+        reconnectAttempts = 0;
+        
+        // Запрашиваем статистику
+        requestEmployeeStats();
+    };
+    
+    employeeSocket.onmessage = function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            console.log('📨 Получены данные сотрудников:', data);
+            
+            // Обрабатываем статистику
+            if (data.type === 'employee_data' || data.type === 'employee_update') {
+                updateEmployeeStats(data.data);
+            }
+        } catch (error) {
+            console.error('❌ Ошибка парсинга WebSocket данных:', error);
+        }
+    };
+    
+    employeeSocket.onclose = function(event) {
+        console.log('❌ Employee WebSocket отключен:', event.code, event.reason);
+        updateWebSocketStatus('disconnected', 'Отключен');
+        employeeSocket = null;
+        
+        // Попытка переподключения
+        if (reconnectAttempts < maxReconnectAttempts) {
+            reconnectAttempts++;
+            console.log(`🔄 Попытка переподключения ${reconnectAttempts}/${maxReconnectAttempts} через ${reconnectDelay/1000} сек`);
+            setTimeout(connectWebSocket, reconnectDelay);
+        } else {
+            console.error('💥 Превышено максимальное количество попыток переподключения');
+            updateWebSocketStatus('disconnected', 'Ошибка подключения');
+            // Fallback на AJAX
+            startAjaxFallback();
+        }
+    };
+    
+    employeeSocket.onerror = function(error) {
+        console.error('❌ Employee WebSocket ошибка:', error);
+    };
+}
+
+function requestEmployeeStats() {
+    if (employeeSocket && employeeSocket.readyState === WebSocket.OPEN) {
+        employeeSocket.send(JSON.stringify({type: 'get_employee_data'}));
+    }
+}
+
+function updateEmployeeStats(employeeData) {
+    if (!employeeData || !Array.isArray(employeeData)) return;
+    
+    // Подсчитываем статистику
+    const totalEmployees = employeeData.length;
+    const activeEmployees = employeeData.filter(emp => emp.is_active).length;
+    const todayAtWork = employeeData.filter(emp => {
+        if (!emp.last_seen) return false;
+        const lastSeen = new Date(emp.last_seen);
+        const today = new Date();
+        return lastSeen.toDateString() === today.toDateString();
+    }).length;
+    
+    // Обновляем UI
+    const totalEl = document.getElementById('total-employees');
+    const activeEl = document.getElementById('active-employees');
+    const todayEl = document.getElementById('today-at-work');
+    
+    if (totalEl) totalEl.textContent = totalEmployees;
+    if (activeEl) activeEl.textContent = activeEmployees;
+    if (todayEl) todayEl.textContent = todayAtWork;
+    
+    console.log(`📊 Статистика обновлена: Всего: ${totalEmployees}, Активных: ${activeEmployees}, Сегодня: ${todayAtWork}`);
+}
+
+// Fallback на AJAX если WebSocket не работает
+function startAjaxFallback() {
+    console.log('🔄 Переключение на AJAX fallback для статистики сотрудников');
+    updateInterval = setInterval(loadEmployeeStats, 5000);
+}
+
+function loadEmployeeStats() {
+    fetch('/employees/api/stats/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateEmployeeStats(data.employees);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading employee stats:', error);
+        });
+}
+
+// Запускаем WebSocket при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('HR Система загружена');
-    // TODO: Загрузить статистику через fetch API
+    console.log('🚀 Инициализация HR системы с WebSocket');
+    connectWebSocket();
+});
+
+// Останавливаем WebSocket при выходе со страницы
+window.addEventListener('beforeunload', function() {
+    if (employeeSocket) {
+        employeeSocket.close();
+    }
+    if (updateInterval) {
+        clearInterval(updateInterval);
+    }
 });
 </script>
 {% endblock %}

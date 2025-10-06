@@ -6,8 +6,13 @@
 <div class="page-header">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <div>
-            <h1 style="margin: 0; color: #333;">⏰ Рабочее время сотрудников</h1>
-            <p style="margin: 5px 0 0 0; color: #666;">Учет и контроль рабочего времени</p>
+            <h1 style="margin: 0; color: #333;">
+                ⏰ Рабочее время сотрудников
+                <div id="websocket-status" style="display: inline-block; margin-left: 10px; font-size: 12px; padding: 4px 8px; border-radius: 4px; background: #f8d7da; color: #721c24;">
+                    🔴 WebSocket отключен
+                </div>
+            </h1>
+            <p style="margin: 5px 0 0 0; color: #666;">Учет и контроль рабочего времени в реальном времени</p>
         </div>
         <div>
             <button onclick="showAddTimeModal()" class="btn" style="margin-right: 10px;">➕ Добавить запись</button>
@@ -774,11 +779,111 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
+// ===== WEBSOCKET ДЛЯ РЕАЛЬНОГО ВРЕМЕНИ =====
+let employeeSocket = null;
+let reconnectAttempts = 0;
+const maxReconnectAttempts = 5;
+const reconnectDelay = 3000;
+
+function updateWebSocketStatus(status, message) {
+    const statusEl = document.getElementById('websocket-status');
+    if (statusEl) {
+        if (status === 'connected') {
+            statusEl.style.background = '#d4edda';
+            statusEl.style.color = '#155724';
+            statusEl.innerHTML = '🟢 WebSocket подключен';
+        } else if (status === 'connecting') {
+            statusEl.style.background = '#fff3cd';
+            statusEl.style.color = '#856404';
+            statusEl.innerHTML = '🟡 WebSocket подключается...';
+        } else {
+            statusEl.style.background = '#f8d7da';
+            statusEl.style.color = '#721c24';
+            statusEl.innerHTML = '🔴 WebSocket отключен';
+        }
+    }
+}
+
+function connectWebSocket() {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws/employees/`;
+    
+    console.log('🔌 Подключение к Employee WebSocket для рабочего времени:', wsUrl);
+    updateWebSocketStatus('connecting', 'Подключение...');
+    
+    employeeSocket = new WebSocket(wsUrl);
+    
+    employeeSocket.onopen = function(event) {
+        console.log('✅ Employee WebSocket подключен для рабочего времени');
+        updateWebSocketStatus('connected', 'Подключен');
+        reconnectAttempts = 0;
+        
+        // Запрашиваем данные рабочего времени
+        requestWorktimeData();
+    };
+    
+    employeeSocket.onmessage = function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            console.log('📨 Получены данные рабочего времени:', data);
+            
+            // Обрабатываем обновления рабочего времени
+            if (data.type === 'worktime_data' || data.type === 'worktime_update') {
+                updateWorktimeTable(data.data);
+            }
+        } catch (error) {
+            console.error('❌ Ошибка парсинга WebSocket данных:', error);
+        }
+    };
+    
+    employeeSocket.onclose = function(event) {
+        console.log('❌ Employee WebSocket отключен:', event.code, event.reason);
+        updateWebSocketStatus('disconnected', 'Отключен');
+        employeeSocket = null;
+        
+        // Попытка переподключения
+        if (reconnectAttempts < maxReconnectAttempts) {
+            reconnectAttempts++;
+            console.log(`🔄 Попытка переподключения ${reconnectAttempts}/${maxReconnectAttempts} через ${reconnectDelay/1000} сек`);
+            setTimeout(connectWebSocket, reconnectDelay);
+        } else {
+            console.error('💥 Превышено максимальное количество попыток переподключения');
+            updateWebSocketStatus('disconnected', 'Ошибка подключения');
+            // Fallback на AJAX
+            startAjaxFallback();
+        }
+    };
+    
+    employeeSocket.onerror = function(error) {
+        console.error('❌ Employee WebSocket ошибка:', error);
+    };
+}
+
+function requestWorktimeData() {
+    if (employeeSocket && employeeSocket.readyState === WebSocket.OPEN) {
+        employeeSocket.send(JSON.stringify({type: 'get_worktime_data'}));
+    }
+}
+
+function updateWorktimeTable(worktimeData) {
+    if (!worktimeData || !Array.isArray(worktimeData)) return;
+    
+    console.log(`📊 Данные рабочего времени обновлены: ${worktimeData.length} записей`);
+    
+    // Здесь можно добавить обновление таблицы
+    // Пока просто логируем
+}
+
+// Fallback на AJAX если WebSocket не работает
+function startAjaxFallback() {
+    console.log('🔄 Переключение на AJAX fallback для рабочего времени');
+    checkInterval = setInterval(checkForNewEntries, 3000);
+}
+
 // ===== ИНИЦИАЛИЗАЦИЯ =====
 document.addEventListener('DOMContentLoaded', function() {
-    // Запускаем автообновление каждые 3 секунды (как в security)
-    checkInterval = setInterval(checkForNewEntries, 3000);
-    console.log('Worktime автообновление включено (3 сек)');
+    console.log('🚀 Инициализация рабочего времени с WebSocket');
+    connectWebSocket();
     
     // Обработчики для скрытия результатов поиска
     document.addEventListener('click', function(e) {
@@ -791,6 +896,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Остановка при выходе
 window.addEventListener('beforeunload', function() {
+    if (employeeSocket) {
+        employeeSocket.close();
+    }
     if (checkInterval) {
         clearInterval(checkInterval);
     }
