@@ -20147,3 +20147,16 @@ WARNING 2025-10-06 12:14:23,823 log Not Found: /ws/employees/
 WARNING 2025-10-06 12:14:25,892 log Not Found: /ws/notifications/
 WARNING 2025-10-06 12:14:26,871 log Not Found: /ws/security/
 WARNING 2025-10-06 12:14:28,802 log Not Found: /ws/lohia/machine1/
+WARNING 2025-10-06 12:24:17,517 log Not Found: /static/css/style.css
+WARNING 2025-10-06 12:36:37,960 log Not Found: /static/css/style.css
+WARNING 2025-10-06 12:36:37,983 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-06 12:39:57,117 log Not Found: /static/css/style.css
+WARNING 2025-10-06 12:39:57,445 log Not Found: /static/css/style.css
+WARNING 2025-10-06 12:39:57,752 log Not Found: /static/css/style.css
+WARNING 2025-10-06 12:39:58,210 log Not Found: /static/css/style.css
+WARNING 2025-10-06 12:39:58,698 log Not Found: /static/css/style.css
+WARNING 2025-10-06 12:39:59,092 log Not Found: /static/css/style.css
+WARNING 2025-10-06 12:39:59,357 log Not Found: /static/css/style.css
+WARNING 2025-10-06 12:39:59,530 log Not Found: /static/css/style.css
+WARNING 2025-10-06 12:40:31,260 log Not Found: /static/css/style.css
+WARNING 2025-10-06 12:40:47,606 log Not Found: /static/css/style.css

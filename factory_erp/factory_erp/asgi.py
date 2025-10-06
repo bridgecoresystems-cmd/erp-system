@@ -12,6 +12,7 @@ from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from channels.security.websocket import AllowedHostsOriginValidator
+from django.contrib.staticfiles.handlers import ASGIStaticFilesHandler
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'factory_erp.settings')
 
@@ -20,6 +21,9 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'factory_erp.settings')
 django_asgi_app = get_asgi_application()
 
 from factory_erp.routing import websocket_urlpatterns
+
+# Wrap Django ASGI app with static files handler
+django_asgi_app = ASGIStaticFilesHandler(django_asgi_app)
 
 application = ProtocolTypeRouter({
     "http": django_asgi_app,
