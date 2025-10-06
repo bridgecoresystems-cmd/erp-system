@@ -8,6 +8,9 @@
     <div class="lohia-card">
         <div class="lohia-card-header">
             📊 История смен
+            <div id="websocket-status" style="float: right; font-size: 12px; padding: 4px 8px; border-radius: 4px; background: #f8d7da; color: #721c24;">
+                🔴 WebSocket отключен
+            </div>
         </div>
     </div>
 
@@ -93,47 +96,153 @@
 </div>
 
 <script>
+// WebSocket подключение для реального времени
+let lohiaSocket = null;
+let reconnectAttempts = 0;
+const maxReconnectAttempts = 5;
+const reconnectDelay = 3000;
+
+function updateWebSocketStatus(status, message) {
+    const statusEl = document.getElementById('websocket-status');
+    if (statusEl) {
+        if (status === 'connected') {
+            statusEl.style.background = '#d4edda';
+            statusEl.style.color = '#155724';
+            statusEl.innerHTML = '🟢 WebSocket подключен';
+        } else if (status === 'connecting') {
+            statusEl.style.background = '#fff3cd';
+            statusEl.style.color = '#856404';
+            statusEl.innerHTML = '🟡 WebSocket подключается...';
+        } else {
+            statusEl.style.background = '#f8d7da';
+            statusEl.style.color = '#721c24';
+            statusEl.innerHTML = '🔴 WebSocket отключен';
+        }
+    }
+}
+
+function connectWebSocket() {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws/lohia/machine1/`;
+    
+    console.log('🔌 Подключение к WebSocket для истории смен:', wsUrl);
+    updateWebSocketStatus('connecting', 'Подключение...');
+    
+    lohiaSocket = new WebSocket(wsUrl);
+    
+    lohiaSocket.onopen = function(event) {
+        console.log('✅ WebSocket подключен к истории смен');
+        updateWebSocketStatus('connected', 'Подключен');
+        reconnectAttempts = 0;
+        
+        // Запрашиваем данные смен
+        requestShiftsData();
+    };
+    
+    lohiaSocket.onmessage = function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            console.log('📨 Получены данные смен:', data);
+            
+            // Обрабатываем данные смен
+            if (data.type === 'shift_data' || data.type === 'shift_update') {
+                updateShiftsTable(data.data);
+            }
+        } catch (error) {
+            console.error('❌ Ошибка парсинга WebSocket данных:', error);
+        }
+    };
+    
+    lohiaSocket.onclose = function(event) {
+        console.log('❌ WebSocket отключен:', event.code, event.reason);
+        updateWebSocketStatus('disconnected', 'Отключен');
+        lohiaSocket = null;
+        
+        // Попытка переподключения
+        if (reconnectAttempts < maxReconnectAttempts) {
+            reconnectAttempts++;
+            console.log(`🔄 Попытка переподключения ${reconnectAttempts}/${maxReconnectAttempts} через ${reconnectDelay/1000} сек`);
+            setTimeout(connectWebSocket, reconnectDelay);
+        } else {
+            console.error('💥 Превышено максимальное количество попыток переподключения');
+            updateWebSocketStatus('disconnected', 'Ошибка подключения');
+            // Fallback на AJAX
+            startAjaxFallback();
+        }
+    };
+    
+    lohiaSocket.onerror = function(error) {
+        console.error('❌ WebSocket ошибка:', error);
+    };
+}
+
+function requestShiftsData() {
+    if (lohiaSocket && lohiaSocket.readyState === WebSocket.OPEN) {
+        lohiaSocket.send(JSON.stringify({type: 'get_shift_data'}));
+    }
+}
+
+function updateShiftsTable(shiftsData) {
+    const tbody = document.getElementById('shifts-table-body');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+    
+    if (shiftsData && Array.isArray(shiftsData)) {
+        shiftsData.forEach(shift => {
+            const row = document.createElement('tr');
+            
+            // Определяем статус badge
+            let statusBadge = '';
+            if (shift.status === 'active' || shift.status === 'Активна') {
+                statusBadge = '<span class="lohia-badge lohia-badge-primary">Активна</span>';
+            } else {
+                statusBadge = '<span class="lohia-badge lohia-badge-success">Завершена</span>';
+            }
+            
+            // Определяем длительность с цветом
+            let durationDisplay = '';
+            if (shift.end_time === null || shift.end_time === 'Активна') {
+                durationDisplay = `<span class="text-primary">${shift.duration || 'Активна'}</span>`;
+            } else {
+                durationDisplay = shift.duration || '—';
+            }
+            
+            // Форматируем время
+            const startTime = new Date(shift.start_time);
+            const endTime = shift.end_time ? new Date(shift.end_time) : null;
+            
+            row.innerHTML = `
+                <td>${startTime.toLocaleDateString('ru-RU')}</td>
+                <td>${shift.operator || 'Неизвестно'}</td>
+                <td>${shift.machine || 'Станок Lohia #1'}</td>
+                <td>${startTime.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'})}</td>
+                <td>${endTime ? endTime.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}) : '<span class="text-muted">—</span>'}</td>
+                <td>${durationDisplay}</td>
+                <td>${shift.current_pulses || shift.total_pulses || 0}</td>
+                <td>${(shift.total_meters || 0).toFixed(6)} м</td>
+                <td>${statusBadge}</td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+    } else {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #666; padding: 20px;">Нет данных о сменах</td></tr>';
+    }
+}
+
+// Fallback на AJAX если WebSocket не работает
+function startAjaxFallback() {
+    console.log('🔄 Переключение на AJAX fallback для истории смен');
+    updateInterval = setInterval(updateShiftsHistory, 5000);
+}
+
 function updateShiftsHistory() {
     fetch('/lohia/api/shifts-history/')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                const tbody = document.getElementById('shifts-table-body');
-                tbody.innerHTML = '';
-                
-                data.shifts.forEach(shift => {
-                    const row = document.createElement('tr');
-                    
-                    // Определяем статус badge
-                    let statusBadge = '';
-                    if (shift.status === 'Активна') {
-                        statusBadge = '<span class="badge bg-primary">Активна</span>';
-                    } else {
-                        statusBadge = '<span class="badge bg-success">Завершена</span>';
-                    }
-                    
-                    // Определяем длительность с цветом
-                    let durationDisplay = '';
-                    if (shift.end_time === 'Активна') {
-                        durationDisplay = `<span class="text-primary">${shift.duration}</span>`;
-                    } else {
-                        durationDisplay = shift.duration;
-                    }
-                    
-                    row.innerHTML = `
-                        <td>${shift.start_time.split(' ')[0]}</td>
-                        <td>${shift.operator}</td>
-                        <td>Станок Lohia #1</td>
-                        <td>${shift.start_time.split(' ')[1]}</td>
-                        <td>${shift.end_time === 'Активна' ? '<span class="text-muted">—</span>' : shift.end_time.split(' ')[1]}</td>
-                        <td>${durationDisplay}</td>
-                        <td>${shift.total_pulses}</td>
-                        <td>${shift.total_meters.toFixed(6)} м</td>
-                        <td>${statusBadge}</td>
-                    `;
-                    
-                    tbody.appendChild(row);
-                });
+                updateShiftsTable(data.shifts);
             }
         })
         .catch(error => {
@@ -141,11 +250,21 @@ function updateShiftsHistory() {
         });
 }
 
-// Обновляем каждые 5 секунд
-setInterval(updateShiftsHistory, 5000);
+// Запускаем WebSocket при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Инициализация истории смен с WebSocket');
+    connectWebSocket();
+});
 
-// Первое обновление через 2 секунды после загрузки страницы
-setTimeout(updateShiftsHistory, 2000);
+// Останавливаем WebSocket при выходе со страницы
+window.addEventListener('beforeunload', function() {
+    if (lohiaSocket) {
+        lohiaSocket.close();
+    }
+    if (updateInterval) {
+        clearInterval(updateInterval);
+    }
+});
 </script>
 
 {% endblock %}

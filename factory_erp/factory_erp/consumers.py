@@ -48,6 +48,8 @@ class LohiaConsumer(AsyncWebsocketConsumer):
                 await self.send_shift_data()
             elif message_type == 'get_pulse_data':
                 await self.send_pulse_data()
+            elif message_type == 'get_maintenance_data':
+                await self.send_maintenance_data()
                 
         except json.JSONDecodeError:
             await self.send(text_data=json.dumps({
@@ -83,6 +85,14 @@ class LohiaConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'type': 'pulse_data',
             'data': pulses
+        }))
+    
+    async def send_maintenance_data(self):
+        """Отправка данных о вызовах мастера."""
+        maintenance_calls = await self.get_maintenance_calls()
+        await self.send(text_data=json.dumps({
+            'type': 'maintenance_data',
+            'data': maintenance_calls
         }))
     
     @database_sync_to_async
@@ -133,6 +143,13 @@ class LohiaConsumer(AsyncWebsocketConsumer):
             }
             for pulse in pulses
         ]
+    
+    @database_sync_to_async
+    def get_maintenance_calls(self):
+        """Получение данных о вызовах мастера."""
+        # Пока возвращаем пустой список, так как модель MaintenanceCall может не существовать
+        # В будущем можно добавить реальную модель для вызовов мастера
+        return []
     
     # Групповые сообщения
     async def machine_update(self, event):
