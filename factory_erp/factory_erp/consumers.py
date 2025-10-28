@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from lohia_monitor.models import Machine, Shift, PulseLog
 from employees.models import Employee, WorkTimeEntry
 import asyncio
+from datetime import datetime
 
 
 class LohiaConsumer(AsyncWebsocketConsumer):
@@ -59,9 +60,12 @@ class LohiaConsumer(AsyncWebsocketConsumer):
     
     async def send_initial_data(self):
         """Отправка начальных данных при подключении."""
-        await self.send_machine_status()
-        await self.send_shift_data()
-        await self.send_pulse_data()
+        # Отправляем ПОЛНЫЕ данные о станках
+        machines = await self.get_machines()
+        await self.send(text_data=json.dumps({
+            'type': 'machine_status',
+            'data': machines
+        }))
     
     async def send_machine_status(self):
         """Отправка статуса станка."""
@@ -97,37 +101,39 @@ class LohiaConsumer(AsyncWebsocketConsumer):
     
     @database_sync_to_async
     def get_machines(self):
-        """Получение данных о станках."""
-        machines = Machine.objects.all()
-        return [
-            {
-                'id': machine.id,
+        """Получение ПОЛНЫХ данных о станках для dashboard."""
+        from lohia_monitor.models import Machine, MaintenanceCall
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        machines = Machine.objects.filter(is_active=True).select_related('current_operator').order_by('id')
+        result = []
+        
+        for machine in machines:
+            # Активный вызов мастера
+            active_call = MaintenanceCall.objects.filter(
+                machine=machine, 
+                status__in=['pending', 'in_progress']
+            ).select_related('master', 'operator').first()
+            
+            item = {
+                'machine_id': machine.id,
                 'name': machine.name,
                 'status': machine.status,
-                'current_speed': machine.current_speed,
-                'target_speed': machine.target_speed,
-                'efficiency': machine.get_efficiency(),
-                'last_maintenance': machine.last_maintenance.isoformat() if machine.last_maintenance else None,
+                # ВАЖНО: Всегда отправляем имя оператора если он есть
+                'current_operator': machine.current_operator.get_full_name() if machine.current_operator else None,
+                'current_pulse_count': machine.current_pulse_count,
+                'current_meters': float(machine.current_meters),
+                'meters_per_pulse': float(machine.meters_per_pulse),
+                # Данные о вызове мастера
+                'call_status': active_call.status if active_call else None,
+                'call_operator': active_call.operator.get_full_name() if active_call and active_call.operator else None,
+                'master': active_call.master.get_full_name() if active_call and active_call.master else None,
             }
-            for machine in machines
-        ]
-    
-    @database_sync_to_async
-    def get_active_shifts(self):
-        """Получение активных смен."""
-        shifts = Shift.objects.filter(is_active=True)
-        return [
-            {
-                'id': shift.id,
-                'machine': shift.machine.name,
-                'start_time': shift.start_time.isoformat(),
-                'operator': shift.operator.username if shift.operator else None,
-                'target_pulses': shift.target_pulses,
-                'current_pulses': shift.get_current_pulses(),
-                'efficiency': shift.get_efficiency(),
-            }
-            for shift in shifts
-        ]
+            result.append(item)
+            logger.debug(f"Consumer sending data for {machine.name}: meters={machine.current_meters}, operator={item['current_operator']}")
+        
+        return result
     
     @database_sync_to_async
     def get_recent_pulses(self):
@@ -139,7 +145,7 @@ class LohiaConsumer(AsyncWebsocketConsumer):
                 'machine': pulse.machine.name,
                 'timestamp': pulse.timestamp.isoformat(),
                 'pulse_count': pulse.pulse_count,
-                'speed': pulse.speed,
+                'meters_produced': float(pulse.meters_produced),
             }
             for pulse in pulses
         ]
@@ -153,10 +159,24 @@ class LohiaConsumer(AsyncWebsocketConsumer):
     
     # Групповые сообщения
     async def machine_update(self, event):
-        """Обработка обновлений станка."""
+        """Обработка обновлений станка - читаем данные из БД и отправляем."""
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        # Небольшая задержка чтобы БД точно обновилась после транзакции
+        await asyncio.sleep(0.2)
+        
+        # Читаем СВЕЖИЕ данные из БД
+        machines = await self.get_machines()
+        
+        logger.info(f"📡 Consumer machine_update: отправка {len(machines)} станков")
+        for m in machines:
+            logger.info(f"  → {m['name']}: pulses={m['current_pulse_count']}, meters={m['current_meters']:.6f}, operator={m['current_operator']}")
+        
+        # Отправляем полные данные клиенту
         await self.send(text_data=json.dumps({
-            'type': 'machine_update',
-            'data': event['data']
+            'type': 'machine_status',
+            'data': machines
         }))
     
     async def shift_update(self, event):
@@ -288,11 +308,12 @@ class EmployeeConsumer(AsyncWebsocketConsumer):
         return [
             {
                 'id': employee.id,
-                'name': employee.name,
+                'name': employee.get_full_name() if hasattr(employee, 'get_full_name') else f"{getattr(employee, 'last_name', '')} {getattr(employee, 'first_name', '')}".strip(),
                 'position': employee.position,
                 'rfid_uid': employee.rfid_uid,
                 'is_active': employee.is_active,
-                'last_seen': employee.last_seen.isoformat() if employee.last_seen else None,
+                # Поля last_seen может не быть в модели; отдаем None
+                'last_seen': None,
             }
             for employee in employees
         ]
@@ -300,14 +321,15 @@ class EmployeeConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_worktime_data(self):
         """Получение данных о рабочем времени."""
+        from django.utils import timezone
         worktime_entries = WorkTimeEntry.objects.order_by('-entry_time')[:100]
         return [
             {
                 'id': entry.id,
-                'employee': entry.employee.name,
-                'entry_time': entry.entry_time.isoformat(),
-                'exit_time': entry.exit_time.isoformat() if entry.exit_time else None,
-                'duration': entry.get_duration().total_seconds() if entry.exit_time else None,
+                'employee': entry.employee.get_full_name() if hasattr(entry.employee, 'get_full_name') else f"{getattr(entry.employee, 'last_name', '')} {getattr(entry.employee, 'first_name', '')}".strip(),
+                'entry_time': timezone.make_aware(datetime.combine(entry.date, entry.entry_time)).isoformat() if entry.entry_time else None,
+                'exit_time': timezone.make_aware(datetime.combine(entry.date, entry.exit_time)).isoformat() if entry.exit_time else None,
+                'duration': int(float(entry.hours_worked) * 3600) if entry.hours_worked else None,
             }
             for entry in worktime_entries
         ]
@@ -385,4 +407,13 @@ class SecurityConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'type': 'security_update',
             'data': event['data']
+        }))
+    
+    async def maintenance_call_update(self, event):
+        """Обработка обновлений вызова мастера - отправляем ВСЕ данные заново."""
+        # Вместо отправки частичных данных, отправляем полный статус
+        machines = await self.get_machines()
+        await self.send(text_data=json.dumps({
+            'type': 'machine_status',
+            'data': machines
         }))

@@ -96,6 +96,8 @@ def websocket_simple_test_view(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # Admin helper redirects
+    path('admin/lohia/master/', RedirectView.as_view(pattern_name='lohia_monitor:master_page', permanent=False), name='admin_lohia_master'),
     path('', redirect_to_employees, name='home'),
     
     # Favicon

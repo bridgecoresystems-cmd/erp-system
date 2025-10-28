@@ -1,0 +1,49 @@
+name: lohia_master_app
+description: Приложение для мастеров станков Lohia
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # WebSocket
+  web_socket_channel: ^2.4.0
+  
+  # HTTP клиент
+  http: ^1.1.0
+  
+  # Звук (ПРОСТОЙ плагин без конфликтов!)
+  audioplayers: ^5.2.0
+  
+  # Разрешения
+  permission_handler: ^11.1.0
+  
+  # Хранение данных
+  shared_preferences: ^2.2.2
+  
+  # Иконки
+  cupertino_icons: ^1.0.6
+  
+  # Работа в фоне
+  workmanager: ^0.5.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/sounds/
+  
+  # Иконка приложения
+  # flutter_icons:
+  #   android: true
+  #   image_path: "assets/icon.png"
+

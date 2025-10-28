@@ -226,16 +226,15 @@ class WorkTimeEntry(models.Model):
             
             self.hours_worked = round(max(0, total_hours), 2)
             
-            # Определяем статус ТОЛЬКО если не установлен вручную или это автоматический ввод
-            if not self.is_manual_entry or self.status == 'present':
-                if self.hours_worked < 4:
-                    self.status = 'partial'
-                elif self.entry_time > time(9, 30):  # 09:30
-                    self.status = 'late'
-                elif self.hours_worked < 7:
-                    self.status = 'early_leave'
-                else:
-                    self.status = 'present'
+            # Автоматически обновляем статус на основе времени и часов
+            if self.hours_worked < 4:
+                self.status = 'partial'
+            elif self.entry_time > time(9, 30):  # 09:30
+                self.status = 'late'
+            elif self.hours_worked < 7:
+                self.status = 'early_leave'
+            else:
+                self.status = 'present'
         
         super().save(*args, **kwargs)
         

@@ -1,0 +1,478 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Панель мастера{% endblock %}
+
+{% block content %}
+<div class="lohia-container">
+    <!-- Заголовок -->
+    <div class="lohia-card" style="margin-bottom: 15px;">
+        <div class="lohia-card-header" style="font-size: 16px; padding: 10px 15px;">
+            🔧 Панель мастера
+            <div id="ws-status" style="float: right; font-size: 11px; padding: 3px 8px; border-radius: 4px; background: #fff3cd; color: #856404;">
+                🟡 Подключение...
+            </div>
+        </div>
+    </div>
+
+    <!-- Активные вызовы -->
+    <div class="lohia-card" style="margin-bottom: 15px;">
+        <div class="lohia-card-header" style="font-size: 14px; padding: 10px 15px; background: #dc3545; color: white;">
+            ⚠️ Активные вызовы
+        </div>
+        <div class="lohia-card-body" style="padding: 15px;">
+            <div id="active-calls-container">
+                <p style="text-align: center; color: #999; font-size: 13px;">Нет активных вызовов</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Таблица станков -->
+    <div class="lohia-card">
+        <div class="lohia-card-header" style="font-size: 14px; padding: 10px 15px;">
+            📋 Все станки
+        </div>
+        <div class="lohia-card-body" style="padding: 15px;">
+            <div class="lohia-table-wrapper">
+                <table class="lohia-table lohia-table-compact">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;">№</th>
+                            <th style="width: 150px;">Имя станка</th>
+                            <th style="width: 100px;">Статус</th>
+                            <th style="width: 180px;">Оператор</th>
+                            <th style="width: 120px;">Вызов мастера</th>
+                            <th style="width: 150px;">Действие</th>
+                        </tr>
+                    </thead>
+                    <tbody id="machines-tbody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: #999; padding: 30px; font-size: 13px;">
+                                Загрузка данных...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Журнал уведомлений -->
+    <div class="lohia-card" style="margin-top: 15px;">
+        <div class="lohia-card-header" style="font-size: 14px; padding: 10px 15px;">
+            📋 Журнал уведомлений
+        </div>
+        <div class="lohia-card-body" style="padding: 15px;">
+            <div id="log" style="height: 200px; overflow: auto; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 10px; font-family: monospace; font-size: 11px;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+let ws = null;
+let reconnectAttempts = 0;
+const maxReconnect = 5;
+const reconnectDelay = 3000;
+let machinesData = [];
+let previousCallsCount = 0;
+let alertAudio = null;
+
+function setWsStatus(state) {
+    const el = document.getElementById('ws-status');
+    if (!el) return;
+    if (state === 'connected') {
+        el.style.background = '#d4edda';
+        el.style.color = '#155724';
+        el.textContent = '🟢 WS подключен';
+    } else if (state === 'connecting') {
+        el.style.background = '#fff3cd';
+        el.style.color = '#856404';
+        el.textContent = '🟡 Подключение...';
+    } else {
+        el.style.background = '#f8d7da';
+        el.style.color = '#721c24';
+        el.textContent = '🔴 WS отключен';
+    }
+}
+
+function logLine(text, color) {
+    const log = document.getElementById('log');
+    const time = new Date().toLocaleTimeString();
+    const div = document.createElement('div');
+    div.style.color = color || '#000';
+    div.textContent = `[${time}] ${text}`;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+}
+
+function initAudio() {
+    // Инициализация звука
+    alertAudio = new Audio('{% static "audio/alert.mp3" %}');
+    alertAudio.preload = 'auto';
+    
+    // Тестовая загрузка
+    alertAudio.addEventListener('canplaythrough', () => {
+        logLine('Звук загружен и готов', 'green');
+    });
+    
+    alertAudio.addEventListener('error', (e) => {
+        logLine('Ошибка загрузки звука: ' + e.message, 'red');
+    });
+}
+
+async function requestPermissions() {
+    // Регистрируем Service Worker
+    if ('serviceWorker' in navigator) {
+        try {
+            const registration = await navigator.serviceWorker.register('{% static "js/sw.js" %}');
+            logLine('Service Worker зарегистрирован', 'green');
+            console.log('SW registered:', registration);
+        } catch (error) {
+            logLine('Ошибка регистрации Service Worker: ' + error, 'red');
+        }
+    }
+    
+    // Запрос разрешения на уведомления
+    if ("Notification" in window) {
+        if (Notification.permission === "default") {
+            const permission = await Notification.requestPermission();
+            if (permission === "granted") {
+                logLine('Разрешение на уведомления получено', 'green');
+            } else {
+                logLine('Разрешение на уведомления отклонено', 'orange');
+            }
+        } else if (Notification.permission === "granted") {
+            logLine('Уведомления разрешены', 'green');
+        } else {
+            logLine('Уведомления заблокированы', 'red');
+        }
+    }
+    
+    // Для звука нужно взаимодействие пользователя - добавим кнопку
+    const testButton = document.createElement('button');
+    testButton.textContent = '🔊 Тест звука';
+    testButton.style.cssText = 'position: fixed; bottom: 20px; right: 20px; padding: 10px 15px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; z-index: 1000;';
+    testButton.onclick = () => {
+        playAlert();
+        logLine('Тест звука выполнен', 'blue');
+    };
+    document.body.appendChild(testButton);
+    
+    // Добавляем кнопку теста фоновых уведомлений
+    const backgroundTestButton = document.createElement('button');
+    backgroundTestButton.textContent = '🔔 Тест фона';
+    backgroundTestButton.style.cssText = 'position: fixed; bottom: 20px; right: 140px; padding: 10px 15px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 12px; z-index: 1000;';
+    backgroundTestButton.onclick = () => {
+        testBackgroundNotification();
+    };
+    document.body.appendChild(backgroundTestButton);
+}
+
+function connect() {
+    const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const url = `${proto}//${window.location.host}/ws/lohia/dashboard/`;
+    setWsStatus('connecting');
+    logLine('Подключение к WebSocket...', '#666');
+    
+    ws = new WebSocket(url);
+    
+    ws.onopen = () => {
+        setWsStatus('connected');
+        reconnectAttempts = 0;
+        logLine('WebSocket подключен', 'green');
+    };
+    
+    ws.onmessage = (ev) => {
+        try {
+            const msg = JSON.parse(ev.data);
+            handleMessage(msg);
+        } catch (e) {
+            logLine('Ошибка парсинга: ' + e, 'red');
+        }
+    };
+    
+    ws.onclose = () => {
+        setWsStatus('disconnected');
+        logLine('WebSocket отключен', 'red');
+        if (reconnectAttempts < maxReconnect) {
+            reconnectAttempts++;
+            logLine(`Переподключение ${reconnectAttempts}/${maxReconnect}...`, 'orange');
+            setTimeout(connect, reconnectDelay);
+        }
+    };
+    
+    ws.onerror = (e) => {
+        logLine('Ошибка WebSocket', 'red');
+    };
+}
+
+function handleMessage(msg) {
+    logLine(`Получено сообщение: ${msg.type}`, '#666');
+    
+    if (msg.type === 'machine_status' && Array.isArray(msg.data)) {
+        updateMachinesData(msg.data);
+    }
+}
+
+function updateMachinesData(data) {
+    // Подсчитываем текущие вызовы PENDING
+    const currentCalls = data.filter(m => m.call_status === 'pending');
+    const currentCallsCount = currentCalls.length;
+    
+    logLine(`Обновление: ${currentCallsCount} активных вызовов`, '#666');
+    
+    // Проверяем появились ли НОВЫЕ вызовы
+    if (currentCallsCount > previousCallsCount) {
+        const newCallsCount = currentCallsCount - previousCallsCount;
+        logLine(`🔔 НОВЫЙ ВЫЗОВ! Всего: ${currentCallsCount}`, 'red');
+        notifyMaster(currentCalls);
+    }
+    
+    // Сохраняем текущее количество
+    previousCallsCount = currentCallsCount;
+    machinesData = data;
+    
+    updateUI();
+}
+
+function updateUI() {
+    updateMachinesTable();
+    updateActiveCalls();
+}
+
+function updateMachinesTable() {
+    const tbody = document.getElementById('machines-tbody');
+    if (!tbody) return;
+    
+    if (machinesData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999; padding: 30px;">Нет данных о станках</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = machinesData.map((machine, index) => {
+        const statusHtml = getStatusHtml(machine.status);
+        const callHtml = getCallHtml(machine.call_status);
+        const actionHtml = getActionHtml(machine);
+        
+        return `
+            <tr class="machine-row" data-machine-id="${machine.machine_id}">
+                <td style="text-align: center; font-size: 12px;">${index + 1}</td>
+                <td style="font-size: 12px; font-weight: 500;">${machine.name}</td>
+                <td style="font-size: 12px;">${statusHtml}</td>
+                <td style="font-size: 12px;">${machine.current_operator || '<span style="color: #999;">—</span>'}</td>
+                <td style="font-size: 12px; text-align: center;">${callHtml}</td>
+                <td style="font-size: 12px;">${actionHtml}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function updateActiveCalls() {
+    const container = document.getElementById('active-calls-container');
+    if (!container) return;
+    
+    const activeCalls = machinesData.filter(m => m.call_status === 'pending' || m.call_status === 'in_progress');
+    
+    if (activeCalls.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #999; font-size: 13px;">Нет активных вызовов</p>';
+        return;
+    }
+    
+    container.innerHTML = activeCalls.map(machine => `
+        <div style="background: ${machine.call_status === 'pending' ? '#fff3cd' : '#d1ecf1'}; border-left: 4px solid ${machine.call_status === 'pending' ? '#ffc107' : '#17a2b8'}; padding: 12px; margin-bottom: 10px; border-radius: 4px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h4 style="margin: 0 0 5px 0; font-size: 14px;">${machine.call_status === 'pending' ? '⚠️' : '🔧'} ${machine.name}</h4>
+                    <p style="margin: 0; font-size: 12px; color: #666;">
+                        Оператор: ${machine.current_operator || '—'}
+                    </p>
+                    <p style="margin: 0; font-size: 12px; color: #666;">
+                        Статус: ${machine.call_status === 'pending' ? 'Ожидает мастера' : 'Мастер работает: ' + (machine.master || '—')}
+                    </p>
+                </div>
+                <div>
+                    ${getActionHtml(machine)}
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function getStatusHtml(status) {
+    const statuses = {
+        'working': '<span style="color: #28a745;">🟢 Работает</span>',
+        'maintenance': '<span style="color: #ffc107;">🟡 Ремонт</span>',
+        'stopped': '<span style="color: #dc3545;">🔴 Остановлен</span>',
+        'idle': '<span style="color: #6c757d;">⚪ Простой</span>'
+    };
+    return statuses[status] || statuses['idle'];
+}
+
+function getCallHtml(callStatus) {
+    if (callStatus === 'pending') {
+        return '<span style="color: #dc3545; font-weight: 600;">⚠️ Да</span>';
+    } else if (callStatus === 'in_progress') {
+        return '<span style="color: #ffc107; font-weight: 600;">🔧 В работе</span>';
+    }
+    return '<span style="color: #28a745;">✓ Нет</span>';
+}
+
+function getActionHtml(machine) {
+    if (machine.call_status === 'pending') {
+        return `<button onclick="acceptCall(${machine.machine_id}, '${machine.name}')" style="background: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px;">✓ Принять</button>`;
+    } else if (machine.call_status === 'in_progress') {
+        return `<button onclick="completeRepair(${machine.machine_id}, '${machine.name}')" style="background: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px;">✓ Завершить</button>`;
+    }
+    return '<span style="color: #999;">—</span>';
+}
+
+function acceptCall(machineId, machineName) {
+    logLine(`Попытка принять вызов от ${machineName}`, '#007bff');
+    alert('Для принятия вызова приложите RFID карту к станку');
+}
+
+function completeRepair(machineId, machineName) {
+    logLine(`Ремонт станка ${machineName} завершается...`, '#28a745');
+    alert('Для завершения ремонта приложите RFID карту к станку повторно');
+}
+
+function playAlert() {
+    if (!alertAudio) {
+        logLine('Звук не загружен', 'red');
+        return;
+    }
+    
+    alertAudio.currentTime = 0;
+    alertAudio.play()
+        .then(() => {
+            logLine('Звук воспроизведен', 'green');
+        })
+        .catch((e) => {
+            logLine('Ошибка воспроизведения: ' + e.message, 'red');
+        });
+}
+
+function notifyMaster(calls) {
+    const callsText = calls.map(m => m.name).join(', ');
+    
+    // 1. Вибрация (если поддерживается)
+    if (navigator.vibrate) {
+        // Сильный паттерн: вибро-пауза-вибро-пауза-вибро
+        navigator.vibrate([400, 150, 400, 150, 400]);
+        logLine('Вибрация активирована', 'blue');
+    } else {
+        logLine('Вибрация не поддерживается', 'orange');
+    }
+    
+    // 2. Звук оповещения
+    playAlert();
+    
+    // 3. Браузерное уведомление (если разрешено)
+    if ("Notification" in window && Notification.permission === "granted") {
+        const notification = new Notification("🔧 Вызов мастера!", {
+            body: `Станки: ${callsText}`,
+            icon: "{% static 'favicon.ico' %}",
+            badge: "{% static 'favicon.ico' %}",
+            requireInteraction: true,
+            vibrate: [400, 150, 400, 150, 400],
+            tag: 'maintenance-call', // Чтобы не создавать дубликаты
+        });
+        
+        notification.onclick = () => {
+            window.focus();
+            notification.close();
+        };
+        
+        logLine('Push-уведомление отправлено', 'green');
+    } else {
+        logLine('Push-уведомления недоступны', 'orange');
+    }
+    
+    // 4. Фоновое уведомление через Service Worker
+    sendBackgroundNotification(callsText);
+    
+    // 5. Визуальное уведомление на экране
+    showVisualAlert(callsText);
+}
+
+function sendBackgroundNotification(callsText) {
+    // Отправляем сообщение в Service Worker для фонового уведомления
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+            type: 'MAINTENANCE_CALL',
+            machines: callsText
+        });
+        logLine('Фоновое уведомление отправлено', 'green');
+    } else {
+        logLine('Service Worker недоступен', 'orange');
+    }
+}
+
+function testBackgroundNotification() {
+    logLine('Тестирование фонового уведомления...', 'blue');
+    sendBackgroundNotification('Тестовый станок');
+}
+
+function showVisualAlert(text) {
+    // Создаем большое визуальное уведомление
+    const alert = document.createElement('div');
+    alert.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #dc3545;
+        color: white;
+        padding: 30px 40px;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        z-index: 9999;
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        animation: pulse 1s infinite;
+    `;
+    alert.innerHTML = `
+        <div style="font-size: 40px; margin-bottom: 10px;">🔧</div>
+        <div>ВЫЗОВ МАСТЕРА!</div>
+        <div style="font-size: 16px; margin-top: 10px; font-weight: normal;">${text}</div>
+    `;
+    
+    // Добавляем CSS анимацию
+    if (!document.getElementById('pulse-animation')) {
+        const style = document.createElement('style');
+        style.id = 'pulse-animation';
+        style.textContent = `
+            @keyframes pulse {
+                0%, 100% { transform: translate(-50%, -50%) scale(1); }
+                50% { transform: translate(-50%, -50%) scale(1.05); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(alert);
+    
+    // Убираем через 5 секунд
+    setTimeout(() => {
+        alert.remove();
+    }, 5000);
+}
+
+// Инициализация при загрузке
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 Инициализация панели мастера');
+    logLine('Система запущена', 'green');
+    
+    initAudio();
+    requestPermissions();
+    connect();
+});
+
+window.addEventListener('beforeunload', () => {
+    if (ws) {
+        ws.close();
+    }
+});
+</script>
+{% endblock %}

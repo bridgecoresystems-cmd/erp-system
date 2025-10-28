@@ -12,7 +12,7 @@
 <body>
     <div class="header">
         <div class="header-left">
-            <img src="/staticfiles/images/logo.png" alt="Logo" class="logo-menu-title">
+            <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo-menu-title">
             
             {% if user.is_authenticated %}
                 <div class="nav-links" id="navLinks">
@@ -21,7 +21,7 @@
                         <div class="mobile-user-avatar">
                             {% if user.employee_profile %}
                                 {% if user.employee_profile.photo %}
-                                    <img src="{{ user.employee_profile.photo.url }}" alt="{{ user.username }}">
+                                    <img src="{{ user.employee_profile.photo.url }}" alt="{{ user.username }}" style="width: 100%; height: 100%; object-fit: cover;">
                                 {% else %}
                                     <span class="avatar-placeholder">👤</span>
                                 {% endif %}
@@ -208,7 +208,7 @@
                     <div class="desktop-user-avatar">
                         {% if user.employee_profile %}
                             {% if user.employee_profile.photo %}
-                                <img src="{{ user.employee_profile.photo.url }}" alt="{{ user.username }}">
+                                <img src="{{ user.employee_profile.photo.url }}" alt="{{ user.username }}" style="width: 100%; height: 100%; object-fit: cover;">
                             {% else %}
                                 <span class="desktop-avatar-placeholder">👤</span>
                             {% endif %}
@@ -281,7 +281,7 @@
                 <div class="footer-brand">
                     <div class="footer-logo">
                         <div style="display: flex; align-items: center; gap: 15px;">
-                            <img src="/staticfiles/images/logo.png" alt="BridgeCore SYSTEMS" class="footer-logo-img">
+                            <img src="{% static 'images/logo.png' %}" alt="BridgeCore SYSTEMS" class="footer-logo-img">
                             <span style="font-size: 18px; font-weight: 600; color: #ffffff;">BridgeCore<span class="brand-accent"> SYSTEMS</span></span>
                         </div>
                         <div class="brand-line"></div>
@@ -324,7 +324,7 @@
                     <div class="contact-info">
                         <div class="contact-item">
                             <span class="contact-icon">📧</span>
-                            <a href="mailto:support@bridgecoresystems.com" style="color: #ffffff; text-decoration: none;">support@bridgecoresystems.com</a>
+                            <a href="mailto:support@bridgecore.tech" style="color: #ffffff; text-decoration: none;">support@bridgecore.tech</a>
                         </div>
                         <div class="contact-item">
                             <span class="contact-icon">📞</span>
@@ -332,9 +332,9 @@
                         </div>
                         <div class="contact-item">
                             <span class="contact-icon">🌐</span>
-                            <a href="https://bridgecoresystems.com" 
+                            <a href="https://bridgecore.tech" 
                                 style="color: #ffffff; text-decoration: none;" 
-                                target="_blank">www.bridgecoresystems.com</a>
+                                target="_blank">www.bridgecore.tech</a>
                         </div>
                     </div>
                 </div>

@@ -1,0 +1,1749 @@
+# .cursorrules - Django ERP система с Arduino/ESP интеграцией
+
+Ты - эксперт по Django разработке ERP систем с интеграцией IoT устройств (Arduino, ESP32/ESP8266).
+
+## Архитектура проекта
+- Django 4.2+ с PostgreSQL
+- WebSocket (Django Channels) для real-time данных с датчиков
+- REST API для ESP32/ESP8266 устройств
+- Django Template Language (DTL) для фронтенда
+- Разделение прав доступа по ролям (мастер, сотрудник, админ)
+
+## КРИТИЧНО: Система контроля доступа (ACL)
+
+### Правила доступа к страницам:
+1. **Каждый пользователь видит ТОЛЬКО свои данные**
+2. **Админ видит всё**
+3. **Прямой ввод URL не должен давать доступ к чужим страницам**
+
+### Обязательная структура для всех views:
+
+```python
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404
+
+# Для CBV (Class-Based Views)
+class UserAccessMixin(LoginRequiredMixin, UserPassesTestMixin):
+    """
+    Миксин для проверки доступа пользователя к своим данным.
+    Админ имеет доступ ко всему.
+    """
+    def test_func(self) -> bool:
+        # Админ может всё
+        if self.request.user.is_staff or self.request.user.is_superuser:
+            return True
+        
+        # Проверка что пользователь обращается к своим данным
+        # Переопределяется в каждом view
+        return self.check_user_access()
+    
+    def check_user_access(self) -> bool:
+        """Переопределить в каждом view для проверки доступа"""
+        raise NotImplementedError("Реализуй check_user_access() в view")
+    
+    def handle_no_permission(self):
+        raise PermissionDenied("У вас нет доступа к этой странице")
+
+# Для FBV (Function-Based Views)
+from functools import wraps
+
+def user_access_required(check_func):
+    """
+    Декоратор для проверки доступа пользователя.
+    
+    check_func должна принимать (request, *args, **kwargs) 
+    и возвращать True если доступ разрешён
+    """
+    def decorator(view_func):
+        @wraps(view_func)
+        def wrapped_view(request, *args, **kwargs):
+            # Админ может всё
+            if request.user.is_staff or request.user.is_superuser:
+                return view_func(request, *args, **kwargs)
+            
+            # Проверка доступа
+            if not check_func(request, *args, **kwargs):
+                raise PermissionDenied("У вас нет доступа к этой странице")
+            
+            return view_func(request, *args, **kwargs)
+        return wrapped_view
+    return decorator
+```
+
+### Примеры реализации:
+
+```python
+# views.py - для страницы учёта рабочего времени сотрудников
+
+class EmployeeWorkTimeView(UserAccessMixin, ListView):
+    """
+    /employees/worktime - доступно только мастерам и админам
+    """
+    model = WorkTime
+    template_name = 'employees/worktime.html'
+    
+    def check_user_access(self) -> bool:
+        # Проверяем что пользователь - мастер
+        return hasattr(self.request.user, 'master_profile')
+    
+    def get_queryset(self):
+        # Админ видит всё
+        if self.request.user.is_staff:
+            return WorkTime.objects.all()
+        
+        # Мастер видит только своих сотрудников
+        return WorkTime.objects.filter(
+            employee__master=self.request.user.master_profile
+        ).select_related('employee', 'employee__user')
+
+
+class MasterDashboardView(UserAccessMixin, TemplateView):
+    """
+    /master - доступно только мастерам и админам
+    """
+    template_name = 'master/dashboard.html'
+    
+    def check_user_access(self) -> bool:
+        return hasattr(self.request.user, 'master_profile')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        if self.request.user.is_staff:
+            # Админ видит всех мастеров
+            context['masters'] = Master.objects.all()
+        else:
+            # Мастер видит только себя
+            context['master'] = self.request.user.master_profile
+            context['employees'] = self.request.user.master_profile.employees.all()
+        
+        return context
+
+
+# FBV пример
+@login_required
+@user_access_required(lambda req, **kw: hasattr(req.user, 'employee_profile'))
+def employee_profile(request):
+    """
+    /employee/profile - доступно только сотрудникам
+    """
+    employee = request.user.employee_profile
+    return render(request, 'employee/profile.html', {'employee': employee})
+```
+
+## Правила кодирования
+
+### Python & Django:
+- **Python 3.10+** с type hints везде
+- **Строгое следование PEP 8**
+- Используй `dataclasses` и `@dataclass` для DTO
+- **Всегда добавляй docstrings** (Google style)
+- Используй `ruff` для линтинга
+- Именование: `snake_case` для функций/переменных, `PascalCase` для классов
+
+### Django специфика:
+```python
+# models.py - только модели
+class SensorData(models.Model):
+    """Данные с датчиков ESP32/ESP8266"""
+    device_id: str = models.CharField(max_length=100, db_index=True)
+    sensor_type: str = models.CharField(max_length=50)
+    value: float = models.FloatField()
+    timestamp: datetime = models.DateTimeField(auto_now_add=True, db_index=True)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    
+    class Meta:
+        db_table = 'sensor_data'
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['device_id', '-timestamp']),
+            models.Index(fields=['user', '-timestamp']),
+        ]
+
+# services.py - бизнес-логика
+from typing import Optional
+from decimal import Decimal
+
+class SensorService:
+    """Сервис для работы с данными датчиков"""
+    
+    @staticmethod
+    def process_sensor_data(
+        device_id: str,
+        sensor_type: str,
+        value: float,
+        user: User
+    ) -> SensorData:
+        """
+        Обработка и сохранение данных с датчика.
+        
+        Args:
+            device_id: ID устройства ESP
+            sensor_type: Тип датчика (temperature, humidity, etc)
+            value: Значение с датчика
+            user: Пользователь-владелец устройства
+            
+        Returns:
+            Созданная запись SensorData
+            
+        Raises:
+            ValueError: Если значение вне допустимого диапазона
+        """
+        # Валидация
+        if not SensorService._validate_sensor_value(sensor_type, value):
+            raise ValueError(f"Некорректное значение для {sensor_type}: {value}")
+        
+        # Сохранение
+        sensor_data = SensorData.objects.create(
+            device_id=device_id,
+            sensor_type=sensor_type,
+            value=value,
+            user=user
+        )
+        
+        # Отправка через WebSocket
+        SensorService._broadcast_sensor_update(sensor_data)
+        
+        return sensor_data
+    
+    @staticmethod
+    def _validate_sensor_value(sensor_type: str, value: float) -> bool:
+        """Валидация значений датчиков"""
+        ranges = {
+            'temperature': (-50, 100),
+            'humidity': (0, 100),
+            'pressure': (300, 1100),
+        }
+        
+        if sensor_type not in ranges:
+            return True
+        
+        min_val, max_val = ranges[sensor_type]
+        return min_val <= value <= max_val
+
+# selectors.py - сложные запросы
+from django.db.models import QuerySet, Avg, Max, Min, Count
+from django.db.models.functions import TruncHour
+
+class SensorSelector:
+    """Селекторы для получения данных датчиков"""
+    
+    @staticmethod
+    def get_user_sensor_data(
+        user: User,
+        device_id: Optional[str] = None,
+        hours: int = 24
+    ) -> QuerySet[SensorData]:
+        """
+        Получить данные датчиков пользователя за последние N часов.
+        
+        Args:
+            user: Пользователь
+            device_id: Фильтр по устройству (опционально)
+            hours: Количество часов назад
+            
+        Returns:
+            QuerySet с данными датчиков
+        """
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        qs = SensorData.objects.filter(
+            user=user,
+            timestamp__gte=timezone.now() - timedelta(hours=hours)
+        ).select_related('user')
+        
+        if device_id:
+            qs = qs.filter(device_id=device_id)
+        
+        return qs
+    
+    @staticmethod
+    def get_sensor_statistics(user: User, device_id: str) -> dict:
+        """Статистика по датчику за последние 24 часа"""
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        stats = SensorData.objects.filter(
+            user=user,
+            device_id=device_id,
+            timestamp__gte=timezone.now() - timedelta(hours=24)
+        ).aggregate(
+            avg_value=Avg('value'),
+            max_value=Max('value'),
+            min_value=Min('value'),
+            count=Count('id')
+        )
+        
+        return stats
+```
+
+### WebSocket интеграция (Django Channels):
+```python
+# consumers.py
+from channels.generic.websocket import AsyncJsonWebsocketConsumer
+from typing import Dict, Any
+import json
+
+class SensorConsumer(AsyncJsonWebsocketConsumer):
+    """WebSocket consumer для real-time данных датчиков"""
+    
+    async def connect(self):
+        """Подключение пользователя к его личному каналу"""
+        self.user = self.scope['user']
+        
+        # Проверка авторизации
+        if not self.user.is_authenticated:
+            await self.close()
+            return
+        
+        # Каждый пользователь в своей группе
+        self.room_group_name = f'sensor_user_{self.user.id}'
+        
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
+        
+        await self.accept()
+    
+    async def disconnect(self, close_code):
+        """Отключение от канала"""
+        if hasattr(self, 'room_group_name'):
+            await self.channel_layer.group_discard(
+                self.room_group_name,
+                self.channel_name
+            )
+    
+    async def receive_json(self, content: Dict[str, Any]):
+        """
+        Получение данных от клиента.
+        НЕ используется для ESP устройств - они используют REST API.
+        """
+        pass
+    
+    async def sensor_update(self, event: Dict[str, Any]):
+        """Отправка обновления датчика клиенту"""
+        await self.send_json({
+            'type': 'sensor_update',
+            'device_id': event['device_id'],
+            'sensor_type': event['sensor_type'],
+            'value': event['value'],
+            'timestamp': event['timestamp']
+        })
+
+# routing.py
+from django.urls import path
+from . import consumers
+
+websocket_urlpatterns = [
+    path('ws/sensors/', consumers.SensorConsumer.as_asgi()),
+]
+```
+
+### REST API для ESP устройств:
+```python
+# api/views.py
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+
+class ESPSensorDataView(APIView):
+    """
+    API endpoint для приёма данных с ESP32/ESP8266.
+    
+    POST /api/v1/sensor-data/
+    Headers: Authorization: Token <user_token>
+    Body: {
+        "device_id": "ESP32_001",
+        "sensor_type": "temperature",
+        "value": 23.5
+    }
+    """
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request) -> Response:
+        """Приём данных с ESP устройства"""
+        try:
+            device_id = request.data.get('device_id')
+            sensor_type = request.data.get('sensor_type')
+            value = float(request.data.get('value'))
+            
+            # Валидация
+            if not all([device_id, sensor_type, value is not None]):
+                return Response(
+                    {'error': 'Missing required fields'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Проверка что устройство принадлежит пользователю
+            if not self._verify_device_ownership(request.user, device_id):
+                return Response(
+                    {'error': 'Device not found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            # Сохранение через сервис
+            sensor_data = SensorService.process_sensor_data(
+                device_id=device_id,
+                sensor_type=sensor_type,
+                value=value,
+                user=request.user
+            )
+            
+            return Response(
+                {
+                    'status': 'success',
+                    'id': sensor_data.id,
+                    'timestamp': sensor_data.timestamp.isoformat()
+                },
+                status=status.HTTP_201_CREATED
+            )
+            
+        except ValueError as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {'error': 'Internal server error'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    def _verify_device_ownership(self, user: User, device_id: str) -> bool:
+        """Проверка что устройство принадлежит пользователю"""
+        from apps.devices.models import Device
+        return Device.objects.filter(
+            user=user,
+            device_id=device_id,
+            is_active=True
+        ).exists()
+```
+
+## Django Template Language (DTL) правила
+
+### Структура шаблонов:
+```
+templates/
+├── base.html              # Базовый шаблон
+├── includes/              # Переиспользуемые части
+│   ├── navbar.html
+│   ├── sidebar.html
+│   └── sensor_card.html
+├── master/
+│   ├── base_master.html   # Базовый для мастера
+│   └── dashboard.html
+└── employee/
+    ├── base_employee.html # Базовый для сотрудника
+    └── profile.html
+```
+
+### base.html:
+```django
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ERP Система{% endblock %}</title>
+    
+    {# CSS #}
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {# Навигация с проверкой прав #}
+    {% include 'includes/navbar.html' %}
+    
+    {# Сообщения #}
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    {# Основной контент #}
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    {# JavaScript #}
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+    
+    {# WebSocket подключение для real-time обновлений #}
+    {% if user.is_authenticated %}
+        <script>
+            const ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+            const ws_path = ws_scheme + '://' + window.location.host + '/ws/sensors/';
+            const socket = new WebSocket(ws_path);
+            
+            socket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                if (data.type === 'sensor_update') {
+                    updateSensorDisplay(data);
+                }
+            };
+            
+            socket.onclose = function(e) {
+                console.error('WebSocket closed, reconnecting...');
+                setTimeout(() => location.reload(), 5000);
+            };
+        </script>
+    {% endif %}
+</body>
+</html>
+```
+
+### Шаблон с проверкой доступа:
+```django
+{# master/dashboard.html #}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Панель мастера{% endblock %}
+
+{% block content %}
+<div class="master-dashboard">
+    <h1>Добро пожаловать, {{ user.get_full_name }}!</h1>
+    
+    {# Проверка роли - двойная защита (backend + frontend) #}
+    {% if user.master_profile %}
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Сотрудников</h3>
+                <p>{{ employees.count }}</p>
+            </div>
+            
+            <div class="stat-card">
+                <h3>Активных устройств</h3>
+                <p>{{ active_devices }}</p>
+            </div>
+        </div>
+        
+        {# Таблица сотрудников #}
+        <div class="employees-table">
+            <h2>Ваши сотрудники</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ФИО</th>
+                        <th>Должность</th>
+                        <th>Устройства</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for employee in employees %}
+                        <tr>
+                            <td>{{ employee.user.get_full_name }}</td>
+                            <td>{{ employee.position }}</td>
+                            <td>{{ employee.devices.count }}</td>
+                            <td>
+                                <a href="{% url 'employee_detail' employee.id %}">
+                                    Подробнее
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4">Нет сотрудников</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {# Real-time данные датчиков #}
+        <div class="sensors-realtime">
+            <h2>Датчики в реальном времени</h2>
+            <div id="sensors-grid" class="sensors-grid">
+                {% for device in devices %}
+                    {% include 'includes/sensor_card.html' with device=device %}
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        {# Если кто-то обошёл backend защиту #}
+        <div class="alert alert-danger">
+            <p>У вас нет доступа к этой странице.</p>
+            <a href="{% url 'home' %}">Вернуться на главную</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function updateSensorDisplay(data) {
+        const sensorCard = document.querySelector(`[data-device-id="${data.device_id}"]`);
+        if (sensorCard) {
+            const valueElement = sensorCard.querySelector('.sensor-value');
+            const timestampElement = sensorCard.querySelector('.sensor-timestamp');
+            
+            valueElement.textContent = data.value.toFixed(2);
+            timestampElement.textContent = new Date(data.timestamp).toLocaleTimeString('ru-RU');
+            
+            // Анимация обновления
+            sensorCard.classList.add('updated');
+            setTimeout(() => sensorCard.classList.remove('updated'), 1000);
+        }
+    }
+</script>
+{% endblock %}
+```
+
+### Custom template tags для проверки прав:
+```python
+# templatetags/permission_tags.py
+from django import template
+
+register = template.Library()
+
+@register.filter
+def has_master_access(user) -> bool:
+    """Проверка что пользователь - мастер"""
+    return hasattr(user, 'master_profile') or user.is_staff
+
+@register.filter
+def has_employee_access(user) -> bool:
+    """Проверка что пользователь - сотрудник"""
+    return hasattr(user, 'employee_profile') or user.is_staff
+
+@register.simple_tag
+def can_access_employee(user, employee_id: int) -> bool:
+    """
+    Проверка доступа к данным конкретного сотрудника.
+    Мастер может видеть только своих сотрудников.
+    """
+    if user.is_staff:
+        return True
+    
+    if not hasattr(user, 'master_profile'):
+        return False
+    
+    return user.master_profile.employees.filter(id=employee_id).exists()
+
+# Использование в шаблоне:
+# {% load permission_tags %}
+# {% if user|has_master_access %}
+#     <a href="{% url 'employees_list' %}">Сотрудники</a>
+# {% endif %}
+```
+
+## Оптимизация и производительность
+
+### Database queries:
+```python
+# ❌ ПЛОХО - N+1 проблема
+for employee in Employee.objects.all():
+    print(employee.user.email)
+    print(employee.devices.count())
+
+# ✅ ХОРОШО - оптимизация
+employees = Employee.objects.select_related('user').prefetch_related('devices').all()
+for employee in employees:
+    print(employee.user.email)
+    print(employee.devices.count())
+
+# ✅ ХОРОШО - аннотации для агрегации
+from django.db.models import Count, Avg
+
+employees = Employee.objects.annotate(
+    devices_count=Count('devices'),
+    avg_sensor_value=Avg('devices__sensor_data__value')
+).select_related('user')
+```
+
+### Кэширование для IoT данных:
+```python
+from django.core.cache import cache
+from typing import Optional
+
+class CachedSensorService:
+    """Сервис с кэшированием данных датчиков"""
+    
+    CACHE_TTL = 300  # 5 минут
+    
+    @staticmethod
+    def get_latest_sensor_value(device_id: str, sensor_type: str) -> Optional[float]:
+        """Получить последнее значение датчика с кэшированием"""
+        cache_key = f'sensor_{device_id}_{sensor_type}_latest'
+        
+        # Проверка кэша
+        cached_value = cache.get(cache_key)
+        if cached_value is not None:
+            return cached_value
+        
+        # Запрос к БД
+        sensor_data = SensorData.objects.filter(
+            device_id=device_id,
+            sensor_type=sensor_type
+        ).order_by('-timestamp').first()
+        
+        if sensor_data:
+            value = sensor_data.value
+            cache.set(cache_key, value, CachedSensorService.CACHE_TTL)
+            return value
+        
+        return None
+```
+
+### Celery tasks для тяжёлых операций:
+```python
+# tasks.py
+from celery import shared_task
+from typing import List
+import logging
+
+logger = logging.getLogger(__name__)
+
+@shared_task(bind=True, max_retries=3)
+def process_bulk_sensor_data(self, sensor_data_list: List[dict]) -> dict:
+    """
+    Фоновая обработка пакета данных с датчиков.
+    
+    Args:
+        sensor_data_list: Список словарей с данными датчиков
+        
+    Returns:
+        Статистика обработки
+    """
+    try:
+        processed = 0
+        failed = 0
+        
+        for data in sensor_data_list:
+            try:
+                SensorService.process_sensor_data(
+                    device_id=data['device_id'],
+                    sensor_type=data['sensor_type'],
+                    value=data['value'],
+                    user=User.objects.get(id=data['user_id'])
+                )
+                processed += 1
+            except Exception as e:
+                logger.error(f"Failed to process sensor data: {e}")
+                failed += 1
+        
+        return {
+            'processed': processed,
+            'failed': failed,
+            'total': len(sensor_data_list)
+        }
+        
+    except Exception as exc:
+        logger.error(f"Bulk processing failed: {exc}")
+        raise self.retry(exc=exc, countdown=60)
+
+@shared_task
+def cleanup_old_sensor_data():
+    """Очистка старых данных датчиков (старше 90 дней)"""
+    from django.utils import timezone
+    from datetime import timedelta
+    
+    cutoff_date = timezone.now() - timedelta(days=90)
+    deleted_count, _ = SensorData.objects.filter(
+        timestamp__lt=cutoff_date
+    ).delete()
+    
+    logger.info(f"Deleted {deleted_count} old sensor records")
+    return deleted_count
+```
+
+## Безопасность
+
+### Всегда используй:
+```python
+# CSRF защита для форм
+{% csrf_token %}
+
+# SQL injection защита - используй ORM
+# ❌ ПЛОХО
+query = f"SELECT * FROM users WHERE id = {user_id}"
+
+# ✅ ХОРОШО
+User.objects.filter(id=user_id)
+
+# XSS защита - автоматическая в DTL
+{{ user.bio }}  # Автоматически экранируется
+
+# Если нужен HTML (осторожно!)
+{{ user.bio|safe }}  # Только для проверенного контента
+
+# Защита от массового назначения
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']  # Явно указываем поля
+        # НЕ используй fields = '__all__'
+```
+
+### Rate limiting для API:
+```python
+from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
+
+class ESPDeviceThrottle(UserRateThrottle):
+    """Ограничение для ESP устройств: 1000 запросов/час"""
+    rate = '1000/hour'
+
+class ESPSensorDataView(APIView):
+    throttle_classes = [ESPDeviceThrottle]
+    # ...
+```
+
+## Тестирование
+
+### Обязательно покрывай тестами:
+```python
+# tests/test_access_control.py
+from django.test import TestCase, Client
+from django.urls import reverse
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class AccessControlTestCase(TestCase):
+    """Тесты системы контроля доступа"""
+    
+    def setUp(self):
+        """Подготовка тестовых данных"""
+        # Создание мастера
+        self.master_user = User.objects.create_user(
+            username='master',
+            password='test123'
+        )
+        self.master = Master.objects.create(user=self.master_user)
+        
+        # Создание сотрудника
+        self.employee_user = User.objects.create_user(
+            username='employee',
+            password='test123'
+        )
+        self.employee = Employee.objects.create(
+            user=self.employee_user,
+            master=self.master
+        )
+        
+        # Создание другого мастера
+        self.other_master_user = User.objects.create_user(
+            username='other_master',
+            password='test123'
+        )
+        self.other_master = Master.objects.create(user=self.other_master_user)
+        
+        self.client = Client()
+    
+    def test_master_cannot_access_employee_pages(self):
+        """Мастер не может зайти на страницы сотрудника"""
+        self.client.login(username='master', password='test123')
+        
+        response = self.client.get(reverse('employee_profile'))
+        
+        # Ожидаем 403 Forbidden
+        self.assertEqual(response.status_code, 403)
+    
+    def test_employee_cannot_access_master_dashboard(self):
+        """Сотрудник не может зайти на панель мастера"""
+        self.client.login(username='employee', password='test123')
+        
+        response = self.client.get(reverse('master_dashboard'))
+        
+        self.assertEqual(response.status_code, 403)
+    
+    def test_master_sees_only_own_employees(self):
+        """Мастер видит только своих сотрудников"""
+        # Создаём сотрудника другого мастера
+        other_employee = Employee.objects.create(
+            user=User.objects.create_user(
+                username='other_employee',
+                password='test123'
+            ),
+            master=self.other_master
+        )
+        
+        self.client.login(username='master', password='test123')
+        response = self.client.get(reverse('employees_list'))
+        
+        # Проверяем что в контексте только свои сотрудники
+        employees = response.context['employees']
+        self.assertEqual(employees.count(), 1)
+        self.assertEqual(employees.first(), self.employee)
+        self.assertNotIn(other_employee, employees)
+    
+    def test_direct_url_access_blocked(self):
+        """Прямой ввод URL не даёт доступ к чужим данным"""
+        self.client.login(username='employee', password='test123')
+        
+        # Пытаемся попасть на страницу мастера через прямой URL
+        response = self.client.get('/master/')
+        
+        self.assertEqual(response.status_code, 403)
+    
+    def test_admin_can_access_everything(self):
+        """Админ имеет доступ ко всем страницам"""
+        admin = User.objects.create_superuser(
+            username='admin',
+            password='admin123',
+            email='admin@test.com'
+        )
+        
+        self.client.login(username='admin', password='admin123')
+        
+        # Админ может зайти на страницу мастера
+        response = self.client.get(reverse('master_dashboard'))
+        self.assertEqual(response.status_code, 200)
+        
+        # Админ может зайти на страницу сотрудника
+        response = self.client.get(reverse('employee_profile'))
+        self.assertEqual(response.status_code, 200)
+
+
+# tests/test_sensors.py
+class SensorDataTestCase(TestCase):
+    """Тесты для работы с данными датчиков"""
+    
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser',
+            password='test123'
+        )
+        self.device = Device.objects.create(
+            user=self.user,
+            device_id='ESP32_TEST',
+            name='Test Device'
+        )
+    
+    def test_sensor_data_validation(self):
+        """Тест валидации данных датчиков"""
+        # Корректные данные
+        valid_data = SensorService.process_sensor_data(
+            device_id='ESP32_TEST',
+            sensor_type='temperature',
+            value=25.5,
+            user=self.user
+        )
+        self.assertIsNotNone(valid_data)
+        
+        # Некорректные данные (температура вне диапазона)
+        with self.assertRaises(ValueError):
+            SensorService.process_sensor_data(
+                device_id='ESP32_TEST',
+                sensor_type='temperature',
+                value=150.0,  # Слишком высокая
+                user=self.user
+            )
+    
+    def test_user_can_only_see_own_sensor_data(self):
+        """Пользователь видит только свои данные"""
+        other_user = User.objects.create_user(
+            username='other',
+            password='test123'
+        )
+        other_device = Device.objects.create(
+            user=other_user,
+            device_id='ESP32_OTHER',
+            name='Other Device'
+        )
+        
+        # Создаём данные для обоих пользователей
+        SensorData.objects.create(
+            device_id='ESP32_TEST',
+            sensor_type='temperature',
+            value=25.0,
+            user=self.user
+        )
+        SensorData.objects.create(
+            device_id='ESP32_OTHER',
+            sensor_type='temperature',
+            value=30.0,
+            user=other_user
+        )
+        
+        # Проверяем что каждый видит только свои данные
+        user_data = SensorSelector.get_user_sensor_data(self.user)
+        self.assertEqual(user_data.count(), 1)
+        self.assertEqual(user_data.first().device_id, 'ESP32_TEST')
+        
+        other_data = SensorSelector.get_user_sensor_data(other_user)
+        self.assertEqual(other_data.count(), 1)
+        self.assertEqual(other_data.first().device_id, 'ESP32_OTHER')
+```
+
+## Структура проекта
+
+```
+erp_project/
+├── apps/
+│   ├── users/                  # Пользователи и роли
+│   │   ├── models.py           # User, Master, Employee
+│   │   ├── views.py
+│   │   ├── services.py
+│   │   ├── selectors.py
+│   │   └── permissions.py      # Кастомные permissions
+│   ├── sensors/                # Данные датчиков
+│   │   ├── models.py           # SensorData, Device
+│   │   ├── views.py
+│   │   ├── services.py
+│   │   ├── selectors.py
+│   │   ├── consumers.py        # WebSocket consumers
+│   │   └── api/
+│   │       ├── views.py        # REST API для ESP
+│   │       ├── serializers.py
+│   │       └── throttling.py
+│   ├── worktime/               # Учёт рабочего времени
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   ├── services.py
+│   │   └── selectors.py
+│   └── analytics/              # Аналитика и отчёты
+│       ├── models.py
+│       ├── views.py
+│       └── reports.py
+├── templates/
+│   ├── base.html
+│   ├── includes/
+│   ├── master/
+│   └── employee/
+├── static/
+│   ├── css/
+│   ├── js/
+│   └── img/
+├── media/
+├── config/
+│   ├── settings/
+│   │   ├── base.py
+│   │   ├── dev.py
+│   │   └── prod.py
+│   ├── urls.py
+│   ├── routing.py              # WebSocket routing
+│   ├── asgi.py
+│   └── wsgi.py
+├── requirements/
+│   ├── base.txt
+│   ├── dev.txt
+│   └── prod.txt
+├── .cursorrules                # Этот файл!
+├── manage.py
+└── docker-compose.yml
+```
+
+## Логирование
+
+```python
+# settings.py
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': 'logs/erp.log',
+            'maxBytes': 1024 * 1024 * 10,  # 10 MB
+            'backupCount': 5,
+            'formatter': 'verbose',
+        },
+        'sensor_file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': 'logs/sensors.log',
+            'maxBytes': 1024 * 1024 * 50,  # 50 MB
+            'backupCount': 10,
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'apps.sensors': {
+            'handlers': ['sensor_file', 'console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'apps.users': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
+
+# Использование в коде
+import logging
+
+logger = logging.getLogger(__name__)
+
+def some_function():
+    logger.info("Processing sensor data")
+    try:
+        # код
+        pass
+    except Exception as e:
+        logger.error(f"Error processing data: {e}", exc_info=True)
+```
+
+## Monitoring и Alerts
+
+```python
+# middleware.py - мониторинг производительности
+import time
+import logging
+from django.utils.deprecation import MiddlewareMixin
+
+logger = logging.getLogger('performance')
+
+class PerformanceMonitoringMiddleware(MiddlewareMixin):
+    """Мониторинг времени выполнения запросов"""
+    
+    def process_request(self, request):
+        request.start_time = time.time()
+    
+    def process_response(self, request, response):
+        if hasattr(request, 'start_time'):
+            duration = time.time() - request.start_time
+            
+            # Логируем медленные запросы (>1 секунды)
+            if duration > 1.0:
+                logger.warning(
+                    f"Slow request: {request.method} {request.path} "
+                    f"took {duration:.2f}s"
+                )
+            
+            # Добавляем заголовок с временем выполнения
+            response['X-Request-Duration'] = f"{duration:.3f}"
+        
+        return response
+
+
+# monitoring/alerts.py - уведомления о проблемах
+from django.core.mail import send_mail
+from django.conf import settings
+import logging
+
+logger = logging.getLogger(__name__)
+
+class AlertService:
+    """Сервис для отправки уведомлений о проблемах"""
+    
+    @staticmethod
+    def send_device_offline_alert(device_id: str, user_email: str):
+        """Уведомление об отключении устройства"""
+        subject = f'Устройство {device_id} не отвечает'
+        message = f'Устройство {device_id} не отправляло данные более 5 минут.'
+        
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [user_email],
+                fail_silently=False,
+            )
+            logger.info(f"Alert sent to {user_email} for device {device_id}")
+        except Exception as e:
+            logger.error(f"Failed to send alert: {e}")
+    
+    @staticmethod
+    def send_sensor_threshold_alert(
+        device_id: str,
+        sensor_type: str,
+        value: float,
+        threshold: float,
+        user_email: str
+    ):
+        """Уведомление о превышении порога датчика"""
+        subject = f'Превышен порог датчика {sensor_type}'
+        message = (
+            f'Устройство {device_id}: датчик {sensor_type} '
+            f'показывает {value}, порог: {threshold}'
+        )
+        
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [user_email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            logger.error(f"Failed to send threshold alert: {e}")
+
+
+# tasks.py - периодическая проверка устройств
+@shared_task
+def check_devices_online_status():
+    """Проверка что все устройства онлайн"""
+    from django.utils import timezone
+    from datetime import timedelta
+    
+    threshold = timezone.now() - timedelta(minutes=5)
+    
+    # Находим устройства которые давно не отправляли данные
+    offline_devices = Device.objects.filter(
+        is_active=True,
+        last_data_timestamp__lt=threshold
+    ).select_related('user')
+    
+    for device in offline_devices:
+        AlertService.send_device_offline_alert(
+            device_id=device.device_id,
+            user_email=device.user.email
+        )
+        
+        logger.warning(f"Device {device.device_id} is offline")
+```
+
+## Docker настройка
+
+```dockerfile
+# Dockerfile
+FROM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+WORKDIR /app
+
+# Установка зависимостей системы
+RUN apt-get update && apt-get install -y \
+    gcc \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Установка Python зависимостей
+COPY requirements/prod.txt requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Копирование проекта
+COPY . .
+
+# Создание пользователя для запуска приложения
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
+
+# Expose порты
+EXPOSE 8000
+EXPOSE 8001
+
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "config.asgi:application"]
+```
+
+```yaml
+# docker-compose.yml
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: erp_db
+      POSTGRES_USER: erp_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+  
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+  
+  web:
+    build: .
+    command: daphne -b 0.0.0.0 -p 8000 config.asgi:application
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+  
+  celery:
+    build: .
+    command: celery -A config worker -l info
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+  
+  celery-beat:
+    build: .
+    command: celery -A config beat -l info
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+  
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      - web
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+```
+
+## Environment Variables (.env)
+
+```bash
+# .env.example
+DEBUG=False
+SECRET_KEY=your-secret-key-here
+
+# Database
+DB_NAME=erp_db
+DB_USER=erp_user
+DB_PASSWORD=strong-password
+DB_HOST=db
+DB_PORT=5432
+
+# Redis
+REDIS_URL=redis://redis:6379/0
+
+# Celery
+CELERY_BROKER_URL=redis://redis:6379/0
+CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+# Email
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=your-email@gmail.com
+EMAIL_HOST_PASSWORD=your-app-password
+
+# CORS (если нужно для API)
+CORS_ALLOWED_ORIGINS=http://localhost:3000
+
+# Logging
+LOG_LEVEL=INFO
+
+# Sentry (опционально)
+SENTRY_DSN=your-sentry-dsn
+```
+
+## ESP32/ESP8266 пример кода
+
+```cpp
+// ESP32_sensor.ino
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <ArduinoJson.h>
+#include <DHT.h>
+
+// WiFi credentials
+const char* ssid = "YOUR_WIFI_SSID";
+const char* password = "YOUR_WIFI_PASSWORD";
+
+// Server settings
+const char* serverUrl = "http://your-server.com/api/v1/sensor-data/";
+const char* authToken = "your-user-token-here";
+
+// Sensor settings
+#define DHTPIN 4
+#define DHTTYPE DHT22
+DHT dht(DHTPIN, DHTTYPE);
+
+const char* deviceId = "ESP32_001";
+const int sendInterval = 10000; // 10 секунд
+
+void setup() {
+  Serial.begin(115200);
+  
+  // Подключение к WiFi
+  WiFi.begin(ssid, password);
+  Serial.print("Connecting to WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nWiFi connected");
+  
+  // Инициализация датчика
+  dht.begin();
+}
+
+void loop() {
+  if (WiFi.status() == WL_CONNECTED) {
+    // Чтение данных с датчика
+    float temperature = dht.readTemperature();
+    float humidity = dht.readHumidity();
+    
+    if (!isnan(temperature) && !isnan(humidity)) {
+      // Отправка температуры
+      sendSensorData("temperature", temperature);
+      delay(1000);
+      
+      // Отправка влажности
+      sendSensorData("humidity", humidity);
+    } else {
+      Serial.println("Failed to read from DHT sensor!");
+    }
+  } else {
+    Serial.println("WiFi disconnected, reconnecting...");
+    WiFi.reconnect();
+  }
+  
+  delay(sendInterval);
+}
+
+void sendSensorData(String sensorType, float value) {
+  HTTPClient http;
+  
+  http.begin(serverUrl);
+  http.addHeader("Content-Type", "application/json");
+  http.addHeader("Authorization", String("Token ") + authToken);
+  
+  // Создание JSON
+  StaticJsonDocument<200> doc;
+  doc["device_id"] = deviceId;
+  doc["sensor_type"] = sensorType;
+  doc["value"] = value;
+  
+  String jsonString;
+  serializeJson(doc, jsonString);
+  
+  // Отправка POST запроса
+  int httpResponseCode = http.POST(jsonString);
+  
+  if (httpResponseCode > 0) {
+    String response = http.getString();
+    Serial.println("Response: " + String(httpResponseCode));
+    Serial.println(response);
+  } else {
+    Serial.println("Error on sending POST: " + String(httpResponseCode));
+  }
+  
+  http.end();
+}
+```
+
+## Полезные команды Django
+
+```bash
+# Создание приложения с правильной структурой
+python manage.py startapp app_name
+
+# Миграции
+python manage.py makemigrations
+python manage.py migrate
+python manage.py showmigrations
+
+# Создание суперпользователя
+python manage.py createsuperuser
+
+# Запуск с WebSocket поддержкой
+daphne -b 0.0.0.0 -p 8000 config.asgi:application
+
+# Сбор статики
+python manage.py collectstatic --noinput
+
+# Запуск Celery
+celery -A config worker -l info
+celery -A config beat -l info
+
+# Очистка старых данных
+python manage.py cleanup_sensor_data
+
+# Тесты
+python manage.py test
+python manage.py test apps.sensors --keepdb  # С сохранением БД
+
+# Shell с Django ORM
+python manage.py shell_plus  # Если установлен django-extensions
+
+# Проверка производительности
+python manage.py check --deploy
+```
+
+## Чек-лист перед коммитом
+
+✅ Все новые views наследуются от `UserAccessMixin` или используют `@user_access_required`
+✅ Реализован метод `check_user_access()` для проверки прав доступа
+✅ Добавлены type hints для всех функций
+✅ Написаны docstrings (Google style)
+✅ Использованы `select_related`/`prefetch_related` где нужно
+✅ Добавлены индексы для часто используемых полей в моделях
+✅ Обработаны все возможные исключения
+✅ Добавлены логи для важных операций
+✅ Написаны тесты для критичной функциональности
+✅ Проверена работа через прямой ввод URL (защита от обхода)
+✅ Код проходит `ruff check` без ошибок
+✅ Нет N+1 проблем в запросах к БД
+
+## Приоритеты при разработке
+
+1. **Безопасность** - контроль доступа превыше всего
+2. **Производительность** - оптимизация запросов к БД
+3. **Надёжность** - обработка ошибок и логирование
+4. **Масштабируемость** - готовность к росту нагрузки
+5. **Читаемость** - код должен быть понятен через полгода
+
+## ⚠️ ЧАСТЫЕ ОШИБКИ И ИХ РЕШЕНИЯ
+
+### 1. Timezone: localtime() для TimeField ❌
+
+**Проблема**: `ValueError: localtime() cannot be applied to a naive datetime`
+
+```python
+# ❌ ПЛОХО - TimeField не имеет timezone информации
+entry_time = models.TimeField()  # Это просто время: 14:30:00
+formatted = timezone.localtime(entry.entry_time)  # ОШИБКА!
+
+# ✅ ХОРОШО - для TimeField используй напрямую
+formatted = entry.entry_time.strftime('%H:%M') if entry.entry_time else ''
+
+# ✅ ХОРОШО - localtime() только для DateTimeField
+created_at = models.DateTimeField(auto_now_add=True)
+formatted = timezone.localtime(entry.created_at).strftime('%H:%M')
+```
+
+**Правило**: `TimeField` → `.strftime()`, `DateTimeField` → `timezone.localtime()` → `.strftime()`
+
+### 2. Неполные данные в API и WebSocket ❌
+
+**Проблема**: JavaScript показывает захардкоженные значения вместо реальных данных
+
+```python
+# ❌ ПЛОХО - API возвращает неполные данные
+def worktime_api(request):
+    return JsonResponse({
+        'id': entry.id,
+        'employee_name': entry.employee.get_full_name(),
+        'entry_time': entry.entry_time.strftime('%H:%M'),
+        # Забыли hours_worked, status, флаги и т.д.
+    })
+
+# ✅ ХОРОШО - возвращай ВСЕ поля что нужны на фронтенде
+def worktime_api(request):
+    return JsonResponse({
+        'id': entry.id,
+        'employee_name': entry.employee.get_full_name(),
+        'employee_id': entry.employee.employee_id,
+        'entry_time': entry.entry_time.strftime('%H:%M') if entry.entry_time else '',
+        'exit_time': entry.exit_time.strftime('%H:%M') if entry.exit_time else '',
+        'hours_worked': entry.get_hours_display() if entry.hours_worked else '00:00',
+        'status': entry.status,
+        'status_display': entry.get_status_display(),
+        'status_color': entry.get_status_display_color(),
+        'is_manual_entry': entry.is_manual_entry,
+        'is_corrected': entry.is_corrected,
+        'is_full_day': entry.is_full_day(),
+        'is_overtime': entry.is_overtime(),
+        # Все поля что отображаются на странице!
+    })
+
+# То же самое для WebSocket
+async_to_sync(channel_layer.group_send)('employees_monitor', {
+    'type': 'worktime_update',
+    'data': {
+        # Все те же поля что и в API!
+        'id': entry.id,
+        'hours_worked': entry.get_hours_display(),
+        'status_display': entry.get_status_display(),
+        # ...
+    }
+})
+```
+
+**Правило**: Если поле отображается на фронтенде → оно должно быть в API/WebSocket
+
+### 3. Блокирующие условия в save() ❌
+
+**Проблема**: При редактировании записи статус/часы не обновляются
+
+```python
+# ❌ ПЛОХО - условие блокирует обновление
+def save(self, *args, **kwargs):
+    if self.entry_time and self.exit_time:
+        self._calculate_hours()
+        
+        # Это условие блокирует обновление!
+        if not self.is_manual_entry or self.status == 'present':
+            self._update_status()  # Не выполнится для отредактированных записей
+    
+    super().save(*args, **kwargs)
+
+# ✅ ХОРОШО - автоматический пересчёт всегда
+def save(self, *args, **kwargs):
+    if self.entry_time and self.exit_time:
+        self._calculate_hours()
+        self._update_status()  # Всегда обновляем при наличии данных
+    
+    super().save(*args, **kwargs)
+```
+
+**Правило**: Пересчёт зависимых полей должен выполняться **всегда** при наличии данных
+
+### 4. Захардкоженные значения в JavaScript ❌
+
+**Проблема**: JavaScript показывает одно и то же вместо реальных данных
+
+```javascript
+// ❌ ПЛОХО - захардкоженные значения
+function updateRow(item) {
+    const html = `
+        <td>${item.name}</td>
+        <td>00:00</td>  <!-- Всегда 00:00 -->
+        <td>Присутствует</td>  <!-- Всегда "Присутствует" -->
+    `;
+}
+
+// ✅ ХОРОШО - используй данные из сервера
+function updateRow(item) {
+    const html = `
+        <td>${item.name}</td>
+        <td>${item.hours_worked || '—'}</td>
+        <td style="color:${item.status_color}">● ${item.status_display}</td>
+        ${item.is_manual_entry ? '<br><small>✏️ ручной ввод</small>' : ''}
+        ${item.is_corrected ? '<br><small>✅ скорректировано</small>' : ''}
+    `;
+}
+```
+
+**Правило**: Никогда не хардкодь значения в JS - всегда используй данные из API/WebSocket
+
+### 5. Забытые поля при обновлении записи ❌
+
+**Проблема**: После редактирования некоторые поля пропадают
+
+```python
+# ❌ ПЛОХО - обновляем только часть полей
+def worktime_entry_update(request, entry_id):
+    entry = get_object_or_404(WorkTimeEntry, id=entry_id)
+    
+    entry.entry_time = request.POST.get('entry_time')
+    entry.exit_time = request.POST.get('exit_time')
+    entry.save()  # hours_worked пересчитается, но статус может не обновиться!
+    
+    # WebSocket отправляет неполные данные
+    channel_layer.group_send('group', {
+        'data': {
+            'id': entry.id,
+            'entry_time': entry.entry_time.strftime('%H:%M'),
+            # Забыли hours_worked, status и т.д.!
+        }
+    })
+
+# ✅ ХОРОШО - после save() отправляй полные данные
+def worktime_entry_update(request, entry_id):
+    entry = get_object_or_404(WorkTimeEntry, id=entry_id)
+    
+    entry.entry_time = request.POST.get('entry_time')
+    entry.exit_time = request.POST.get('exit_time')
+    entry.save()  # Все зависимые поля пересчитаются
+    
+    # Отправляем ПОЛНЫЕ данные после save()
+    channel_layer.group_send('group', {
+        'data': {
+            'id': entry.id,
+            'entry_time': entry.entry_time.strftime('%H:%M') if entry.entry_time else '',
+            'exit_time': entry.exit_time.strftime('%H:%M') if entry.exit_time else '',
+            'hours_worked': entry.get_hours_display(),  # Пересчитанные часы!
+            'status': entry.status,  # Обновлённый статус!
+            'status_display': entry.get_status_display(),
+            'status_color': entry.get_status_display_color(),
+            'is_corrected': entry.is_corrected,
+            # ... все остальные поля
+        }
+    })
+```
+
+**Правило**: После `.save()` модель обновлена - читай свежие данные и отправляй полностью
+
+### 6. N+1 проблема в циклах ❌
+
+```python
+# ❌ ПЛОХО - запрос БД на каждой итерации
+for entry in WorkTimeEntry.objects.all():
+    print(entry.employee.get_full_name())  # N+1!
+    print(entry.employee.department)  # N+1!
+
+# ✅ ХОРОШО - загрузи связи заранее
+for entry in WorkTimeEntry.objects.select_related('employee').all():
+    print(entry.employee.get_full_name())
+    print(entry.employee.department)
+```
+
+### 7. Забытые .exists() и .count() ❌
+
+```python
+# ❌ ПЛОХО - загружает все объекты в память
+if len(Employee.objects.filter(department='IT')) > 0:
+    pass
+
+# ✅ ХОРОШО - запрос в БД без загрузки данных
+if Employee.objects.filter(department='IT').exists():
+    pass
+
+# ❌ ПЛОХО
+count = len(list(Employee.objects.all()))
+
+# ✅ ХОРОШО
+count = Employee.objects.count()
+```
+
+## Чек-лист при отладке real-time обновлений
+
+1. ✅ API возвращает **все** поля что показываются на странице?
+2. ✅ WebSocket отправляет **те же** поля что и API?
+3. ✅ JavaScript **использует** данные из API/WebSocket (не хардкод)?
+4. ✅ `save()` метод **пересчитывает** зависимые поля без блокирующих условий?
+5. ✅ После `save()` читаем **свежие** данные из модели?
+6. ✅ Используем правильные методы для `TimeField` vs `DateTimeField`?
+7. ✅ Флаги (`is_manual_entry`, `is_corrected`) тоже отправляются?
+
+## Когда сомневаешься
+
+- Проверь права доступа дважды (backend + frontend)
+- Используй транзакции для критичных операций
+- Добавь логирование для отладки
+- Напиши тест перед исправлением бага
+- Проверь что API/WebSocket возвращают **все** нужные поля
+- Убедись что нет блокирующих условий в `save()`
+- Спроси у другого разработчика (code review)

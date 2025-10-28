@@ -25,11 +25,12 @@
                                 <thead>
                                     <tr>
                                         <th>Дата</th>
-                                        <th>Время вызова</th>
+                                        <th>Время</th>
+                                        <th>Станок</th>
                                         <th>Оператор</th>
                                         <th>Мастер</th>
-                                        <th>Время реакции</th>
-                                        <th>Время ремонта</th>
+                                        <th>Реакция</th>
+                                        <th>Ремонт</th>
                                         <th>Статус</th>
                                         <th>Описание</th>
                                     </tr>
@@ -39,6 +40,7 @@
                                     <tr>
                                         <td>{{ call.call_time|localtime|date:"d.m.Y" }}</td>
                                         <td>{{ call.call_time|localtime|date:"H:i" }}</td>
+                                        <td>{{ call.machine.name|default:"—" }}</td>
                                         <td>{{ call.operator.get_full_name }}</td>
                                         <td>
                                             {% if call.master %}
@@ -108,11 +110,34 @@
 </div>
 
 <script>
+// ========== УНИВЕРСАЛЬНАЯ ФУНКЦИЯ ФОРМАТИРОВАНИЯ ВРЕМЕНИ ==========
+function formatDuration(hours) {
+    /**
+     * Форматирует длительность из часов в "X ч Y мин"
+     * @param {number} hours - Длительность в часах (например 8.5)
+     * @returns {string} - Форматированная строка (например "8 ч 30 мин")
+     */
+    if (!hours || hours === 0) return '—';
+    
+    const totalMinutes = Math.round(hours * 60);
+    const h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+    
+    if (h > 0 && m > 0) {
+        return `${h} ч ${m} мин`;
+    } else if (h > 0) {
+        return `${h} ч`;
+    } else {
+        return `${m} мин`;
+    }
+}
+
 // WebSocket подключение для реального времени
 let lohiaSocket = null;
 let reconnectAttempts = 0;
 const maxReconnectAttempts = 5;
 const reconnectDelay = 3000;
+let updateInterval = null;
 
 function updateWebSocketStatus(status, message) {
     const statusEl = document.getElementById('websocket-status');
@@ -133,33 +158,94 @@ function updateWebSocketStatus(status, message) {
     }
 }
 
+// Загрузка истории вызовов через API (основная функция)
+function loadMaintenanceHistory() {
+    console.log('📥 Загрузка истории вызовов через API');
+    
+    fetch('/lohia/api/maintenance-history/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log(`✅ Загружено ${data.count} записей`);
+                updateMaintenanceTable(data.calls);
+            } else {
+                console.error('❌ Ошибка загрузки истории:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('❌ Ошибка запроса истории:', error);
+        });
+}
+
+// Обновление таблицы из данных API
+function updateMaintenanceTable(calls) {
+    const tbody = document.getElementById('maintenance-table-body');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+    
+    if (calls && Array.isArray(calls) && calls.length > 0) {
+        calls.forEach(call => {
+            const row = document.createElement('tr');
+            
+            // Определяем статус badge
+            let statusBadge = '';
+            if (call.status === 'pending') {
+                statusBadge = '<span class="lohia-badge lohia-badge-warning">Ожидает</span>';
+            } else if (call.status === 'in_progress') {
+                statusBadge = '<span class="lohia-badge lohia-badge-info">В работе</span>';
+            } else if (call.status === 'completed') {
+                statusBadge = '<span class="lohia-badge lohia-badge-success">Завершен</span>';
+            }
+            
+            row.innerHTML = `
+                <td>${call.date}</td>
+                <td>${call.call_time}</td>
+                <td>${call.machine || '—'}</td>
+                <td>${call.operator}</td>
+                <td>${call.master || '<span class="text-muted">—</span>'}</td>
+                <td>${call.response_time}</td>
+                <td>${call.repair_time}</td>
+                <td>${statusBadge}</td>
+                <td>${call.description || '<span class="text-muted">—</span>'}</td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+    } else {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #666; padding: 20px;">Нет данных о вызовах мастера</td></tr>';
+    }
+}
+
+// WebSocket - только как триггер для обновления
 function connectWebSocket() {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws/lohia/machine1/`;
+    const wsUrl = `${protocol}//${window.location.host}/ws/lohia/dashboard/`;
     
-    console.log('🔌 Подключение к WebSocket для истории вызовов:', wsUrl);
+    console.log('🔌 Подключение к WebSocket:', wsUrl);
     updateWebSocketStatus('connecting', 'Подключение...');
     
     lohiaSocket = new WebSocket(wsUrl);
     
     lohiaSocket.onopen = function(event) {
-        console.log('✅ WebSocket подключен к истории вызовов');
+        console.log('✅ WebSocket подключен');
         updateWebSocketStatus('connected', 'Подключен');
         reconnectAttempts = 0;
         
-        // Запрашиваем данные вызовов
-        requestMaintenanceData();
+        // Останавливаем AJAX polling если был запущен
+        if (updateInterval) {
+            clearInterval(updateInterval);
+            updateInterval = null;
+        }
     };
     
     lohiaSocket.onmessage = function(event) {
         try {
             const data = JSON.parse(event.data);
-            console.log('📨 Получены данные вызовов:', data);
+            console.log('📨 WebSocket триггер - обновление истории');
             
-            // Обрабатываем данные вызовов мастера
-            if (data.type === 'maintenance_data' || data.type === 'maintenance_update') {
-                updateMaintenanceTable(data.data);
-            }
+            // При любом сообщении от WebSocket - перезагружаем историю через API
+            loadMaintenanceHistory();
         } catch (error) {
             console.error('❌ Ошибка парсинга WebSocket данных:', error);
         }
@@ -178,7 +264,7 @@ function connectWebSocket() {
         } else {
             console.error('💥 Превышено максимальное количество попыток переподключения');
             updateWebSocketStatus('disconnected', 'Ошибка подключения');
-            // Fallback на AJAX
+            // Fallback на AJAX polling
             startAjaxFallback();
         }
     };
@@ -188,79 +274,24 @@ function connectWebSocket() {
     };
 }
 
-function requestMaintenanceData() {
-    if (lohiaSocket && lohiaSocket.readyState === WebSocket.OPEN) {
-        lohiaSocket.send(JSON.stringify({type: 'get_maintenance_data'}));
-    }
-}
-
-function updateMaintenanceTable(maintenanceData) {
-    const tbody = document.getElementById('maintenance-table-body');
-    if (!tbody) return;
-    
-    tbody.innerHTML = '';
-    
-    if (maintenanceData && Array.isArray(maintenanceData)) {
-        maintenanceData.forEach(call => {
-            const row = document.createElement('tr');
-            
-            // Определяем статус badge
-            let statusBadge = '';
-            if (call.status === 'pending' || call.status === 'Ожидает') {
-                statusBadge = '<span class="lohia-badge lohia-badge-warning">Ожидает</span>';
-            } else if (call.status === 'in_progress' || call.status === 'В работе') {
-                statusBadge = '<span class="lohia-badge lohia-badge-info">В работе</span>';
-            } else {
-                statusBadge = '<span class="lohia-badge lohia-badge-success">Завершен</span>';
-            }
-            
-            // Форматируем время
-            const callTime = new Date(call.call_time);
-            
-            row.innerHTML = `
-                <td>${callTime.toLocaleDateString('ru-RU')}</td>
-                <td>${callTime.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'})}</td>
-                <td>${call.operator || 'Неизвестно'}</td>
-                <td>${call.master || '<span class="text-muted">—</span>'}</td>
-                <td>${call.response_time || '<span class="text-muted">—</span>'}</td>
-                <td>${call.repair_time || '<span class="text-muted">—</span>'}</td>
-                <td>${statusBadge}</td>
-                <td>${call.description || '<span class="text-muted">—</span>'}</td>
-            `;
-            
-            tbody.appendChild(row);
-        });
-    } else {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #666; padding: 20px;">Нет данных о вызовах мастера</td></tr>';
-    }
-}
-
-// Fallback на AJAX если WebSocket не работает
+// Fallback на AJAX polling если WebSocket не работает
 function startAjaxFallback() {
-    console.log('🔄 Переключение на AJAX fallback для истории вызовов');
-    updateInterval = setInterval(updateMaintenanceHistory, 5000);
+    console.log('🔄 Переключение на AJAX polling (каждые 5 секунд)');
+    updateInterval = setInterval(loadMaintenanceHistory, 5000);
 }
 
-function updateMaintenanceHistory() {
-    fetch('/lohia/api/maintenance-history/')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                updateMaintenanceTable(data.calls);
-            }
-        })
-        .catch(error => {
-            console.error('Error updating maintenance history:', error);
-        });
-}
-
-// Запускаем WebSocket при загрузке страницы
+// Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Инициализация истории вызовов с WebSocket');
+    console.log('🚀 Инициализация истории вызовов');
+    
+    // 1. Сразу загружаем историю через API
+    loadMaintenanceHistory();
+    
+    // 2. Подключаем WebSocket для live-обновлений
     connectWebSocket();
 });
 
-// Останавливаем WebSocket при выходе со страницы
+// Очистка при выходе со страницы
 window.addEventListener('beforeunload', function() {
     if (lohiaSocket) {
         lohiaSocket.close();

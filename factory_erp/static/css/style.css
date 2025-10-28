@@ -2045,6 +2045,17 @@ body {
     font-size: 14px;
 }
 
+.lohia-table-compact th,
+.lohia-table-compact td {
+    padding: 8px 10px;
+    font-size: 12px;
+}
+
+.lohia-table-compact th {
+    font-size: 12px;
+    font-weight: 600;
+}
+
 .lohia-table tr:hover {
     background: #f8f9fa;
 }

@@ -20170,3 +20170,2216 @@ WARNING 2025-10-06 13:10:29,691 log Not Found: /.well-known/appspecific/com.chro
 WARNING 2025-10-06 13:10:34,993 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
 WARNING 2025-10-06 13:10:40,043 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
 WARNING 2025-10-06 13:20:27,686 log Not Found: /security/dashboard/
+WARNING 2025-10-06 13:54:05,736 log Not Found: /lohia/master/
+WARNING 2025-10-06 14:32:02,094 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-06 14:32:23,621 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-06 14:32:28,503 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-06 14:32:44,295 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-06 14:33:07,885 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-06 14:33:14,008 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-06 14:33:25,530 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-06 14:33:33,055 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-06 14:33:42,204 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-06 15:00:19,952 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+ERROR 2025-10-06 15:33:01,260 log Internal Server Error: /employees/add/
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 489, in thread_handler
+    raise exc_info[1]
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+    response = await wrapped_callback(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 439, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 493, in thread_handler
+    return func(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/auth/mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/base.py", line 144, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/edit.py", line 182, in post
+    return super().post(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/edit.py", line 150, in post
+    if form.is_valid():
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/forms/forms.py", line 206, in is_valid
+    return self.is_bound and not self.errors
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/forms/forms.py", line 201, in errors
+    self.full_clean()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/forms/forms.py", line 337, in full_clean
+    self._clean_fields()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/forms/forms.py", line 347, in _clean_fields
+    value = getattr(self, "clean_%s" % name)()
+  File "/home/batyr/projects/erp-system/factory_erp/./employees/forms.py", line 305, in clean_rfid_uid
+    rfid_uid = self.cleaned_data.get('rfid_uid', '').strip().upper()
+AttributeError: 'NoneType' object has no attribute 'strip'
+ERROR 2025-10-06 15:35:05,652 log Internal Server Error: /employees/add/
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 489, in thread_handler
+    raise exc_info[1]
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+    response = await wrapped_callback(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 439, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 493, in thread_handler
+    return func(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/auth/mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/base.py", line 144, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/edit.py", line 182, in post
+    return super().post(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/edit.py", line 150, in post
+    if form.is_valid():
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/forms/forms.py", line 206, in is_valid
+    return self.is_bound and not self.errors
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/forms/forms.py", line 201, in errors
+    self.full_clean()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/forms/forms.py", line 337, in full_clean
+    self._clean_fields()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/forms/forms.py", line 347, in _clean_fields
+    value = getattr(self, "clean_%s" % name)()
+  File "/home/batyr/projects/erp-system/factory_erp/./employees/forms.py", line 305, in clean_rfid_uid
+    rfid_uid = ((self.cleaned_data.get('rfid_uid') or '').strip().upper())
+AttributeError: 'NoneType' object has no attribute 'strip'
+ERROR 2025-10-06 15:35:58,487 log Internal Server Error: /employees/add/
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 489, in thread_handler
+    raise exc_info[1]
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+    response = await wrapped_callback(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 439, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 493, in thread_handler
+    return func(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/auth/mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/base.py", line 144, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/edit.py", line 182, in post
+    return super().post(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/edit.py", line 150, in post
+    if form.is_valid():
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/forms/forms.py", line 206, in is_valid
+    return self.is_bound and not self.errors
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/forms/forms.py", line 201, in errors
+    self.full_clean()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/forms/forms.py", line 337, in full_clean
+    self._clean_fields()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/forms/forms.py", line 347, in _clean_fields
+    value = getattr(self, "clean_%s" % name)()
+  File "/home/batyr/projects/erp-system/factory_erp/./employees/forms.py", line 305, in clean_rfid_uid
+    rfid_uid = ((self.cleaned_data.get('rfid_uid') or '').strip().upper())
+AttributeError: 'NoneType' object has no attribute 'strip'
+ERROR 2025-10-06 15:37:43,340 log Internal Server Error: /employees/add/
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 489, in thread_handler
+    raise exc_info[1]
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+    response = await wrapped_callback(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 439, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 493, in thread_handler
+    return func(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/auth/mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/base.py", line 144, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/edit.py", line 182, in post
+    return super().post(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/edit.py", line 150, in post
+    if form.is_valid():
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/forms/forms.py", line 206, in is_valid
+    return self.is_bound and not self.errors
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/forms/forms.py", line 201, in errors
+    self.full_clean()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/forms/forms.py", line 337, in full_clean
+    self._clean_fields()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/forms/forms.py", line 347, in _clean_fields
+    value = getattr(self, "clean_%s" % name)()
+  File "/home/batyr/projects/erp-system/factory_erp/./employees/forms.py", line 305, in clean_rfid_uid
+    raw_value = self.cleaned_data.get('rfid_uid')
+AttributeError: 'NoneType' object has no attribute 'strip'
+ERROR 2025-10-06 15:38:40,080 log Internal Server Error: /employees/add/
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 489, in thread_handler
+    raise exc_info[1]
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+    response = await wrapped_callback(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 439, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 493, in thread_handler
+    return func(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/auth/mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/base.py", line 144, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/edit.py", line 182, in post
+    return super().post(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/edit.py", line 150, in post
+    if form.is_valid():
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/forms/forms.py", line 206, in is_valid
+    return self.is_bound and not self.errors
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/forms/forms.py", line 201, in errors
+    self.full_clean()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/forms/forms.py", line 337, in full_clean
+    self._clean_fields()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/forms/forms.py", line 347, in _clean_fields
+    value = getattr(self, "clean_%s" % name)()
+  File "/home/batyr/projects/erp-system/factory_erp/./employees/forms.py", line 305, in clean_rfid_uid
+    raw_value = self.cleaned_data.get('rfid_uid')
+AttributeError: 'NoneType' object has no attribute 'strip'
+ERROR 2025-10-06 15:47:32,529 log Internal Server Error: /
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 489, in thread_handler
+    raise exc_info[1]
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+    response = await wrapped_callback(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 439, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 493, in thread_handler
+    return func(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/factory_erp/./factory_erp/urls.py", line 44, in redirect_to_employees
+    return redirect('employees:home')
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/shortcuts.py", line 51, in redirect
+    resolve_url(to, *args, **kwargs),
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/shortcuts.py", line 184, in resolve_url
+    return reverse(to, args=args, kwargs=kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/urls/base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/urls/resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'home' not found. 'home' is not a valid view function or pattern name.
+INFO 2025-10-06 20:41:26,895 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 20:41:26,895 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 20:41:26,895 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-06 20:41:26,902 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-06 20:41:26,918 views WorkTime entry recorded for Akmuradow Batyr
+INFO 2025-10-06 20:41:26,918 views Access logged with ID: 1
+INFO 2025-10-06 20:41:26,918 views Sending success response: {'success': True, 'employee': {'id': 2, 'full_name': 'Akmuradow Batyr', 'first_name': 'Batyr', 'last_name': 'Akmuradow', 'department': 'Администрация', 'position': 'Programmer', 'employee_id': '1002', 'photo_url': '/media/employee_photos/batyr_L6Tqkse.jpg'}, 'message': 'Добро пожаловать, Akmuradow Batyr!'}
+INFO 2025-10-06 20:45:05,784 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 20:45:05,784 views Request body: b'{"rfid_uid":"F1D31804","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 20:45:05,784 views Parsed data - RFID: F1D31804, Device: ESP32-HR
+INFO 2025-10-06 20:45:05,792 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-06 20:45:05,840 views WorkTime entry recorded for Mehanikow Mehanik
+INFO 2025-10-06 20:45:05,840 views Access logged with ID: 2
+INFO 2025-10-06 20:45:05,840 views Sending success response: {'success': True, 'employee': {'id': 1, 'full_name': 'Mehanikow Mehanik', 'first_name': 'Mehanik', 'last_name': 'Mehanikow', 'department': 'Механики', 'position': 'Mehanik_Bag', 'employee_id': '1001', 'photo_url': '/media/employee_photos/bridge.png'}, 'message': 'Добро пожаловать, Mehanikow Mehanik!'}
+INFO 2025-10-06 20:45:22,715 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 20:45:22,715 views Request body: b'{"rfid_uid":"F1D31804","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 20:45:22,715 views Parsed data - RFID: F1D31804, Device: ESP32-HR
+INFO 2025-10-06 20:45:22,723 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-06 20:45:22,737 views WorkTime exit recorded for Mehanikow Mehanik
+INFO 2025-10-06 20:45:22,737 views Access logged with ID: 3
+INFO 2025-10-06 20:45:22,737 views Sending success response: {'success': True, 'employee': {'id': 1, 'full_name': 'Mehanikow Mehanik', 'first_name': 'Mehanik', 'last_name': 'Mehanikow', 'department': 'Механики', 'position': 'Mehanik_Bag', 'employee_id': '1001', 'photo_url': '/media/employee_photos/bridge.png'}, 'message': 'Добро пожаловать, Mehanikow Mehanik!'}
+WARNING 2025-10-06 20:47:01,565 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+INFO 2025-10-06 20:55:48,150 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 20:55:48,150 views Request body: b'{"rfid_uid":"0134FE03","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 20:55:48,160 views Parsed data - RFID: 0134FE03, Device: ESP32-HR
+INFO 2025-10-06 20:55:48,178 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-06 20:55:48,188 views WorkTime entry recorded for Operatorow Operator
+INFO 2025-10-06 20:55:48,188 views Access logged with ID: 4
+INFO 2025-10-06 20:55:48,188 views Sending success response: {'success': True, 'employee': {'id': 3, 'full_name': 'Operatorow Operator', 'first_name': 'Operator', 'last_name': 'Operatorow', 'department': 'Сотрудник', 'position': 'Sotrudnik', 'employee_id': '1003', 'photo_url': '/media/employee_photos/converted_image.png'}, 'message': 'Добро пожаловать, Operatorow Operator!'}
+INFO 2025-10-06 20:57:29,756 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 20:57:29,756 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 20:57:29,756 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-06 20:57:29,777 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-06 20:57:29,796 views WorkTime exit recorded for Akmuradow Batyr
+INFO 2025-10-06 20:57:29,797 views Access logged with ID: 5
+INFO 2025-10-06 20:57:29,797 views Sending success response: {'success': True, 'employee': {'id': 2, 'full_name': 'Akmuradow Batyr', 'first_name': 'Batyr', 'last_name': 'Akmuradow', 'department': 'Администрация', 'position': 'Programmer', 'employee_id': '1002', 'photo_url': '/media/employee_photos/batyr_L6Tqkse.jpg'}, 'message': 'Добро пожаловать, Akmuradow Batyr!'}
+WARNING 2025-10-06 20:57:55,954 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+INFO 2025-10-06 21:05:11,486 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 21:05:11,486 views Request body: b'{"rfid_uid":"0134FE03","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 21:05:11,486 views Parsed data - RFID: 0134FE03, Device: ESP32-HR
+INFO 2025-10-06 21:05:11,505 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-06 21:05:11,524 views WorkTime exit recorded for Operatorow Operator
+INFO 2025-10-06 21:05:11,524 views Access logged with ID: 6
+INFO 2025-10-06 21:05:11,524 views Sending success response: {'success': True, 'employee': {'id': 3, 'full_name': 'Operatorow Operator', 'first_name': 'Operator', 'last_name': 'Operatorow', 'department': 'Сотрудник', 'position': 'Sotrudnik', 'employee_id': '1003', 'photo_url': '/media/employee_photos/converted_image.png'}, 'message': 'Добро пожаловать, Operatorow Operator!'}
+INFO 2025-10-06 21:10:14,505 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 21:10:14,505 views Request body: b'{"rfid_uid":"0134FE03","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 21:10:14,505 views Parsed data - RFID: 0134FE03, Device: ESP32-HR
+INFO 2025-10-06 21:10:14,528 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-06 21:10:14,539 views WorkTime entry recorded for Operatorow Operator
+INFO 2025-10-06 21:10:14,540 views Access logged with ID: 7
+INFO 2025-10-06 21:10:14,540 views Sending success response: {'success': True, 'employee': {'id': 3, 'full_name': 'Operatorow Operator', 'first_name': 'Operator', 'last_name': 'Operatorow', 'department': 'Сотрудник', 'position': 'Sotrudnik', 'employee_id': '1003', 'photo_url': '/media/employee_photos/converted_image.png'}, 'message': 'Добро пожаловать, Operatorow Operator!'}
+INFO 2025-10-06 21:10:26,888 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 21:10:26,888 views Request body: b'{"rfid_uid":"F1D31804","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 21:10:26,888 views Parsed data - RFID: F1D31804, Device: ESP32-HR
+INFO 2025-10-06 21:10:26,907 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-06 21:10:26,929 views WorkTime entry recorded for Mehanikow Mehanik
+INFO 2025-10-06 21:10:26,929 views Access logged with ID: 8
+INFO 2025-10-06 21:10:26,929 views Sending success response: {'success': True, 'employee': {'id': 1, 'full_name': 'Mehanikow Mehanik', 'first_name': 'Mehanik', 'last_name': 'Mehanikow', 'department': 'Механики', 'position': 'Mehanik_Bag', 'employee_id': '1001', 'photo_url': '/media/employee_photos/bridge.png'}, 'message': 'Добро пожаловать, Mehanikow Mehanik!'}
+INFO 2025-10-06 21:11:22,036 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 21:11:22,037 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 21:11:22,037 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-06 21:11:22,053 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-06 21:11:22,072 views WorkTime entry recorded for Akmuradow Batyr
+INFO 2025-10-06 21:11:22,073 views Access logged with ID: 9
+INFO 2025-10-06 21:11:22,073 views Sending success response: {'success': True, 'employee': {'id': 2, 'full_name': 'Akmuradow Batyr', 'first_name': 'Batyr', 'last_name': 'Akmuradow', 'department': 'Администрация', 'position': 'Programmer', 'employee_id': '1002', 'photo_url': '/media/employee_photos/batyr_L6Tqkse.jpg'}, 'message': 'Добро пожаловать, Akmuradow Batyr!'}
+INFO 2025-10-06 21:19:04,602 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 21:19:04,603 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 21:19:04,603 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-06 21:19:04,623 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-06 21:19:04,643 views WorkTime exit recorded for Akmuradow Batyr
+INFO 2025-10-06 21:19:04,643 views Access logged with ID: 10
+INFO 2025-10-06 21:19:04,644 views Sending success response: {'success': True, 'employee': {'id': 2, 'full_name': 'Akmuradow Batyr', 'first_name': 'Batyr', 'last_name': 'Akmuradow', 'department': 'Администрация', 'position': 'Programmer', 'employee_id': '1002', 'photo_url': '/media/employee_photos/batyr_L6Tqkse.jpg'}, 'message': 'Добро пожаловать, Akmuradow Batyr!'}
+INFO 2025-10-06 21:19:17,892 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 21:19:17,892 views Request body: b'{"rfid_uid":"F1D31804","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 21:19:17,903 views Parsed data - RFID: F1D31804, Device: ESP32-HR
+INFO 2025-10-06 21:19:17,924 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-06 21:19:17,932 views WorkTime exit recorded for Mehanikow Mehanik
+INFO 2025-10-06 21:19:17,932 views Access logged with ID: 11
+INFO 2025-10-06 21:19:17,932 views Sending success response: {'success': True, 'employee': {'id': 1, 'full_name': 'Mehanikow Mehanik', 'first_name': 'Mehanik', 'last_name': 'Mehanikow', 'department': 'Механики', 'position': 'Mehanik_Bag', 'employee_id': '1001', 'photo_url': '/media/employee_photos/bridge.png'}, 'message': 'Добро пожаловать, Mehanikow Mehanik!'}
+INFO 2025-10-06 21:19:35,390 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 21:19:35,390 views Request body: b'{"rfid_uid":"0134FE03","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 21:19:35,391 views Parsed data - RFID: 0134FE03, Device: ESP32-HR
+INFO 2025-10-06 21:19:35,411 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-06 21:19:35,432 views WorkTime exit recorded for Operatorow Operator
+INFO 2025-10-06 21:19:35,432 views Access logged with ID: 12
+INFO 2025-10-06 21:19:35,432 views Sending success response: {'success': True, 'employee': {'id': 3, 'full_name': 'Operatorow Operator', 'first_name': 'Operator', 'last_name': 'Operatorow', 'department': 'Сотрудник', 'position': 'Sotrudnik', 'employee_id': '1003', 'photo_url': '/media/employee_photos/converted_image.png'}, 'message': 'Добро пожаловать, Operatorow Operator!'}
+INFO 2025-10-06 21:26:16,539 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 21:26:16,539 views Request body: b'{"rfid_uid":"0134FE03","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 21:26:16,539 views Parsed data - RFID: 0134FE03, Device: ESP32-HR
+INFO 2025-10-06 21:26:16,560 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-06 21:26:16,583 views WorkTime entry recorded for Operatorow Operator
+INFO 2025-10-06 21:26:16,584 views Access logged with ID: 13
+INFO 2025-10-06 21:26:16,584 views Sending success response: {'success': True, 'employee': {'id': 3, 'full_name': 'Operatorow Operator', 'first_name': 'Operator', 'last_name': 'Operatorow', 'department': 'Сотрудник', 'position': 'Sotrudnik', 'employee_id': '1003', 'photo_url': '/media/employee_photos/converted_image.png'}, 'message': 'Добро пожаловать, Operatorow Operator!'}
+INFO 2025-10-06 21:26:30,458 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 21:26:30,458 views Request body: b'{"rfid_uid":"F1D31804","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 21:26:30,459 views Parsed data - RFID: F1D31804, Device: ESP32-HR
+INFO 2025-10-06 21:26:30,480 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-06 21:26:30,487 views WorkTime entry recorded for Mehanikow Mehanik
+INFO 2025-10-06 21:26:30,487 views Access logged with ID: 14
+INFO 2025-10-06 21:26:30,487 views Sending success response: {'success': True, 'employee': {'id': 1, 'full_name': 'Mehanikow Mehanik', 'first_name': 'Mehanik', 'last_name': 'Mehanikow', 'department': 'Механики', 'position': 'Mehanik_Bag', 'employee_id': '1001', 'photo_url': '/media/employee_photos/bridge.png'}, 'message': 'Добро пожаловать, Mehanikow Mehanik!'}
+INFO 2025-10-06 21:26:50,422 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 21:26:50,423 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 21:26:50,423 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-06 21:26:50,440 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-06 21:26:50,460 views WorkTime entry recorded for Akmuradow Batyr
+INFO 2025-10-06 21:26:50,460 views Access logged with ID: 15
+INFO 2025-10-06 21:26:50,460 views Sending success response: {'success': True, 'employee': {'id': 2, 'full_name': 'Akmuradow Batyr', 'first_name': 'Batyr', 'last_name': 'Akmuradow', 'department': 'Администрация', 'position': 'Programmer', 'employee_id': '1002', 'photo_url': '/media/employee_photos/batyr_L6Tqkse.jpg'}, 'message': 'Добро пожаловать, Akmuradow Batyr!'}
+INFO 2025-10-06 21:28:14,846 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 21:28:14,846 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 21:28:14,847 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-06 21:28:14,865 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-06 21:28:14,890 views WorkTime exit recorded for Akmuradow Batyr
+INFO 2025-10-06 21:28:14,891 views Access logged with ID: 16
+INFO 2025-10-06 21:28:14,891 views Sending success response: {'success': True, 'employee': {'id': 2, 'full_name': 'Akmuradow Batyr', 'first_name': 'Batyr', 'last_name': 'Akmuradow', 'department': 'Администрация', 'position': 'Programmer', 'employee_id': '1002', 'photo_url': '/media/employee_photos/batyr_L6Tqkse.jpg'}, 'message': 'Добро пожаловать, Akmuradow Batyr!'}
+INFO 2025-10-06 21:29:00,171 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 21:29:00,171 views Request body: b'{"rfid_uid":"F1D31804","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 21:29:00,172 views Parsed data - RFID: F1D31804, Device: ESP32-HR
+INFO 2025-10-06 21:29:00,190 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-06 21:29:00,209 views WorkTime exit recorded for Mehanikow Mehanik
+INFO 2025-10-06 21:29:00,209 views Access logged with ID: 17
+INFO 2025-10-06 21:29:00,210 views Sending success response: {'success': True, 'employee': {'id': 1, 'full_name': 'Mehanikow Mehanik', 'first_name': 'Mehanik', 'last_name': 'Mehanikow', 'department': 'Механики', 'position': 'Mehanik_Bag', 'employee_id': '1001', 'photo_url': '/media/employee_photos/bridge.png'}, 'message': 'Добро пожаловать, Mehanikow Mehanik!'}
+INFO 2025-10-06 21:31:26,625 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 21:31:26,626 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 21:31:26,626 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-06 21:31:26,646 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-06 21:31:26,698 views WorkTime entry recorded for Akmuradow Batyr
+INFO 2025-10-06 21:31:26,698 views Access logged with ID: 18
+INFO 2025-10-06 21:31:26,698 views Sending success response: {'success': True, 'employee': {'id': 2, 'full_name': 'Akmuradow Batyr', 'first_name': 'Batyr', 'last_name': 'Akmuradow', 'department': 'Администрация', 'position': 'Programmer', 'employee_id': '1002', 'photo_url': '/media/employee_photos/batyr_L6Tqkse.jpg'}, 'message': 'Добро пожаловать, Akmuradow Batyr!'}
+INFO 2025-10-06 21:53:50,487 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 21:53:50,488 views Request body: b'{"rfid_uid":"0134FE03","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 21:53:50,488 views Parsed data - RFID: 0134FE03, Device: ESP32-HR
+INFO 2025-10-06 21:53:50,508 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-06 21:53:50,533 views WorkTime entry recorded for Operatorow Operator
+INFO 2025-10-06 21:53:50,533 views Access logged with ID: 19
+INFO 2025-10-06 21:53:50,533 views Sending success response: {'success': True, 'employee': {'id': 3, 'full_name': 'Operatorow Operator', 'first_name': 'Operator', 'last_name': 'Operatorow', 'department': 'Сотрудник', 'position': 'Sotrudnik', 'employee_id': '1003', 'photo_url': '/media/employee_photos/converted_image.png'}, 'message': 'Добро пожаловать, Operatorow Operator!'}
+INFO 2025-10-06 21:53:55,999 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 21:53:55,999 views Request body: b'{"rfid_uid":"0134FE03","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 21:53:55,999 views Parsed data - RFID: 0134FE03, Device: ESP32-HR
+INFO 2025-10-06 21:53:56,018 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-06 21:53:56,025 views WorkTime exit recorded for Operatorow Operator
+INFO 2025-10-06 21:53:56,026 views Access logged with ID: 20
+INFO 2025-10-06 21:53:56,026 views Sending success response: {'success': True, 'employee': {'id': 3, 'full_name': 'Operatorow Operator', 'first_name': 'Operator', 'last_name': 'Operatorow', 'department': 'Сотрудник', 'position': 'Sotrudnik', 'employee_id': '1003', 'photo_url': '/media/employee_photos/converted_image.png'}, 'message': 'Добро пожаловать, Operatorow Operator!'}
+INFO 2025-10-06 21:54:08,816 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 21:54:08,817 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 21:54:08,817 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-06 21:54:08,836 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-06 21:54:08,858 views WorkTime entry recorded for Akmuradow Batyr
+INFO 2025-10-06 21:54:08,859 views Access logged with ID: 21
+INFO 2025-10-06 21:54:08,860 views Sending success response: {'success': True, 'employee': {'id': 2, 'full_name': 'Akmuradow Batyr', 'first_name': 'Batyr', 'last_name': 'Akmuradow', 'department': 'Администрация', 'position': 'Programmer', 'employee_id': '1002', 'photo_url': '/media/employee_photos/batyr_L6Tqkse.jpg'}, 'message': 'Добро пожаловать, Akmuradow Batyr!'}
+INFO 2025-10-06 21:54:14,266 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 21:54:14,266 views Request body: b'{"rfid_uid":"F1D31804","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 21:54:14,266 views Parsed data - RFID: F1D31804, Device: ESP32-HR
+INFO 2025-10-06 21:54:14,286 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-06 21:54:14,338 views WorkTime entry recorded for Mehanikow Mehanik
+INFO 2025-10-06 21:54:14,338 views Access logged with ID: 22
+INFO 2025-10-06 21:54:14,338 views Sending success response: {'success': True, 'employee': {'id': 1, 'full_name': 'Mehanikow Mehanik', 'first_name': 'Mehanik', 'last_name': 'Mehanikow', 'department': 'Механики', 'position': 'Mehanik_Bag', 'employee_id': '1001', 'photo_url': '/media/employee_photos/bridge.png'}, 'message': 'Добро пожаловать, Mehanikow Mehanik!'}
+INFO 2025-10-06 21:54:21,885 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 21:54:21,885 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 21:54:21,886 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-06 21:54:21,905 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-06 21:54:21,924 views WorkTime exit recorded for Akmuradow Batyr
+INFO 2025-10-06 21:54:21,925 views Access logged with ID: 23
+INFO 2025-10-06 21:54:21,925 views Sending success response: {'success': True, 'employee': {'id': 2, 'full_name': 'Akmuradow Batyr', 'first_name': 'Batyr', 'last_name': 'Akmuradow', 'department': 'Администрация', 'position': 'Programmer', 'employee_id': '1002', 'photo_url': '/media/employee_photos/batyr_L6Tqkse.jpg'}, 'message': 'Добро пожаловать, Akmuradow Batyr!'}
+INFO 2025-10-06 21:54:26,900 views RFID scan request received from 192.168.1.100
+INFO 2025-10-06 21:54:26,900 views Request body: b'{"rfid_uid":"F1D31804","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-06 21:54:26,900 views Parsed data - RFID: F1D31804, Device: ESP32-HR
+INFO 2025-10-06 21:54:26,920 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-06 21:54:26,969 views WorkTime exit recorded for Mehanikow Mehanik
+INFO 2025-10-06 21:54:26,969 views Access logged with ID: 24
+INFO 2025-10-06 21:54:26,969 views Sending success response: {'success': True, 'employee': {'id': 1, 'full_name': 'Mehanikow Mehanik', 'first_name': 'Mehanik', 'last_name': 'Mehanikow', 'department': 'Механики', 'position': 'Mehanik_Bag', 'employee_id': '1001', 'photo_url': '/media/employee_photos/bridge.png'}, 'message': 'Добро пожаловать, Mehanikow Mehanik!'}
+ERROR 2025-10-07 10:16:15,036 log Internal Server Error: /
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 31, in _get_storage_path
+    return cls._storage_path
+AttributeError: type object 'SessionStore' has no attribute '_storage_path'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 489, in thread_handler
+    raise exc_info[1]
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 439, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 493, in thread_handler
+    return func(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/middleware.py", line 20, in process_request
+    request.session = self.SessionStore(session_key)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 24, in __init__
+    self.storage_path = self._get_storage_path()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 38, in _get_storage_path
+    raise ImproperlyConfigured(
+django.core.exceptions.ImproperlyConfigured: The session storage path '/tmp/django_sessions' doesn't exist. Please set your SESSION_FILE_PATH setting to an existing directory in which Django can store session data.
+ERROR 2025-10-07 10:16:15,771 log Internal Server Error: /
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 31, in _get_storage_path
+    return cls._storage_path
+AttributeError: type object 'SessionStore' has no attribute '_storage_path'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 489, in thread_handler
+    raise exc_info[1]
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 439, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 493, in thread_handler
+    return func(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/middleware.py", line 20, in process_request
+    request.session = self.SessionStore(session_key)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 24, in __init__
+    self.storage_path = self._get_storage_path()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 38, in _get_storage_path
+    raise ImproperlyConfigured(
+django.core.exceptions.ImproperlyConfigured: The session storage path '/tmp/django_sessions' doesn't exist. Please set your SESSION_FILE_PATH setting to an existing directory in which Django can store session data.
+ERROR 2025-10-07 10:16:26,208 log Internal Server Error: /
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 31, in _get_storage_path
+    return cls._storage_path
+AttributeError: type object 'SessionStore' has no attribute '_storage_path'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 489, in thread_handler
+    raise exc_info[1]
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 439, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 493, in thread_handler
+    return func(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/middleware.py", line 20, in process_request
+    request.session = self.SessionStore(session_key)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 24, in __init__
+    self.storage_path = self._get_storage_path()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 38, in _get_storage_path
+    raise ImproperlyConfigured(
+django.core.exceptions.ImproperlyConfigured: The session storage path '/tmp/django_sessions' doesn't exist. Please set your SESSION_FILE_PATH setting to an existing directory in which Django can store session data.
+ERROR 2025-10-07 10:16:26,296 log Internal Server Error: /favicon.ico
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 31, in _get_storage_path
+    return cls._storage_path
+AttributeError: type object 'SessionStore' has no attribute '_storage_path'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 489, in thread_handler
+    raise exc_info[1]
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 439, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 493, in thread_handler
+    return func(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/middleware.py", line 20, in process_request
+    request.session = self.SessionStore(session_key)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 24, in __init__
+    self.storage_path = self._get_storage_path()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 38, in _get_storage_path
+    raise ImproperlyConfigured(
+django.core.exceptions.ImproperlyConfigured: The session storage path '/tmp/django_sessions' doesn't exist. Please set your SESSION_FILE_PATH setting to an existing directory in which Django can store session data.
+ERROR 2025-10-07 10:16:29,657 log Internal Server Error: /
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 31, in _get_storage_path
+    return cls._storage_path
+AttributeError: type object 'SessionStore' has no attribute '_storage_path'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 489, in thread_handler
+    raise exc_info[1]
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 439, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 493, in thread_handler
+    return func(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/middleware.py", line 20, in process_request
+    request.session = self.SessionStore(session_key)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 24, in __init__
+    self.storage_path = self._get_storage_path()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 38, in _get_storage_path
+    raise ImproperlyConfigured(
+django.core.exceptions.ImproperlyConfigured: The session storage path '/tmp/django_sessions' doesn't exist. Please set your SESSION_FILE_PATH setting to an existing directory in which Django can store session data.
+ERROR 2025-10-07 10:16:29,726 log Internal Server Error: /favicon.ico
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 31, in _get_storage_path
+    return cls._storage_path
+AttributeError: type object 'SessionStore' has no attribute '_storage_path'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 489, in thread_handler
+    raise exc_info[1]
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 439, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 493, in thread_handler
+    return func(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/middleware.py", line 20, in process_request
+    request.session = self.SessionStore(session_key)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 24, in __init__
+    self.storage_path = self._get_storage_path()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 38, in _get_storage_path
+    raise ImproperlyConfigured(
+django.core.exceptions.ImproperlyConfigured: The session storage path '/tmp/django_sessions' doesn't exist. Please set your SESSION_FILE_PATH setting to an existing directory in which Django can store session data.
+ERROR 2025-10-07 10:17:17,404 log Internal Server Error: /
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 31, in _get_storage_path
+    return cls._storage_path
+AttributeError: type object 'SessionStore' has no attribute '_storage_path'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/utils/deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/middleware.py", line 20, in process_request
+    request.session = self.SessionStore(session_key)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 24, in __init__
+    self.storage_path = self._get_storage_path()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 38, in _get_storage_path
+    raise ImproperlyConfigured(
+django.core.exceptions.ImproperlyConfigured: The session storage path '/tmp/django_sessions' doesn't exist. Please set your SESSION_FILE_PATH setting to an existing directory in which Django can store session data.
+ERROR 2025-10-07 10:17:18,126 log Internal Server Error: /
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 31, in _get_storage_path
+    return cls._storage_path
+AttributeError: type object 'SessionStore' has no attribute '_storage_path'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/utils/deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/middleware.py", line 20, in process_request
+    request.session = self.SessionStore(session_key)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 24, in __init__
+    self.storage_path = self._get_storage_path()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 38, in _get_storage_path
+    raise ImproperlyConfigured(
+django.core.exceptions.ImproperlyConfigured: The session storage path '/tmp/django_sessions' doesn't exist. Please set your SESSION_FILE_PATH setting to an existing directory in which Django can store session data.
+ERROR 2025-10-07 10:17:54,435 log Internal Server Error: /employees/
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 31, in _get_storage_path
+    return cls._storage_path
+AttributeError: type object 'SessionStore' has no attribute '_storage_path'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 489, in thread_handler
+    raise exc_info[1]
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 439, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 493, in thread_handler
+    return func(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/middleware.py", line 20, in process_request
+    request.session = self.SessionStore(session_key)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 24, in __init__
+    self.storage_path = self._get_storage_path()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 38, in _get_storage_path
+    raise ImproperlyConfigured(
+django.core.exceptions.ImproperlyConfigured: The session storage path '/tmp/django_sessions' doesn't exist. Please set your SESSION_FILE_PATH setting to an existing directory in which Django can store session data.
+ERROR 2025-10-07 10:17:54,528 log Internal Server Error: /favicon.ico
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 31, in _get_storage_path
+    return cls._storage_path
+AttributeError: type object 'SessionStore' has no attribute '_storage_path'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 489, in thread_handler
+    raise exc_info[1]
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/utils/deprecation.py", line 132, in __acall__
+    response = await sync_to_async(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 439, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 493, in thread_handler
+    return func(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/middleware.py", line 20, in process_request
+    request.session = self.SessionStore(session_key)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 24, in __init__
+    self.storage_path = self._get_storage_path()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/sessions/backends/file.py", line 38, in _get_storage_path
+    raise ImproperlyConfigured(
+django.core.exceptions.ImproperlyConfigured: The session storage path '/tmp/django_sessions' doesn't exist. Please set your SESSION_FILE_PATH setting to an existing directory in which Django can store session data.
+DEBUG 2025-10-07 11:41:06,257 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+DEBUG 2025-10-07 11:42:36,576 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+DEBUG 2025-10-08 20:14:01,601 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+DEBUG 2025-10-08 15:14:52,537 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+ERROR 2025-10-08 15:18:55,793 log Internal Server Error: /employees/worktime/detail/14/
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 489, in thread_handler
+    raise exc_info[1]
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+    response = await wrapped_callback(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 439, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/current_thread_executor.py", line 40, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 493, in thread_handler
+    return func(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/factory_erp/./employees/views.py", line 168, in worktime_entry_detail
+    'entry_time': timezone.localtime(entry.entry_time).strftime('%H:%M') if entry.entry_time else '',
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/utils/timezone.py", line 183, in localtime
+    raise ValueError("localtime() cannot be applied to a naive datetime")
+ValueError: localtime() cannot be applied to a naive datetime
+ERROR 2025-10-08 15:19:00,288 log Internal Server Error: /employees/worktime/detail/14/
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 489, in thread_handler
+    raise exc_info[1]
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+    response = await wrapped_callback(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 439, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/current_thread_executor.py", line 40, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 493, in thread_handler
+    return func(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/factory_erp/./employees/views.py", line 168, in worktime_entry_detail
+    'entry_time': timezone.localtime(entry.entry_time).strftime('%H:%M') if entry.entry_time else '',
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/utils/timezone.py", line 183, in localtime
+    raise ValueError("localtime() cannot be applied to a naive datetime")
+ValueError: localtime() cannot be applied to a naive datetime
+ERROR 2025-10-08 15:19:06,588 log Internal Server Error: /employees/worktime/
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 489, in thread_handler
+    raise exc_info[1]
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+    response = await wrapped_callback(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 439, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/current_thread_executor.py", line 40, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 493, in thread_handler
+    return func(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/auth/mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/views/generic/base.py", line 144, in dispatch
+    return handler(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/factory_erp/./employees/views.py", line 94, in get
+    return self.export_csv()
+  File "/home/batyr/projects/erp-system/factory_erp/./employees/views.py", line 116, in export_csv
+    timezone.localtime(entry.entry_time).strftime('%H:%M') if entry.entry_time else '',
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/utils/timezone.py", line 183, in localtime
+    raise ValueError("localtime() cannot be applied to a naive datetime")
+ValueError: localtime() cannot be applied to a naive datetime
+ERROR 2025-10-08 15:19:26,074 log Internal Server Error: /employees/worktime/detail/14/
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 489, in thread_handler
+    raise exc_info[1]
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+    response = await wrapped_callback(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 439, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/current_thread_executor.py", line 40, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 493, in thread_handler
+    return func(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/factory_erp/./employees/views.py", line 168, in worktime_entry_detail
+    'entry_time': timezone.localtime(entry.entry_time).strftime('%H:%M') if entry.entry_time else '',
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/utils/timezone.py", line 183, in localtime
+    raise ValueError("localtime() cannot be applied to a naive datetime")
+ValueError: localtime() cannot be applied to a naive datetime
+ERROR 2025-10-08 15:19:31,725 log Internal Server Error: /employees/worktime/detail/14/
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 489, in thread_handler
+    raise exc_info[1]
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 42, in inner
+    response = await get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/base.py", line 253, in _get_response_async
+    response = await wrapped_callback(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 439, in __call__
+    ret = await asyncio.shield(exec_coro)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/current_thread_executor.py", line 40, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/asgiref/sync.py", line 493, in thread_handler
+    return func(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/contrib/auth/decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/factory_erp/./employees/views.py", line 168, in worktime_entry_detail
+    'entry_time': timezone.localtime(entry.entry_time).strftime('%H:%M') if entry.entry_time else '',
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/utils/timezone.py", line 183, in localtime
+    raise ValueError("localtime() cannot be applied to a naive datetime")
+ValueError: localtime() cannot be applied to a naive datetime
+DEBUG 2025-10-08 15:22:31,197 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+DEBUG 2025-10-08 15:25:10,917 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+DEBUG 2025-10-08 15:31:45,450 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+DEBUG 2025-10-08 15:42:28,291 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+DEBUG 2025-10-10 10:33:27,195 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+DEBUG 2025-10-10 10:39:18,627 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+DEBUG 2025-10-10 13:46:38,660 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-10 13:48:03,532 views RFID scan request received from 192.168.1.100
+INFO 2025-10-10 13:48:03,532 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"A38B3B1C"}'
+INFO 2025-10-10 13:48:03,533 views Parsed data - RFID: A38B3B1C, Device: LOHIA-001
+INFO 2025-10-10 13:48:03,551 views Employee found: Akmuradow Batyr (ID: 2)
+WARNING 2025-10-10 13:48:03,573 log Not Found: /employees/api/rfid-scan/
+WARNING 2025-10-10 13:48:51,523 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+DEBUG 2025-10-10 13:57:33,680 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-10 13:58:19,776 views RFID scan request received from 192.168.1.103
+INFO 2025-10-10 13:58:19,776 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"A38B3B1C"}'
+INFO 2025-10-10 13:58:19,777 views Parsed data - RFID: A38B3B1C, Device: LOHIA-001
+INFO 2025-10-10 13:58:19,795 views Employee found: Akmuradow Batyr (ID: 2)
+WARNING 2025-10-10 13:58:19,803 log Not Found: /employees/api/rfid-scan/
+INFO 2025-10-10 13:58:58,024 views RFID scan request received from 192.168.1.103
+INFO 2025-10-10 13:58:58,024 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"A38B3B1C"}'
+INFO 2025-10-10 13:58:58,024 views Parsed data - RFID: A38B3B1C, Device: LOHIA-001
+INFO 2025-10-10 13:58:58,032 views Employee found: Akmuradow Batyr (ID: 2)
+WARNING 2025-10-10 13:58:58,045 log Not Found: /employees/api/rfid-scan/
+DEBUG 2025-10-10 14:04:14,372 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-10 14:04:40,661 views RFID scan request received from 192.168.1.104
+INFO 2025-10-10 14:04:40,662 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"A38B3B1C"}'
+INFO 2025-10-10 14:04:40,662 views Parsed data - RFID: A38B3B1C, Device: LOHIA-001
+INFO 2025-10-10 14:04:40,669 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-10 14:05:25,480 views RFID scan request received from 192.168.1.104
+INFO 2025-10-10 14:05:25,480 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-10 14:05:25,480 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-10 14:05:25,501 views Employee found: Operatorow Operator (ID: 3)
+DEBUG 2025-10-10 14:11:00,449 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-10 14:11:07,650 views RFID scan request received from 192.168.1.104
+INFO 2025-10-10 14:11:07,650 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-10 14:11:07,650 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-10 14:11:07,659 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-10 14:12:02,387 views RFID scan request received from 192.168.1.104
+INFO 2025-10-10 14:12:02,388 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 14:12:02,388 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 14:12:02,406 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 14:12:35,338 views RFID scan request received from 192.168.1.104
+INFO 2025-10-10 14:12:35,339 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 14:12:35,339 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 14:12:35,358 views Employee found: Mehanikow Mehanik (ID: 1)
+WARNING 2025-10-10 14:18:25,107 log Bad Request: /lohia/api/maintenance/call/
+INFO 2025-10-10 14:21:42,372 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 14:21:42,372 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 14:21:42,372 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 14:21:42,381 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 14:22:15,113 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 14:22:15,114 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 14:22:15,114 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 14:22:15,133 views Employee found: Mehanikow Mehanik (ID: 1)
+DEBUG 2025-10-10 14:30:57,478 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-10 14:34:11,436 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 14:34:11,436 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-10 14:34:11,436 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-10 14:34:11,444 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-10 14:34:20,398 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 14:34:20,398 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-10 14:34:20,398 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-10 14:34:20,416 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-10 14:34:25,828 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 14:34:25,828 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-10 14:34:25,828 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-10 14:34:25,836 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-10 14:34:36,434 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 14:34:36,434 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-10 14:34:36,435 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-10 14:34:36,443 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-10 14:35:13,811 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 14:35:13,811 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 14:35:13,811 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 14:35:13,819 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 14:35:43,388 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 14:35:43,388 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 14:35:43,389 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 14:35:43,408 views Employee found: Mehanikow Mehanik (ID: 1)
+DEBUG 2025-10-10 14:44:16,116 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-10 14:44:38,877 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 14:44:38,878 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 14:44:38,878 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 14:44:38,886 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 14:44:51,648 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 14:44:51,648 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-10 14:44:51,648 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-10 14:44:51,668 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-10 14:45:11,090 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 14:45:11,090 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-10 14:45:11,091 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-10 14:45:11,111 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-10 14:45:35,241 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 14:45:35,242 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 14:45:35,242 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 14:45:35,263 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 14:45:50,493 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 14:45:50,494 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 14:45:50,494 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 14:45:50,514 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 14:46:03,684 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 14:46:03,685 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-10 14:46:03,685 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-10 14:46:03,703 views Employee found: Operatorow Operator (ID: 3)
+DEBUG 2025-10-10 14:51:20,073 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-10 14:51:35,154 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 14:51:35,154 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-10 14:51:35,155 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-10 14:51:35,174 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-10 14:51:52,449 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 14:51:52,450 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 14:51:52,450 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 14:51:52,470 views Employee found: Mehanikow Mehanik (ID: 1)
+WARNING 2025-10-10 14:52:05,580 log Bad Request: /lohia/api/maintenance/call/
+INFO 2025-10-10 14:52:32,470 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 14:52:32,470 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 14:52:32,470 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 14:52:32,487 views Employee found: Mehanikow Mehanik (ID: 1)
+DEBUG 2025-10-10 14:56:52,715 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-10 14:57:17,815 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 14:57:17,815 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 14:57:17,815 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 14:57:17,830 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 14:57:35,508 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 14:57:35,508 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 14:57:35,508 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 14:57:35,529 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 15:01:46,773 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 15:01:46,773 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-10 15:01:46,773 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-10 15:01:46,785 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-10 15:01:51,777 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 15:01:51,778 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-10 15:01:51,778 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-10 15:01:51,791 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-10 15:04:47,509 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 15:04:47,510 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 15:04:47,510 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 15:04:47,531 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 15:05:44,621 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 15:05:44,621 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 15:05:44,622 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 15:05:44,641 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 15:06:28,648 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 15:06:28,648 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-10 15:06:28,649 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-10 15:06:28,669 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-10 15:07:57,979 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 15:07:57,979 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-10 15:07:57,980 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-10 15:07:58,000 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-10 15:09:20,061 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 15:09:20,062 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-10 15:09:20,062 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-10 15:09:20,082 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-10 15:09:24,271 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 15:09:24,272 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-10 15:09:24,272 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-10 15:09:24,289 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-10 15:10:32,014 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 15:10:32,014 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 15:10:32,014 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 15:10:32,036 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 15:11:55,016 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 15:11:55,017 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 15:11:55,017 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 15:11:55,037 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 15:12:11,607 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 15:12:11,607 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 15:12:11,607 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 15:12:11,626 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 15:12:18,761 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 15:12:18,763 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 15:12:18,763 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 15:12:18,782 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 15:13:58,039 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 15:13:58,040 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 15:13:58,040 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 15:13:58,057 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 15:14:03,974 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 15:14:03,974 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 15:14:03,974 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 15:14:03,994 views Employee found: Mehanikow Mehanik (ID: 1)
+DEBUG 2025-10-10 15:23:50,103 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-10 15:24:19,505 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 15:24:19,505 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 15:24:19,516 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 15:24:19,528 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 15:24:28,300 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 15:24:28,300 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 15:24:28,300 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 15:24:28,320 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 15:24:53,169 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 15:24:53,169 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-10 15:24:53,170 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-10 15:24:53,189 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-10 15:24:56,446 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 15:24:56,447 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-10 15:24:56,447 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-10 15:24:56,466 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-10 15:25:08,928 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 15:25:08,928 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 15:25:08,928 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 15:25:08,948 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 15:25:23,054 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 15:25:23,055 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 15:25:23,055 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 15:25:23,075 views Employee found: Mehanikow Mehanik (ID: 1)
+DEBUG 2025-10-10 15:46:12,559 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-10 16:03:38,008 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:03:38,008 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:03:38,008 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:03:38,026 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 16:03:41,501 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:03:41,501 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:03:41,501 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:03:41,521 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 16:04:24,984 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:04:24,985 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:04:24,985 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:04:25,003 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 16:04:44,636 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:04:44,636 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:04:44,636 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:04:44,657 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 16:05:12,276 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:05:12,277 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:05:12,277 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:05:12,297 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 16:05:15,341 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:05:15,342 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:05:15,342 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:05:15,359 views Employee found: Mehanikow Mehanik (ID: 1)
+WARNING 2025-10-10 16:05:47,914 log Bad Request: /lohia/api/maintenance/call/
+INFO 2025-10-10 16:06:16,546 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:06:16,547 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:06:16,547 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:06:16,566 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 16:06:21,566 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:06:21,566 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:06:21,566 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:06:21,584 views Employee found: Mehanikow Mehanik (ID: 1)
+DEBUG 2025-10-10 16:20:33,576 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-10 16:28:49,179 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:28:49,180 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:28:49,180 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:28:49,200 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 16:28:52,556 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:28:52,556 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:28:52,556 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:28:52,576 views Employee found: Mehanikow Mehanik (ID: 1)
+WARNING 2025-10-10 16:29:14,077 log Bad Request: /lohia/api/maintenance/call/
+INFO 2025-10-10 16:29:29,708 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:29:29,708 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:29:29,708 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:29:29,728 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 16:29:35,951 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:29:35,951 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:29:35,951 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:29:35,971 views Employee found: Mehanikow Mehanik (ID: 1)
+WARNING 2025-10-10 16:31:24,875 log Bad Request: /lohia/api/maintenance/call/
+INFO 2025-10-10 16:31:30,276 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:31:30,276 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:31:30,286 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:31:30,306 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 16:31:32,525 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:31:32,526 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:31:32,526 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:31:32,546 views Employee found: Mehanikow Mehanik (ID: 1)
+WARNING 2025-10-10 16:31:37,987 log Bad Request: /lohia/api/maintenance/call/
+INFO 2025-10-10 16:34:16,078 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:34:16,078 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:34:16,079 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:34:16,099 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 16:34:18,636 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:34:18,637 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:34:18,637 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:34:18,656 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 16:37:47,529 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:37:47,529 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:37:47,530 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:37:47,548 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 16:37:53,875 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:37:53,875 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:37:53,875 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:37:53,895 views Employee found: Mehanikow Mehanik (ID: 1)
+WARNING 2025-10-10 16:48:12,798 log Bad Request: /lohia/api/maintenance/call/
+INFO 2025-10-10 16:48:28,949 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:48:28,949 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:48:28,949 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:48:28,970 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 16:48:31,405 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:48:31,405 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:48:31,405 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:48:31,424 views Employee found: Mehanikow Mehanik (ID: 1)
+DEBUG 2025-10-10 16:49:27,736 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-10 16:49:56,975 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:49:56,975 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:49:56,975 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:49:56,995 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 16:50:00,756 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:50:00,756 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:50:00,756 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:50:00,776 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 16:51:32,254 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:51:32,254 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:51:32,254 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:51:32,274 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 16:51:34,307 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:51:34,307 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:51:34,308 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:51:34,328 views Employee found: Mehanikow Mehanik (ID: 1)
+WARNING 2025-10-10 16:53:01,634 log Bad Request: /lohia/api/maintenance/call/
+INFO 2025-10-10 16:53:16,454 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:53:16,455 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:53:16,455 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:53:16,476 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 16:53:21,940 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 16:53:21,941 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 16:53:21,941 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 16:53:21,961 views Employee found: Mehanikow Mehanik (ID: 1)
+DEBUG 2025-10-10 17:15:26,752 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-10 17:16:20,085 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 17:16:20,086 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 17:16:20,086 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 17:16:20,105 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 17:16:33,088 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 17:16:33,089 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-10 17:16:33,089 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-10 17:16:33,108 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-10 17:29:55,371 views RFID scan request received from 192.168.1.105
+INFO 2025-10-10 17:29:55,371 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-10 17:29:55,371 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-10 17:29:55,388 views Employee found: Operatorow Operator (ID: 3)
+DEBUG 2025-10-11 22:30:33,508 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+DEBUG 2025-10-11 22:32:36,489 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+DEBUG 2025-10-12 06:57:34,976 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+DEBUG 2025-10-12 07:01:27,032 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+DEBUG 2025-10-12 07:05:18,322 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-12 07:08:15,393 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 07:08:15,393 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 07:08:15,394 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 07:08:15,413 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-12 07:11:07,952 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 07:11:07,952 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-12 07:11:07,952 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-12 07:11:07,968 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-12 07:12:55,078 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 07:12:55,079 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-12 07:12:55,079 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-12 07:12:55,100 views Employee found: Mehanikow Mehanik (ID: 1)
+DEBUG 2025-10-12 07:30:25,829 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-12 07:31:24,863 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 07:31:24,863 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-12 07:31:24,863 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-12 07:31:24,882 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-12 07:32:07,435 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 07:32:07,436 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-12 07:32:07,436 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-12 07:32:07,457 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-12 07:32:44,368 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 07:32:44,368 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-12 07:32:44,369 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-12 07:32:44,389 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-12 07:33:22,639 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 07:33:22,639 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-12 07:33:22,639 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-12 07:33:22,659 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-12 07:40:06,324 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 07:40:06,325 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 07:40:06,335 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 07:40:06,347 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-12 07:40:54,418 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 07:40:54,419 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 07:40:54,419 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 07:40:54,439 views Employee found: Operatorow Operator (ID: 3)
+DEBUG 2025-10-12 07:42:43,212 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+DEBUG 2025-10-12 07:50:06,002 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-12 07:52:57,255 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 07:52:57,255 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-12 07:52:57,255 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-12 07:52:57,276 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-12 07:53:54,190 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 07:53:54,190 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-12 07:53:54,191 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-12 07:53:54,211 views Employee found: Mehanikow Mehanik (ID: 1)
+DEBUG 2025-10-12 08:14:00,154 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-12 08:14:36,211 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 08:14:36,211 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 08:14:36,211 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 08:14:36,232 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-12 08:15:34,756 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 08:15:34,756 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 08:15:34,756 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 08:15:34,776 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-12 08:17:15,333 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 08:17:15,333 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-12 08:17:15,333 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-12 08:17:15,353 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-12 08:17:48,293 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 08:17:48,293 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-12 08:17:48,293 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-12 08:17:48,313 views Employee found: Mehanikow Mehanik (ID: 1)
+WARNING 2025-10-12 08:23:05,864 log Bad Request: /lohia/api/maintenance/call/
+WARNING 2025-10-12 08:23:06,552 log Bad Request: /lohia/api/maintenance/call/
+INFO 2025-10-12 08:23:15,326 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 08:23:15,326 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-12 08:23:15,326 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-12 08:23:15,347 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-12 08:23:29,140 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 08:23:29,140 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-12 08:23:29,140 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-12 08:23:29,160 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-12 08:24:47,013 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 08:24:47,014 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 08:24:47,014 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 08:24:47,034 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-12 08:26:26,681 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 08:26:26,681 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 08:26:26,681 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 08:26:26,701 views Employee found: Operatorow Operator (ID: 3)
+DEBUG 2025-10-12 11:43:49,870 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-12 11:46:02,367 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 11:46:02,368 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 11:46:02,368 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 11:46:02,387 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-12 11:46:15,876 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 11:46:15,876 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 11:46:15,887 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 11:46:15,902 views Employee found: Operatorow Operator (ID: 3)
+DEBUG 2025-10-12 11:47:04,844 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-12 11:47:30,389 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 11:47:30,389 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 11:47:30,389 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 11:47:30,410 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-12 11:47:36,519 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 11:47:36,520 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 11:47:36,520 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 11:47:36,540 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-12 11:48:42,534 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 11:48:42,534 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 11:48:42,535 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 11:48:42,555 views Employee found: Operatorow Operator (ID: 3)
+DEBUG 2025-10-12 11:57:00,328 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-12 11:57:27,228 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 11:57:27,228 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 11:57:27,228 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 11:57:27,248 views Employee found: Operatorow Operator (ID: 3)
+WARNING 2025-10-12 11:57:31,745 log Bad Request: /lohia/api/maintenance/call/
+INFO 2025-10-12 11:57:35,512 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 11:57:35,512 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-12 11:57:35,512 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-12 11:57:35,532 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-12 11:58:03,134 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 11:58:03,134 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-12 11:58:03,134 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-12 11:58:03,154 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-12 11:59:39,745 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 11:59:39,745 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 11:59:39,782 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 11:59:39,791 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-12 12:00:07,688 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 12:00:07,689 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 12:00:07,689 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 12:00:07,710 views Employee found: Operatorow Operator (ID: 3)
+DEBUG 2025-10-12 12:05:20,959 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+DEBUG 2025-10-12 12:06:45,249 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+DEBUG 2025-10-12 12:14:08,078 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-12 12:17:36,747 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 12:17:36,747 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 12:17:36,748 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 12:17:36,768 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-12 12:26:39,139 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 12:26:39,140 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 12:26:39,140 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 12:26:39,160 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-12 12:27:18,640 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 12:27:18,641 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 12:27:18,641 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 12:27:18,661 views Employee found: Operatorow Operator (ID: 3)
+DEBUG 2025-10-12 12:34:19,955 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-12 12:34:30,139 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 12:34:30,139 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 12:34:30,139 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 12:34:30,158 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-12 12:35:25,475 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 12:35:25,476 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 12:35:25,476 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 12:35:25,496 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-12 12:35:34,905 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 12:35:34,905 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 12:35:34,905 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 12:35:34,925 views Employee found: Operatorow Operator (ID: 3)
+DEBUG 2025-10-12 12:43:52,038 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+WARNING 2025-10-12 12:46:04,136 log Bad Request: /lohia/api/maintenance/call/
+INFO 2025-10-12 12:46:16,889 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 12:46:16,890 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-12 12:46:16,890 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-12 12:46:16,910 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-12 12:46:33,567 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 12:46:33,568 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-12 12:46:33,568 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-12 12:46:33,589 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-12 12:46:48,818 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 12:46:48,818 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 12:46:48,818 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 12:46:48,840 views Employee found: Operatorow Operator (ID: 3)
+DEBUG 2025-10-12 13:03:20,070 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-12 13:03:35,655 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 13:03:35,655 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 13:03:35,655 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 13:03:35,675 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-12 13:04:38,387 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 13:04:38,387 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 13:04:38,387 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 13:04:38,408 views Employee found: Operatorow Operator (ID: 3)
+DEBUG 2025-10-12 13:10:38,024 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-12 13:10:52,124 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 13:10:52,124 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 13:10:52,125 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 13:10:52,146 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-12 13:11:37,294 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 13:11:37,294 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 13:11:37,294 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 13:11:37,315 views Employee found: Operatorow Operator (ID: 3)
+DEBUG 2025-10-12 13:22:22,963 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-12 13:22:34,962 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 13:22:34,962 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 13:22:34,963 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 13:22:34,981 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-12 13:23:35,132 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 13:23:35,132 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 13:23:35,132 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 13:23:35,152 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-12 13:32:34,708 views 🔄 До обнуления - pulses: 500, meters: 0.0575
+INFO 2025-10-12 13:32:34,709 views ✅ После обнуления - pulses: 0, meters: 0.0
+DEBUG 2025-10-12 13:33:25,321 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-12 13:33:38,076 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 13:33:38,076 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 13:33:38,077 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 13:33:38,096 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-12 13:34:13,265 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 13:34:13,265 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-12 13:34:13,265 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-12 13:34:13,287 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-12 13:34:17,773 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 13:34:17,773 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-12 13:34:17,773 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-12 13:34:17,792 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-12 13:34:23,396 views RFID scan request received from 192.168.1.102
+INFO 2025-10-12 13:34:23,397 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-12 13:34:23,397 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-12 13:34:23,416 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-12 13:34:23,436 views 🔄 До обнуления - pulses: 19, meters: 0.002185
+INFO 2025-10-12 13:34:23,438 views ✅ После обнуления - pulses: 0, meters: 0.0
+DEBUG 2025-10-13 14:05:44,148 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+DEBUG 2025-10-13 14:21:06,045 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+DEBUG 2025-10-14 06:47:39,415 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-14 06:50:30,594 views RFID scan request received from 192.168.1.106
+INFO 2025-10-14 06:50:30,594 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-14 06:50:30,594 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-14 06:50:30,602 views Employee found: Operatorow Operator (ID: 3)
+WARNING 2025-10-14 06:50:42,900 log Bad Request: /lohia/api/maintenance/call/
+WARNING 2025-10-14 06:50:43,133 log Bad Request: /lohia/api/maintenance/call/
+INFO 2025-10-14 06:50:59,759 views RFID scan request received from 192.168.1.106
+INFO 2025-10-14 06:50:59,759 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-14 06:50:59,760 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-14 06:50:59,768 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-14 06:51:10,196 views RFID scan request received from 192.168.1.106
+INFO 2025-10-14 06:51:10,196 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-14 06:51:10,196 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-14 06:51:10,205 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-14 06:51:53,482 views RFID scan request received from 192.168.1.106
+INFO 2025-10-14 06:51:53,482 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-14 06:51:53,482 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-14 06:51:53,490 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-14 06:51:56,562 views RFID scan request received from 192.168.1.106
+INFO 2025-10-14 06:51:56,563 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-14 06:51:56,573 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-14 06:51:56,581 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-14 06:52:42,400 views RFID scan request received from 192.168.1.106
+INFO 2025-10-14 06:52:42,400 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-14 06:52:42,400 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-14 06:52:42,409 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-14 06:52:49,360 views RFID scan request received from 192.168.1.106
+INFO 2025-10-14 06:52:49,360 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-14 06:52:49,360 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-14 06:52:49,367 views Employee found: Mehanikow Mehanik (ID: 1)
+WARNING 2025-10-14 06:52:58,383 log Bad Request: /lohia/api/maintenance/call/
+INFO 2025-10-14 06:53:20,681 views RFID scan request received from 192.168.1.106
+INFO 2025-10-14 06:53:20,681 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-14 06:53:20,681 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-14 06:53:20,690 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-14 06:53:23,434 views RFID scan request received from 192.168.1.106
+INFO 2025-10-14 06:53:23,435 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-14 06:53:23,435 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-14 06:53:23,443 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-14 06:54:08,461 views RFID scan request received from 192.168.1.106
+INFO 2025-10-14 06:54:08,461 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-14 06:54:08,461 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-14 06:54:08,469 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-14 06:54:13,170 views RFID scan request received from 192.168.1.106
+INFO 2025-10-14 06:54:13,170 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-14 06:54:13,170 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-14 06:54:13,179 views Employee found: Mehanikow Mehanik (ID: 1)
+DEBUG 2025-10-14 07:01:43,841 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+ERROR 2025-10-14 07:02:09,975 log Internal Server Error: /lohia/api/maintenance/call/
+ERROR 2025-10-14 07:02:10,174 log Internal Server Error: /lohia/api/maintenance/call/
+INFO 2025-10-14 07:03:01,527 views RFID scan request received from 192.168.1.107
+INFO 2025-10-14 07:03:01,527 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-14 07:03:01,527 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-14 07:03:01,535 views Employee found: Operatorow Operator (ID: 3)
+WARNING 2025-10-14 07:03:01,577 log Not Found: /employees/api/rfid-scan/
+INFO 2025-10-14 07:03:39,790 views RFID scan request received from 192.168.1.107
+INFO 2025-10-14 07:03:39,790 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-14 07:03:39,790 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-14 07:03:39,798 views Employee found: Operatorow Operator (ID: 3)
+WARNING 2025-10-14 07:03:39,811 log Not Found: /employees/api/rfid-scan/
+INFO 2025-10-14 07:04:07,627 views RFID scan request received from 192.168.1.107
+INFO 2025-10-14 07:04:07,627 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-14 07:04:07,627 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-14 07:04:07,635 views Employee found: Mehanikow Mehanik (ID: 1)
+WARNING 2025-10-14 07:04:07,649 log Not Found: /employees/api/rfid-scan/
+INFO 2025-10-14 07:05:23,354 views RFID scan request received from 192.168.1.107
+INFO 2025-10-14 07:05:23,355 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-14 07:05:23,355 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-14 07:05:23,362 views Employee found: Operatorow Operator (ID: 3)
+WARNING 2025-10-14 07:05:23,375 log Not Found: /employees/api/rfid-scan/
+INFO 2025-10-14 07:06:10,016 views RFID scan request received from 192.168.1.107
+INFO 2025-10-14 07:06:10,016 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-14 07:06:10,016 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-14 07:06:10,023 views Employee found: Mehanikow Mehanik (ID: 1)
+WARNING 2025-10-14 07:06:10,037 log Not Found: /employees/api/rfid-scan/
+INFO 2025-10-14 07:07:13,361 views RFID scan request received from 192.168.1.107
+INFO 2025-10-14 07:07:13,361 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-14 07:07:13,361 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-14 07:07:13,370 views Employee found: Operatorow Operator (ID: 3)
+WARNING 2025-10-14 07:07:13,384 log Not Found: /employees/api/rfid-scan/
+INFO 2025-10-14 07:08:36,376 views RFID scan request received from 192.168.1.107
+INFO 2025-10-14 07:08:36,376 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-14 07:08:36,376 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-14 07:08:36,383 views Employee found: Operatorow Operator (ID: 3)
+WARNING 2025-10-14 07:08:36,424 log Not Found: /employees/api/rfid-scan/
+INFO 2025-10-14 07:10:22,380 views RFID scan request received from 192.168.1.107
+INFO 2025-10-14 07:10:22,380 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-14 07:10:22,380 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-14 07:10:22,387 views Employee found: Operatorow Operator (ID: 3)
+WARNING 2025-10-14 07:10:22,400 log Not Found: /employees/api/rfid-scan/
+INFO 2025-10-14 07:11:09,445 views RFID scan request received from 192.168.1.107
+INFO 2025-10-14 07:11:09,445 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-14 07:11:09,455 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-14 07:11:09,463 views Employee found: Operatorow Operator (ID: 3)
+WARNING 2025-10-14 07:11:27,468 log Bad Request: /lohia/api/maintenance/call/
+INFO 2025-10-14 07:11:33,413 views RFID scan request received from 192.168.1.107
+INFO 2025-10-14 07:11:33,413 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-14 07:11:33,413 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-14 07:11:33,420 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-14 07:11:35,756 views RFID scan request received from 192.168.1.107
+INFO 2025-10-14 07:11:35,757 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-14 07:11:35,757 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-14 07:11:35,768 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-14 07:13:05,594 views RFID scan request received from 192.168.1.108
+INFO 2025-10-14 07:13:05,594 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-14 07:13:05,594 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-14 07:13:05,603 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-14 07:13:16,034 views RFID scan request received from 192.168.1.108
+INFO 2025-10-14 07:13:16,034 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-14 07:13:16,034 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-14 07:13:16,042 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-14 07:13:58,335 views RFID scan request received from 192.168.1.109
+INFO 2025-10-14 07:13:58,335 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-14 07:13:58,335 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-14 07:13:58,343 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-14 07:13:58,387 views 🔄 До обнуления - pulses: 0, meters: 0.0
+INFO 2025-10-14 07:13:58,388 views ✅ После обнуления - pulses: 0, meters: 0.0
+INFO 2025-10-14 07:14:06,512 views RFID scan request received from 192.168.1.109
+INFO 2025-10-14 07:14:06,512 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-14 07:14:06,512 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-14 07:14:06,521 views Employee found: Operatorow Operator (ID: 3)
+WARNING 2025-10-14 07:14:10,725 log Bad Request: /lohia/api/maintenance/call/
+INFO 2025-10-14 07:14:17,023 views RFID scan request received from 192.168.1.109
+INFO 2025-10-14 07:14:17,023 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-14 07:14:17,023 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-14 07:14:17,030 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-14 07:14:19,889 views RFID scan request received from 192.168.1.109
+INFO 2025-10-14 07:14:19,889 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-14 07:14:19,889 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-14 07:14:19,897 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-14 07:17:27,568 views RFID scan request received from 192.168.1.109
+INFO 2025-10-14 07:17:27,568 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-14 07:17:27,568 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-14 07:17:27,576 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-14 07:18:15,563 views RFID scan request received from 192.168.1.109
+INFO 2025-10-14 07:18:15,563 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-14 07:18:15,563 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-14 07:18:15,571 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-14 07:18:20,372 views RFID scan request received from 192.168.1.109
+INFO 2025-10-14 07:18:20,372 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-14 07:18:20,372 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-14 07:18:20,382 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-14 07:18:20,426 views 🔄 До обнуления - pulses: 130, meters: 0.01495
+INFO 2025-10-14 07:18:20,427 views ✅ После обнуления - pulses: 0, meters: 0.0
+DEBUG 2025-10-14 17:24:45,860 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+DEBUG 2025-10-16 11:13:50,560 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+DEBUG 2025-10-16 11:18:09,180 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-16 11:19:55,652 views RFID scan request received from 192.168.1.100
+INFO 2025-10-16 11:19:55,652 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-16 11:19:55,653 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-16 11:19:55,661 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-16 11:27:43,845 views RFID scan request received from 192.168.1.100
+INFO 2025-10-16 11:27:43,845 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-16 11:27:43,846 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-16 11:27:43,859 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-16 11:27:46,397 views RFID scan request received from 192.168.1.100
+INFO 2025-10-16 11:27:46,398 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-16 11:27:46,398 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-16 11:27:46,416 views Employee found: Mehanikow Mehanik (ID: 1)
+DEBUG 2025-10-16 14:24:29,645 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-16 14:30:22,696 views RFID scan request received from 192.168.1.102
+INFO 2025-10-16 14:30:22,696 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-16 14:30:22,697 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-16 14:30:22,715 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-16 14:30:35,796 views RFID scan request received from 192.168.1.102
+INFO 2025-10-16 14:30:35,797 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-16 14:30:35,797 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-16 14:30:35,817 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-16 14:32:46,847 views RFID scan request received from 192.168.1.100
+INFO 2025-10-16 14:32:46,848 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-16 14:32:46,848 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-16 14:32:46,858 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-16 14:32:46,877 views 🔄 До обнуления - pulses: 260, meters: 0.0299
+INFO 2025-10-16 14:32:46,878 views ✅ После обнуления - pulses: 0, meters: 0.0
+INFO 2025-10-16 14:33:14,852 views RFID scan request received from 192.168.1.100
+INFO 2025-10-16 14:33:14,852 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-16 14:33:14,853 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-16 14:33:14,872 views Employee found: Operatorow Operator (ID: 3)
+DEBUG 2025-10-16 15:03:18,757 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-16 15:08:48,089 views RFID scan request received from 192.168.1.100
+INFO 2025-10-16 15:08:48,090 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-16 15:08:48,090 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-16 15:08:48,107 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-16 15:08:48,159 views 🔄 До обнуления - pulses: 14980, meters: 191.5942
+INFO 2025-10-16 15:08:48,161 views ✅ После обнуления - pulses: 0, meters: 0.0
+INFO 2025-10-16 15:08:54,136 views RFID scan request received from 192.168.1.100
+INFO 2025-10-16 15:08:54,136 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-16 15:08:54,137 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-16 15:08:54,157 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-16 15:16:27,155 views RFID scan request received from 192.168.1.100
+INFO 2025-10-16 15:16:27,155 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-16 15:16:27,155 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-16 15:16:27,171 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-16 15:16:27,189 views 🔄 До обнуления - pulses: 0, meters: 0.0
+INFO 2025-10-16 15:16:27,191 views ✅ После обнуления - pulses: 0, meters: 0.0
+INFO 2025-10-16 15:23:45,330 views RFID scan request received from 192.168.1.102
+INFO 2025-10-16 15:23:45,331 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"A38B3B1C"}'
+INFO 2025-10-16 15:23:45,331 views Parsed data - RFID: A38B3B1C, Device: LOHIA-001
+INFO 2025-10-16 15:23:45,355 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-16 15:25:16,711 views RFID scan request received from 192.168.1.102
+INFO 2025-10-16 15:25:16,711 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-16 15:25:16,711 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-16 15:25:16,737 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-16 15:25:21,009 views RFID scan request received from 192.168.1.102
+INFO 2025-10-16 15:25:21,009 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-16 15:25:21,010 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-16 15:25:21,037 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-16 15:25:27,047 views RFID scan request received from 192.168.1.102
+INFO 2025-10-16 15:25:27,047 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-16 15:25:27,048 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-16 15:25:27,073 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-16 15:25:27,099 views Completed other operator's shift: Akmuradow Batyr
+INFO 2025-10-16 15:25:38,816 views RFID scan request received from 192.168.1.102
+INFO 2025-10-16 15:25:38,816 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"A38B3B1C"}'
+INFO 2025-10-16 15:25:38,817 views Parsed data - RFID: A38B3B1C, Device: LOHIA-001
+INFO 2025-10-16 15:25:38,845 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-16 15:25:38,864 views Completed other operator's shift: Operatorow Operator
+WARNING 2025-10-16 15:34:00,172 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:34:03,222 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:34:06,267 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:34:09,315 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:34:12,391 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:34:15,444 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:34:43,818 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:34:44,273 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:34:47,347 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:34:50,440 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:34:53,571 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:34:56,817 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:35:00,067 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:35:13,892 log Not Found: /ws/lohia/dashboard/
+INFO 2025-10-16 15:35:17,921 views RFID scan request received from 192.168.1.102
+INFO 2025-10-16 15:35:18,125 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-16 15:35:18,125 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-16 15:35:18,147 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-16 15:35:18,172 views Completed other operator's shift: Akmuradow Batyr
+WARNING 2025-10-16 15:35:18,217 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:35:29,325 log Not Found: /ws/lohia/dashboard/
+INFO 2025-10-16 15:35:31,635 views RFID scan request received from 192.168.1.102
+INFO 2025-10-16 15:35:31,737 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"A38B3B1C"}'
+INFO 2025-10-16 15:35:31,738 views Parsed data - RFID: A38B3B1C, Device: LOHIA-001
+INFO 2025-10-16 15:35:31,759 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-16 15:35:31,777 views Completed other operator's shift: Operatorow Operator
+WARNING 2025-10-16 15:35:35,328 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:35:43,257 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:35:49,390 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:35:55,168 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:36:01,855 log Not Found: /ws/lohia/dashboard/
+INFO 2025-10-16 15:36:03,156 views RFID scan request received from 192.168.1.102
+INFO 2025-10-16 15:36:03,570 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-16 15:36:03,571 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-16 15:36:03,595 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-16 15:36:03,624 views Completed other operator's shift: Akmuradow Batyr
+WARNING 2025-10-16 15:36:11,915 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:36:18,603 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:36:25,879 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:36:31,454 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:36:37,388 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:36:44,396 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:36:59,743 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:37:05,226 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:37:10,288 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:37:16,478 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:37:21,971 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-16 15:37:27,933 log Not Found: /ws/lohia/dashboard/
+DEBUG 2025-10-16 15:38:03,242 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-16 15:39:31,514 views RFID scan request received from 192.168.1.102
+INFO 2025-10-16 15:39:31,515 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"A38B3B1C"}'
+INFO 2025-10-16 15:39:31,516 views Parsed data - RFID: A38B3B1C, Device: LOHIA-001
+INFO 2025-10-16 15:39:31,540 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-16 15:39:31,562 views Completed other operator's shift: Operatorow Operator
+INFO 2025-10-16 15:39:37,961 views RFID scan request received from 192.168.1.102
+INFO 2025-10-16 15:39:37,962 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-16 15:39:37,962 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-16 15:39:37,985 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-16 15:39:38,040 views Completed other operator's shift: Akmuradow Batyr
+INFO 2025-10-16 15:40:08,364 views RFID scan request received from 192.168.1.102
+INFO 2025-10-16 15:40:08,364 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-16 15:40:08,365 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-16 15:40:08,390 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-16 15:40:16,550 views RFID scan request received from 192.168.1.102
+INFO 2025-10-16 15:40:16,552 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-16 15:40:16,552 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-16 15:40:16,576 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-16 15:45:30,198 views RFID scan request received from 192.168.1.103
+INFO 2025-10-16 15:45:30,198 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-16 15:45:30,198 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-16 15:45:30,207 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-16 15:45:30,224 views 🔄 До обнуления - pulses: 8, meters: 0.10232
+INFO 2025-10-16 15:45:30,226 views ✅ После обнуления - pulses: 0, meters: 0.0
+INFO 2025-10-16 15:45:37,782 views RFID scan request received from 192.168.1.103
+INFO 2025-10-16 15:45:37,782 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-16 15:45:37,782 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-16 15:45:37,799 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-16 16:03:45,086 views RFID scan request received from 192.168.1.105
+INFO 2025-10-16 16:03:45,087 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"A38B3B1C"}'
+INFO 2025-10-16 16:03:45,087 views Parsed data - RFID: A38B3B1C, Device: LOHIA-001
+INFO 2025-10-16 16:03:45,112 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-16 16:03:45,135 views Completed other operator's shift: Operatorow Operator
+INFO 2025-10-16 16:03:52,966 views RFID scan request received from 192.168.1.105
+INFO 2025-10-16 16:03:52,966 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-16 16:03:52,966 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-16 16:03:52,989 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-16 16:03:53,016 views Completed other operator's shift: Akmuradow Batyr
+INFO 2025-10-16 16:04:13,324 views RFID scan request received from 192.168.1.105
+INFO 2025-10-16 16:04:13,324 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"A38B3B1C"}'
+INFO 2025-10-16 16:04:13,325 views Parsed data - RFID: A38B3B1C, Device: LOHIA-001
+INFO 2025-10-16 16:04:13,335 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-16 16:04:13,344 views Completed other operator's shift: Operatorow Operator
+INFO 2025-10-16 16:04:18,577 views RFID scan request received from 192.168.1.105
+INFO 2025-10-16 16:04:18,577 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-16 16:04:18,577 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-16 16:04:18,585 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-16 16:04:18,600 views Completed other operator's shift: Akmuradow Batyr
+DEBUG 2025-10-16 16:15:43,301 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-16 16:16:32,156 views RFID scan request received from 192.168.1.107
+INFO 2025-10-16 16:16:32,156 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"A38B3B1C"}'
+INFO 2025-10-16 16:16:32,157 views Parsed data - RFID: A38B3B1C, Device: LOHIA-001
+INFO 2025-10-16 16:16:32,174 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-16 16:16:32,192 views Completed other operator's shift: Operatorow Operator
+INFO 2025-10-16 16:16:44,217 views RFID scan request received from 192.168.1.107
+INFO 2025-10-16 16:16:44,217 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-16 16:16:44,217 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-16 16:16:44,242 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-16 16:16:44,287 views Completed other operator's shift: Akmuradow Batyr
+INFO 2025-10-16 16:18:49,580 views RFID scan request received from 192.168.1.107
+INFO 2025-10-16 16:18:49,581 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-16 16:18:49,581 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-16 16:18:49,589 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-16 16:18:49,607 views 🔄 До обнуления - pulses: 16, meters: 0.2032
+INFO 2025-10-16 16:18:49,608 views ✅ После обнуления - pulses: 0, meters: 0.0
+INFO 2025-10-16 16:18:59,298 views RFID scan request received from 192.168.1.107
+INFO 2025-10-16 16:18:59,298 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"A38B3B1C"}'
+INFO 2025-10-16 16:18:59,298 views Parsed data - RFID: A38B3B1C, Device: LOHIA-001
+INFO 2025-10-16 16:18:59,307 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-16 16:19:04,001 views RFID scan request received from 192.168.1.107
+INFO 2025-10-16 16:19:04,001 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-16 16:19:04,002 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-16 16:19:04,021 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-16 16:19:04,069 views Completed other operator's shift: Akmuradow Batyr
+INFO 2025-10-16 16:29:42,551 views RFID scan request received from 192.168.1.109
+INFO 2025-10-16 16:29:42,552 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"A38B3B1C"}'
+INFO 2025-10-16 16:29:42,552 views Parsed data - RFID: A38B3B1C, Device: LOHIA-001
+INFO 2025-10-16 16:29:42,576 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-16 16:29:42,601 views Completed other operator's shift: Operatorow Operator
+INFO 2025-10-16 16:29:46,883 views RFID scan request received from 192.168.1.109
+INFO 2025-10-16 16:29:46,884 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-16 16:29:46,884 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-16 16:29:46,910 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-16 16:29:46,930 views Completed other operator's shift: Akmuradow Batyr
+INFO 2025-10-16 16:33:36,594 views RFID scan request received from 192.168.1.110
+INFO 2025-10-16 16:33:36,594 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"A38B3B1C"}'
+INFO 2025-10-16 16:33:36,595 views Parsed data - RFID: A38B3B1C, Device: LOHIA-001
+INFO 2025-10-16 16:33:36,613 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-16 16:33:36,634 views Completed other operator's shift: Operatorow Operator
+INFO 2025-10-16 16:33:47,716 views RFID scan request received from 192.168.1.110
+INFO 2025-10-16 16:33:47,716 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-16 16:33:47,717 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-16 16:33:47,724 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-16 16:33:47,742 views Completed other operator's shift: Akmuradow Batyr
+INFO 2025-10-16 16:35:06,022 views RFID scan request received from 192.168.1.110
+INFO 2025-10-16 16:35:06,023 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"A38B3B1C"}'
+INFO 2025-10-16 16:35:06,023 views Parsed data - RFID: A38B3B1C, Device: LOHIA-001
+INFO 2025-10-16 16:35:06,040 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-16 16:35:06,059 views Completed other operator's shift: Operatorow Operator
+INFO 2025-10-16 16:35:13,288 views RFID scan request received from 192.168.1.110
+INFO 2025-10-16 16:35:13,288 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-16 16:35:13,288 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-16 16:35:13,295 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-16 16:35:13,315 views Completed other operator's shift: Akmuradow Batyr
+DEBUG 2025-10-22 09:55:57,223 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+DEBUG 2025-10-22 09:58:48,193 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-22 10:14:41,732 views RFID scan request received from 192.168.1.102
+INFO 2025-10-22 10:14:41,733 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-22 10:14:41,733 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-22 10:14:41,740 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-22 10:14:47,157 views RFID scan request received from 192.168.1.102
+INFO 2025-10-22 10:14:47,157 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-22 10:14:47,157 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-22 10:14:47,165 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-22 10:17:11,662 views RFID scan request received from 192.168.1.102
+INFO 2025-10-22 10:17:11,663 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-22 10:17:11,663 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-22 10:17:11,681 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-22 10:17:17,187 views RFID scan request received from 192.168.1.102
+INFO 2025-10-22 10:17:17,188 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-22 10:17:17,188 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-22 10:17:17,208 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-22 10:17:23,530 views RFID scan request received from 192.168.1.102
+INFO 2025-10-22 10:17:23,530 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-22 10:17:23,530 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-22 10:17:23,538 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-22 10:17:23,557 views 🔄 До обнуления - pulses: 83, meters: 1.0541
+INFO 2025-10-22 10:17:23,558 views ✅ После обнуления - pulses: 0, meters: 0.0
+INFO 2025-10-22 10:20:56,805 views RFID scan request received from 192.168.1.102
+INFO 2025-10-22 10:20:56,805 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-22 10:20:56,806 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-22 10:20:56,827 views Employee found: Operatorow Operator (ID: 3)
+WARNING 2025-10-22 10:21:35,420 log Bad Request: /lohia/api/maintenance/call/
+INFO 2025-10-22 10:26:43,634 views RFID scan request received from 192.168.1.103
+INFO 2025-10-22 10:26:43,634 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-22 10:26:43,635 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-22 10:26:43,655 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-22 10:26:49,270 views RFID scan request received from 192.168.1.103
+INFO 2025-10-22 10:26:49,270 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-22 10:26:49,270 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-22 10:26:49,280 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-22 10:30:02,164 views RFID scan request received from 192.168.1.103
+INFO 2025-10-22 10:30:02,164 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-22 10:30:02,164 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-22 10:30:02,173 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-22 10:30:02,189 views 🔄 До обнуления - pulses: 0, meters: 0.0
+INFO 2025-10-22 10:30:02,191 views ✅ После обнуления - pulses: 0, meters: 0.0
+INFO 2025-10-22 10:30:13,122 views RFID scan request received from 192.168.1.103
+INFO 2025-10-22 10:30:13,122 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-22 10:30:13,122 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-22 10:30:13,132 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-22 10:33:34,623 views RFID scan request received from 192.168.1.103
+INFO 2025-10-22 10:33:34,623 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-22 10:33:34,623 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-22 10:33:34,637 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-22 10:33:38,102 views RFID scan request received from 192.168.1.103
+INFO 2025-10-22 10:33:38,102 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-22 10:33:38,102 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-22 10:33:38,119 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-22 10:36:38,739 views RFID scan request received from 192.168.1.103
+INFO 2025-10-22 10:36:38,739 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-22 10:36:38,739 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-22 10:36:38,751 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-22 10:36:44,159 views RFID scan request received from 192.168.1.103
+INFO 2025-10-22 10:36:44,159 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-22 10:36:44,159 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-22 10:36:44,177 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-22 10:36:44,193 views 🔄 До обнуления - pulses: 82, meters: 1.0414
+INFO 2025-10-22 10:36:44,194 views ✅ После обнуления - pulses: 0, meters: 0.0
+INFO 2025-10-22 10:38:59,196 views RFID scan request received from 192.168.1.104
+INFO 2025-10-22 10:38:59,197 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-22 10:38:59,197 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-22 10:38:59,205 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-22 10:43:40,065 views RFID scan request received from 192.168.1.104
+INFO 2025-10-22 10:43:40,065 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-22 10:43:40,065 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-22 10:43:40,084 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-22 10:44:00,933 views RFID scan request received from 192.168.1.104
+INFO 2025-10-22 10:44:00,933 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-22 10:44:00,933 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-22 10:44:00,953 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-22 10:44:02,877 views RFID scan request received from 192.168.1.104
+INFO 2025-10-22 10:44:02,878 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-22 10:44:02,878 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-22 10:44:02,886 views Employee found: Mehanikow Mehanik (ID: 1)
+DEBUG 2025-10-22 13:32:21,746 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+WARNING 2025-10-22 13:33:30,493 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:34:53,722 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:34:54,383 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:35:29,505 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:35:29,952 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:36:32,795 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:36:34,254 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:36:34,570 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:36:34,665 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:36:35,844 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:36:35,943 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:36:36,103 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:36:37,427 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:36:37,600 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:37:39,520 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:37:40,183 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:37:42,121 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:37:42,361 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:37:42,588 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:37:42,761 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:37:42,944 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:38:47,280 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:38:53,336 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:38:59,080 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-22 13:39:18,213 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+DEBUG 2025-10-22 13:41:40,026 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+WARNING 2025-10-22 14:16:33,883 log Not Found: /api/categories/
+WARNING 2025-10-22 14:16:33,884 log Not Found: /api/products/featured/
+WARNING 2025-10-22 14:16:42,403 log Not Found: /api/categories/
+WARNING 2025-10-22 14:16:42,456 log Not Found: /api/products/
+WARNING 2025-10-22 14:29:15,330 log Not Found: /api/categories/
+WARNING 2025-10-22 14:29:15,365 log Not Found: /api/products/
+WARNING 2025-10-22 14:29:22,403 log Not Found: /api/categories/
+WARNING 2025-10-22 14:29:22,411 log Not Found: /api/products/featured/
+WARNING 2025-10-22 14:29:26,382 log Not Found: /api/categories/
+WARNING 2025-10-22 14:29:26,441 log Not Found: /api/products/
+DEBUG 2025-10-23 08:52:22,703 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-23 08:55:00,711 views RFID scan request received from 192.168.1.100
+INFO 2025-10-23 08:55:00,712 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 08:55:00,712 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-23 08:55:00,731 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-23 08:55:00,751 views WorkTime entry recorded for Akmuradow Batyr
+INFO 2025-10-23 08:55:00,751 views Access logged with ID: 237
+INFO 2025-10-23 08:55:00,752 views Sending success response: {'success': True, 'employee': {'id': 2, 'full_name': 'Akmuradow Batyr', 'first_name': 'Batyr', 'last_name': 'Akmuradow', 'department': 'Администрация', 'position': 'Programmer', 'employee_id': '1002', 'photo_url': '/media/employee_photos/batyr_L6Tqkse.jpg'}, 'message': 'Добро пожаловать, Akmuradow Batyr!'}
+INFO 2025-10-23 08:55:20,361 views RFID scan request received from 192.168.1.100
+INFO 2025-10-23 08:55:20,362 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 08:55:20,362 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-23 08:55:20,380 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-23 08:55:20,396 views WorkTime exit recorded for Akmuradow Batyr
+INFO 2025-10-23 08:55:20,397 views Access logged with ID: 238
+INFO 2025-10-23 08:55:20,397 views Sending success response: {'success': True, 'employee': {'id': 2, 'full_name': 'Akmuradow Batyr', 'first_name': 'Batyr', 'last_name': 'Akmuradow', 'department': 'Администрация', 'position': 'Programmer', 'employee_id': '1002', 'photo_url': '/media/employee_photos/batyr_L6Tqkse.jpg'}, 'message': 'Добро пожаловать, Akmuradow Batyr!'}
+INFO 2025-10-23 08:56:28,504 views RFID scan request received from 192.168.1.100
+INFO 2025-10-23 08:56:28,504 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 08:56:28,504 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-23 08:56:28,524 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-23 08:56:28,544 views WorkTime entry recorded for Akmuradow Batyr
+INFO 2025-10-23 08:56:28,545 views Access logged with ID: 239
+INFO 2025-10-23 08:56:28,545 views Sending success response: {'success': True, 'employee': {'id': 2, 'full_name': 'Akmuradow Batyr', 'first_name': 'Batyr', 'last_name': 'Akmuradow', 'department': 'Администрация', 'position': 'Programmer', 'employee_id': '1002', 'photo_url': '/media/employee_photos/batyr_L6Tqkse.jpg'}, 'message': 'Добро пожаловать, Akmuradow Batyr!'}
+INFO 2025-10-23 08:56:37,510 views RFID scan request received from 192.168.1.100
+INFO 2025-10-23 08:56:37,511 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 08:56:37,511 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-23 08:56:37,533 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-23 08:56:37,549 views WorkTime exit recorded for Akmuradow Batyr
+INFO 2025-10-23 08:56:37,550 views Access logged with ID: 240
+INFO 2025-10-23 08:56:37,550 views Sending success response: {'success': True, 'employee': {'id': 2, 'full_name': 'Akmuradow Batyr', 'first_name': 'Batyr', 'last_name': 'Akmuradow', 'department': 'Администрация', 'position': 'Programmer', 'employee_id': '1002', 'photo_url': '/media/employee_photos/batyr_L6Tqkse.jpg'}, 'message': 'Добро пожаловать, Akmuradow Batyr!'}
+INFO 2025-10-23 08:59:06,917 views RFID scan request received from 192.168.1.100
+INFO 2025-10-23 08:59:06,917 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 08:59:06,918 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-23 08:59:06,935 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-23 08:59:06,987 views WorkTime entry recorded for Akmuradow Batyr
+INFO 2025-10-23 08:59:06,987 views Access logged with ID: 241
+INFO 2025-10-23 08:59:06,988 views Sending success response: {'success': True, 'employee': {'id': 2, 'full_name': 'Akmuradow Batyr', 'first_name': 'Batyr', 'last_name': 'Akmuradow', 'department': 'Администрация', 'position': 'Programmer', 'employee_id': '1002', 'photo_url': '/media/employee_photos/batyr_L6Tqkse.jpg'}, 'message': 'Добро пожаловать, Akmuradow Batyr!'}
+INFO 2025-10-23 08:59:25,337 views RFID scan request received from 192.168.1.100
+INFO 2025-10-23 08:59:25,337 views Request body: b'{"rfid_uid":"F1D31804","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 08:59:25,338 views Parsed data - RFID: F1D31804, Device: ESP32-HR
+INFO 2025-10-23 08:59:25,359 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-23 08:59:25,387 views WorkTime entry recorded for Mehanikow Mehanik
+INFO 2025-10-23 08:59:25,387 views Access logged with ID: 242
+INFO 2025-10-23 08:59:25,387 views Sending success response: {'success': True, 'employee': {'id': 1, 'full_name': 'Mehanikow Mehanik', 'first_name': 'Mehanik', 'last_name': 'Mehanikow', 'department': 'Механики', 'position': 'Mehanik_Bag', 'employee_id': '1001', 'photo_url': '/media/employee_photos/eric.png'}, 'message': 'Добро пожаловать, Mehanikow Mehanik!'}
+INFO 2025-10-23 08:59:32,396 views RFID scan request received from 192.168.1.100
+INFO 2025-10-23 08:59:32,397 views Request body: b'{"rfid_uid":"0134FE03","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 08:59:32,397 views Parsed data - RFID: 0134FE03, Device: ESP32-HR
+INFO 2025-10-23 08:59:32,419 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-23 08:59:32,442 views WorkTime entry recorded for Operatorow Operator
+INFO 2025-10-23 08:59:32,443 views Access logged with ID: 243
+INFO 2025-10-23 08:59:32,444 views Sending success response: {'success': True, 'employee': {'id': 3, 'full_name': 'Operatorow Operator', 'first_name': 'Operator', 'last_name': 'Operatorow', 'department': 'Сотрудник', 'position': 'Sotrudnik', 'employee_id': '1003', 'photo_url': '/media/employee_photos/jamshid.png'}, 'message': 'Добро пожаловать, Operatorow Operator!'}
+INFO 2025-10-23 09:10:42,990 views RFID scan request received from 192.168.1.100
+INFO 2025-10-23 09:10:42,991 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 09:10:43,001 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-23 09:10:43,016 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-23 09:10:43,024 views WorkTime exit recorded for Akmuradow Batyr
+INFO 2025-10-23 09:10:43,024 views Access logged with ID: 244
+INFO 2025-10-23 09:10:43,024 views Sending success response: {'success': True, 'employee': {'id': 2, 'full_name': 'Akmuradow Batyr', 'first_name': 'Batyr', 'last_name': 'Akmuradow', 'department': 'Администрация', 'position': 'Programmer', 'employee_id': '1002', 'photo_url': '/media/employee_photos/batyr_L6Tqkse.jpg'}, 'message': 'Добро пожаловать, Akmuradow Batyr!'}
+INFO 2025-10-23 09:10:51,077 views RFID scan request received from 192.168.1.100
+INFO 2025-10-23 09:10:51,077 views Request body: b'{"rfid_uid":"F1D31804","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 09:10:51,078 views Parsed data - RFID: F1D31804, Device: ESP32-HR
+INFO 2025-10-23 09:10:51,098 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-23 09:10:51,116 views WorkTime exit recorded for Mehanikow Mehanik
+INFO 2025-10-23 09:10:51,117 views Access logged with ID: 245
+INFO 2025-10-23 09:10:51,117 views Sending success response: {'success': True, 'employee': {'id': 1, 'full_name': 'Mehanikow Mehanik', 'first_name': 'Mehanik', 'last_name': 'Mehanikow', 'department': 'Механики', 'position': 'Mehanik_Bag', 'employee_id': '1001', 'photo_url': '/media/employee_photos/eric.png'}, 'message': 'Добро пожаловать, Mehanikow Mehanik!'}
+INFO 2025-10-23 09:10:58,341 views RFID scan request received from 192.168.1.100
+INFO 2025-10-23 09:10:58,342 views Request body: b'{"rfid_uid":"0134FE03","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 09:10:58,342 views Parsed data - RFID: 0134FE03, Device: ESP32-HR
+INFO 2025-10-23 09:10:58,363 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-23 09:10:58,411 views WorkTime exit recorded for Operatorow Operator
+INFO 2025-10-23 09:10:58,411 views Access logged with ID: 246
+INFO 2025-10-23 09:10:58,412 views Sending success response: {'success': True, 'employee': {'id': 3, 'full_name': 'Operatorow Operator', 'first_name': 'Operator', 'last_name': 'Operatorow', 'department': 'Сотрудник', 'position': 'Sotrudnik', 'employee_id': '1003', 'photo_url': '/media/employee_photos/jamshid.png'}, 'message': 'Добро пожаловать, Operatorow Operator!'}
+DEBUG 2025-10-23 12:47:52,604 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+INFO 2025-10-23 12:49:29,013 views RFID scan request received from 192.168.1.102
+INFO 2025-10-23 12:49:29,013 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 12:49:29,013 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-23 12:49:29,033 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-23 12:49:29,053 views WorkTime entry recorded for Akmuradow Batyr
+INFO 2025-10-23 12:49:29,053 views Access logged with ID: 247
+INFO 2025-10-23 12:49:29,054 views Sending success response: {'success': True, 'employee': {'id': 2, 'full_name': 'Akmuradow Batyr', 'first_name': 'Batyr', 'last_name': 'Akmuradow', 'department': 'Администрация', 'position': 'Programmer', 'employee_id': '1002', 'photo_url': '/media/employee_photos/batyr_L6Tqkse.jpg'}, 'message': 'Добро пожаловать, Akmuradow Batyr!'}
+INFO 2025-10-23 12:49:38,617 views RFID scan request received from 192.168.1.102
+INFO 2025-10-23 12:49:38,618 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 12:49:38,618 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-23 12:49:38,639 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-23 12:49:38,660 views WorkTime exit recorded for Akmuradow Batyr
+INFO 2025-10-23 12:49:38,660 views Access logged with ID: 248
+INFO 2025-10-23 12:49:38,661 views Sending success response: {'success': True, 'employee': {'id': 2, 'full_name': 'Akmuradow Batyr', 'first_name': 'Batyr', 'last_name': 'Akmuradow', 'department': 'Администрация', 'position': 'Programmer', 'employee_id': '1002', 'photo_url': '/media/employee_photos/batyr_L6Tqkse.jpg'}, 'message': 'Добро пожаловать, Akmuradow Batyr!'}
+INFO 2025-10-23 12:50:12,569 views RFID scan request received from 192.168.1.102
+INFO 2025-10-23 12:50:12,569 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 12:50:12,569 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-23 12:50:12,582 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-23 12:50:12,593 views WorkTime entry recorded for Akmuradow Batyr
+INFO 2025-10-23 12:50:12,594 views Access logged with ID: 249
+INFO 2025-10-23 12:50:12,594 views Sending success response: {'success': True, 'employee': {'id': 2, 'full_name': 'Akmuradow Batyr', 'first_name': 'Batyr', 'last_name': 'Akmuradow', 'department': 'Администрация', 'position': 'Programmer', 'employee_id': '1002', 'photo_url': '/media/employee_photos/batyr_L6Tqkse.jpg'}, 'message': 'Добро пожаловать, Akmuradow Batyr!'}
+INFO 2025-10-23 12:51:28,945 views RFID scan request received from 192.168.1.100
+INFO 2025-10-23 12:51:28,945 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-23 12:51:28,946 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-23 12:51:28,965 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-23 12:51:28,973 views 🔄 До обнуления - pulses: 110, meters: 1.397
+INFO 2025-10-23 12:51:28,974 views ✅ После обнуления - pulses: 0, meters: 0.0
+INFO 2025-10-23 12:52:48,548 views RFID scan request received from 192.168.1.100
+INFO 2025-10-23 12:52:48,548 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"0134FE03"}'
+INFO 2025-10-23 12:52:48,548 views Parsed data - RFID: 0134FE03, Device: LOHIA-001
+INFO 2025-10-23 12:52:48,568 views Employee found: Operatorow Operator (ID: 3)
+INFO 2025-10-23 12:53:10,438 views RFID scan request received from 192.168.1.100
+INFO 2025-10-23 12:53:10,438 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-23 12:53:10,438 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-23 12:53:10,459 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-23 12:53:16,885 views RFID scan request received from 192.168.1.100
+INFO 2025-10-23 12:53:16,885 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-23 12:53:16,886 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-23 12:53:16,904 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-23 12:56:41,350 views RFID scan request received from 192.168.1.100
+INFO 2025-10-23 12:56:41,350 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-23 12:56:41,351 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-23 12:56:41,370 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-23 12:56:45,346 views RFID scan request received from 192.168.1.100
+INFO 2025-10-23 12:56:45,347 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-23 12:56:45,347 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-23 12:56:45,366 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-23 13:05:43,271 views RFID scan request received from 192.168.1.102
+INFO 2025-10-23 13:05:43,272 views Request body: b'{"rfid_uid":"F1D31804","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 13:05:43,272 views Parsed data - RFID: F1D31804, Device: ESP32-HR
+INFO 2025-10-23 13:05:43,292 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-23 13:05:43,345 views WorkTime entry recorded for Mehanikow Mehanik
+INFO 2025-10-23 13:05:43,346 views Access logged with ID: 256
+INFO 2025-10-23 13:05:43,347 views Sending success response: {'success': True, 'employee': {'id': 1, 'full_name': 'Mehanikow Mehanik', 'first_name': 'Mehanik', 'last_name': 'Mehanikow', 'department': 'Механики', 'position': 'Mehanik_Bag', 'employee_id': '1001', 'photo_url': '/media/employee_photos/eric.png'}, 'message': 'Добро пожаловать, Mehanikow Mehanik!'}
+INFO 2025-10-23 13:05:49,207 views RFID scan request received from 192.168.1.102
+INFO 2025-10-23 13:05:49,207 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 13:05:49,207 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-23 13:05:49,228 views Employee found: Akmuradow Batyr (ID: 2)
+INFO 2025-10-23 13:05:49,248 views WorkTime exit recorded for Akmuradow Batyr
+INFO 2025-10-23 13:05:49,249 views Access logged with ID: 257
+INFO 2025-10-23 13:05:49,250 views Sending success response: {'success': True, 'employee': {'id': 2, 'full_name': 'Akmuradow Batyr', 'first_name': 'Batyr', 'last_name': 'Akmuradow', 'department': 'Администрация', 'position': 'Programmer', 'employee_id': '1002', 'photo_url': '/media/employee_photos/batyr_L6Tqkse.jpg'}, 'message': 'Добро пожаловать, Akmuradow Batyr!'}
+INFO 2025-10-23 13:07:26,725 views RFID scan request received from 192.168.1.100
+INFO 2025-10-23 13:07:26,726 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-23 13:07:26,726 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-23 13:07:26,748 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-23 13:07:33,694 views RFID scan request received from 192.168.1.100
+INFO 2025-10-23 13:07:33,694 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-23 13:07:33,695 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-23 13:07:33,712 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-23 13:16:04,112 views RFID scan request received from 192.168.1.100
+INFO 2025-10-23 13:16:04,112 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-23 13:16:04,113 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-23 13:16:04,131 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-23 13:16:06,454 views RFID scan request received from 192.168.1.100
+INFO 2025-10-23 13:16:06,454 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-23 13:16:06,454 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-23 13:16:06,475 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-23 13:16:37,152 views RFID scan request received from 192.168.1.100
+INFO 2025-10-23 13:16:37,153 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-23 13:16:37,153 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-23 13:16:37,173 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-23 13:18:22,423 views RFID scan request received from 192.168.1.102
+INFO 2025-10-23 13:18:22,423 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 13:18:22,424 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-23 13:18:22,443 views Employee found: Akmuradow Batyr (ID: 2)
+ERROR 2025-10-23 13:18:22,461 views Unexpected error in rfid_scan: duplicate key value violates unique constraint "employees_worktimeentry_employee_id_date_1f462723_uniq"
+DETAIL:  Key (employee_id, date)=(2, 2025-10-23) already exists.
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+psycopg2.errors.UniqueViolation: duplicate key value violates unique constraint "employees_worktimeentry_employee_id_date_1f462723_uniq"
+DETAIL:  Key (employee_id, date)=(2, 2025-10-23) already exists.
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/factory_erp/./employees/views.py", line 559, in rfid_scan
+    work_entry = WorkTimeEntry.objects.create(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/query.py", line 663, in create
+    obj.save(force_insert=True, using=self.db)
+  File "/home/batyr/projects/erp-system/factory_erp/./employees/models.py", line 239, in save
+    super().save(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/base.py", line 902, in save
+    self.save_base(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/base.py", line 1008, in save_base
+    updated = self._save_table(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/base.py", line 1169, in _save_table
+    results = self._do_insert(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/base.py", line 1210, in _do_insert
+    return manager._insert(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/query.py", line 1868, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/sql/compiler.py", line 1882, in execute_sql
+    cursor.execute(sql, params)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 122, in execute
+    return super().execute(sql, params)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+django.db.utils.IntegrityError: duplicate key value violates unique constraint "employees_worktimeentry_employee_id_date_1f462723_uniq"
+DETAIL:  Key (employee_id, date)=(2, 2025-10-23) already exists.
+
+ERROR 2025-10-23 13:18:22,469 log Internal Server Error: /employees/api/rfid-scan/
+INFO 2025-10-23 13:18:27,869 views RFID scan request received from 192.168.1.102
+INFO 2025-10-23 13:18:27,870 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 13:18:27,870 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-23 13:18:27,880 views Employee found: Akmuradow Batyr (ID: 2)
+ERROR 2025-10-23 13:18:27,884 views Unexpected error in rfid_scan: duplicate key value violates unique constraint "employees_worktimeentry_employee_id_date_1f462723_uniq"
+DETAIL:  Key (employee_id, date)=(2, 2025-10-23) already exists.
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+psycopg2.errors.UniqueViolation: duplicate key value violates unique constraint "employees_worktimeentry_employee_id_date_1f462723_uniq"
+DETAIL:  Key (employee_id, date)=(2, 2025-10-23) already exists.
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/factory_erp/./employees/views.py", line 559, in rfid_scan
+    work_entry = WorkTimeEntry.objects.create(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/query.py", line 663, in create
+    obj.save(force_insert=True, using=self.db)
+  File "/home/batyr/projects/erp-system/factory_erp/./employees/models.py", line 239, in save
+    super().save(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/base.py", line 902, in save
+    self.save_base(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/base.py", line 1008, in save_base
+    updated = self._save_table(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/base.py", line 1169, in _save_table
+    results = self._do_insert(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/base.py", line 1210, in _do_insert
+    return manager._insert(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/query.py", line 1868, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/sql/compiler.py", line 1882, in execute_sql
+    cursor.execute(sql, params)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 122, in execute
+    return super().execute(sql, params)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+django.db.utils.IntegrityError: duplicate key value violates unique constraint "employees_worktimeentry_employee_id_date_1f462723_uniq"
+DETAIL:  Key (employee_id, date)=(2, 2025-10-23) already exists.
+
+ERROR 2025-10-23 13:18:27,885 log Internal Server Error: /employees/api/rfid-scan/
+INFO 2025-10-23 13:19:41,446 views RFID scan request received from 192.168.1.102
+INFO 2025-10-23 13:19:41,446 views Request body: b'{"rfid_uid":"A38B3B1C","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 13:19:41,446 views Parsed data - RFID: A38B3B1C, Device: ESP32-HR
+INFO 2025-10-23 13:19:41,459 views Employee found: Akmuradow Batyr (ID: 2)
+ERROR 2025-10-23 13:19:41,501 views Unexpected error in rfid_scan: duplicate key value violates unique constraint "employees_worktimeentry_employee_id_date_1f462723_uniq"
+DETAIL:  Key (employee_id, date)=(2, 2025-10-23) already exists.
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+psycopg2.errors.UniqueViolation: duplicate key value violates unique constraint "employees_worktimeentry_employee_id_date_1f462723_uniq"
+DETAIL:  Key (employee_id, date)=(2, 2025-10-23) already exists.
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/factory_erp/./employees/views.py", line 559, in rfid_scan
+    work_entry = WorkTimeEntry.objects.create(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/query.py", line 663, in create
+    obj.save(force_insert=True, using=self.db)
+  File "/home/batyr/projects/erp-system/factory_erp/./employees/models.py", line 239, in save
+    super().save(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/base.py", line 902, in save
+    self.save_base(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/base.py", line 1008, in save_base
+    updated = self._save_table(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/base.py", line 1169, in _save_table
+    results = self._do_insert(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/base.py", line 1210, in _do_insert
+    return manager._insert(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/query.py", line 1868, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/models/sql/compiler.py", line 1882, in execute_sql
+    cursor.execute(sql, params)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 122, in execute
+    return super().execute(sql, params)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+django.db.utils.IntegrityError: duplicate key value violates unique constraint "employees_worktimeentry_employee_id_date_1f462723_uniq"
+DETAIL:  Key (employee_id, date)=(2, 2025-10-23) already exists.
+
+ERROR 2025-10-23 13:19:41,502 log Internal Server Error: /employees/api/rfid-scan/
+INFO 2025-10-23 13:20:35,695 views RFID scan request received from 192.168.1.104
+INFO 2025-10-23 13:20:35,696 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-23 13:20:35,696 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-23 13:20:35,715 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-23 13:22:20,979 views RFID scan request received from 192.168.1.104
+INFO 2025-10-23 13:22:20,980 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F5FA88E2"}'
+INFO 2025-10-23 13:22:20,980 views Parsed data - RFID: F5FA88E2, Device: LOHIA-001
+WARNING 2025-10-23 13:22:21,001 views Employee not found for RFID: F5FA88E2
+INFO 2025-10-23 13:22:21,042 views Sending not found response: {'success': False, 'error': 'Карта не найдена или заблокирована', 'rfid_uid': 'F5FA88E2'}
+WARNING 2025-10-23 13:22:21,044 log Not Found: /employees/api/rfid-scan/
+INFO 2025-10-23 13:22:37,567 views RFID scan request received from 192.168.1.103
+INFO 2025-10-23 13:22:37,567 views Request body: b'{"rfid_uid":"F5FA88E2","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 13:22:37,567 views Parsed data - RFID: F5FA88E2, Device: ESP32-HR
+WARNING 2025-10-23 13:22:37,587 views Employee not found for RFID: F5FA88E2
+INFO 2025-10-23 13:22:37,600 views Sending not found response: {'success': False, 'error': 'Карта не найдена или заблокирована', 'rfid_uid': 'F5FA88E2'}
+WARNING 2025-10-23 13:22:37,601 log Not Found: /employees/api/rfid-scan/
+INFO 2025-10-23 13:23:10,093 views RFID scan request received from 192.168.1.103
+INFO 2025-10-23 13:23:10,094 views Request body: b'{"rfid_uid":"F5FA88E2","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 13:23:10,094 views Parsed data - RFID: F5FA88E2, Device: ESP32-HR
+WARNING 2025-10-23 13:23:10,114 views Employee not found for RFID: F5FA88E2
+INFO 2025-10-23 13:23:10,127 views Sending not found response: {'success': False, 'error': 'Карта не найдена или заблокирована', 'rfid_uid': 'F5FA88E2'}
+WARNING 2025-10-23 13:23:10,128 log Not Found: /employees/api/rfid-scan/
+INFO 2025-10-23 13:23:11,425 views RFID scan request received from 192.168.1.104
+INFO 2025-10-23 13:23:11,425 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F5FA88E2"}'
+INFO 2025-10-23 13:23:11,425 views Parsed data - RFID: F5FA88E2, Device: LOHIA-001
+WARNING 2025-10-23 13:23:11,445 views Employee not found for RFID: F5FA88E2
+INFO 2025-10-23 13:23:11,458 views Sending not found response: {'success': False, 'error': 'Карта не найдена или заблокирована', 'rfid_uid': 'F5FA88E2'}
+WARNING 2025-10-23 13:23:11,460 log Not Found: /employees/api/rfid-scan/
+INFO 2025-10-23 13:23:24,011 views RFID scan request received from 192.168.1.104
+INFO 2025-10-23 13:23:24,011 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F5FA88E2"}'
+INFO 2025-10-23 13:23:24,011 views Parsed data - RFID: F5FA88E2, Device: LOHIA-001
+WARNING 2025-10-23 13:23:24,031 views Employee not found for RFID: F5FA88E2
+INFO 2025-10-23 13:23:24,072 views Sending not found response: {'success': False, 'error': 'Карта не найдена или заблокирована', 'rfid_uid': 'F5FA88E2'}
+WARNING 2025-10-23 13:23:24,074 log Not Found: /employees/api/rfid-scan/
+INFO 2025-10-23 13:23:26,773 views RFID scan request received from 192.168.1.104
+INFO 2025-10-23 13:23:26,774 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-23 13:23:26,774 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-23 13:23:26,791 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-23 13:23:48,271 views RFID scan request received from 192.168.1.104
+INFO 2025-10-23 13:23:48,271 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F5FA88E2"}'
+INFO 2025-10-23 13:23:48,271 views Parsed data - RFID: F5FA88E2, Device: LOHIA-001
+WARNING 2025-10-23 13:23:48,283 views Employee not found for RFID: F5FA88E2
+INFO 2025-10-23 13:23:48,295 views Sending not found response: {'success': False, 'error': 'Карта не найдена или заблокирована', 'rfid_uid': 'F5FA88E2'}
+WARNING 2025-10-23 13:23:48,296 log Not Found: /employees/api/rfid-scan/
+INFO 2025-10-23 13:23:51,128 views RFID scan request received from 192.168.1.104
+INFO 2025-10-23 13:23:51,128 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F5FA88E2"}'
+INFO 2025-10-23 13:23:51,128 views Parsed data - RFID: F5FA88E2, Device: LOHIA-001
+WARNING 2025-10-23 13:23:51,148 views Employee not found for RFID: F5FA88E2
+INFO 2025-10-23 13:23:51,160 views Sending not found response: {'success': False, 'error': 'Карта не найдена или заблокирована', 'rfid_uid': 'F5FA88E2'}
+WARNING 2025-10-23 13:23:51,162 log Not Found: /employees/api/rfid-scan/
+INFO 2025-10-23 13:23:52,775 views RFID scan request received from 192.168.1.103
+INFO 2025-10-23 13:23:52,775 views Request body: b'{"rfid_uid":"F5FA88E2","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 13:23:52,775 views Parsed data - RFID: F5FA88E2, Device: ESP32-HR
+WARNING 2025-10-23 13:23:52,794 views Employee not found for RFID: F5FA88E2
+INFO 2025-10-23 13:23:52,807 views Sending not found response: {'success': False, 'error': 'Карта не найдена или заблокирована', 'rfid_uid': 'F5FA88E2'}
+WARNING 2025-10-23 13:23:52,807 log Not Found: /employees/api/rfid-scan/
+INFO 2025-10-23 13:23:55,733 views RFID scan request received from 192.168.1.104
+INFO 2025-10-23 13:23:55,733 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F5FA88E2"}'
+INFO 2025-10-23 13:23:55,733 views Parsed data - RFID: F5FA88E2, Device: LOHIA-001
+WARNING 2025-10-23 13:23:55,753 views Employee not found for RFID: F5FA88E2
+INFO 2025-10-23 13:23:55,765 views Sending not found response: {'success': False, 'error': 'Карта не найдена или заблокирована', 'rfid_uid': 'F5FA88E2'}
+WARNING 2025-10-23 13:23:55,767 log Not Found: /employees/api/rfid-scan/
+INFO 2025-10-23 13:23:58,089 views RFID scan request received from 192.168.1.104
+INFO 2025-10-23 13:23:58,090 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F5FA88E2"}'
+INFO 2025-10-23 13:23:58,090 views Parsed data - RFID: F5FA88E2, Device: LOHIA-001
+WARNING 2025-10-23 13:23:58,110 views Employee not found for RFID: F5FA88E2
+INFO 2025-10-23 13:23:58,122 views Sending not found response: {'success': False, 'error': 'Карта не найдена или заблокирована', 'rfid_uid': 'F5FA88E2'}
+WARNING 2025-10-23 13:23:58,123 log Not Found: /employees/api/rfid-scan/
+INFO 2025-10-23 13:25:26,191 views RFID scan request received from 192.168.1.103
+INFO 2025-10-23 13:25:26,191 views Request body: b'{"rfid_uid":"F1D31804","device_id":"ESP32-HR","reader_type":"hr"}'
+INFO 2025-10-23 13:25:26,192 views Parsed data - RFID: F1D31804, Device: ESP32-HR
+INFO 2025-10-23 13:25:26,211 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-23 13:25:26,221 views WorkTime exit recorded for Mehanikow Mehanik
+INFO 2025-10-23 13:25:26,222 views Access logged with ID: 278
+INFO 2025-10-23 13:25:26,223 views Sending success response: {'success': True, 'employee': {'id': 1, 'full_name': 'Mehanikow Mehanik', 'first_name': 'Mehanik', 'last_name': 'Mehanikow', 'department': 'Механики', 'position': 'Mehanik_Bag', 'employee_id': '1001', 'photo_url': '/media/employee_photos/eric.png'}, 'message': 'Добро пожаловать, Mehanikow Mehanik!'}
+INFO 2025-10-23 13:26:18,787 views RFID scan request received from 192.168.1.104
+INFO 2025-10-23 13:26:18,787 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-23 13:26:18,787 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-23 13:26:18,798 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-23 13:26:21,653 views RFID scan request received from 192.168.1.104
+INFO 2025-10-23 13:26:21,654 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-23 13:26:21,664 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-23 13:26:21,672 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-23 13:31:28,946 views RFID scan request received from 192.168.1.104
+INFO 2025-10-23 13:31:28,947 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-23 13:31:28,947 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-23 13:31:28,955 views Employee found: Mehanikow Mehanik (ID: 1)
+INFO 2025-10-23 13:31:30,884 views RFID scan request received from 192.168.1.104
+INFO 2025-10-23 13:31:30,884 views Request body: b'{"device_id":"LOHIA-001","rfid_uid":"F1D31804"}'
+INFO 2025-10-23 13:31:30,884 views Parsed data - RFID: F1D31804, Device: LOHIA-001
+INFO 2025-10-23 13:31:30,892 views Employee found: Mehanikow Mehanik (ID: 1)

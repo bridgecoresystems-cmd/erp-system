@@ -1,7 +1,9 @@
 # lohia_monitor/models.py
 from django.db import models
+from django.db.models import Sum
 from django.utils import timezone
 from employees.models import Employee
+from decimal import Decimal
 
 class Machine(models.Model):
     """Станок Lohia"""
@@ -59,6 +61,12 @@ class Machine(models.Model):
     class Meta:
         verbose_name = "Станок"
         verbose_name_plural = "Станки"
+        indexes = [
+            # КРИТИЧНО для высокоскоростных запросов ESP32
+            models.Index(fields=['esp32_id', 'is_active'], name='machine_esp32_active'),
+            models.Index(fields=['current_operator', 'status'], name='machine_op_status'),
+            models.Index(fields=['updated_at'], name='machine_updated'),
+        ]
     
     def __str__(self):
         return self.name
@@ -88,9 +96,27 @@ class Machine(models.Model):
         return meters_per_pulse
     
     def save(self, *args, **kwargs):
-        """Пересчитывает meters_per_pulse при сохранении"""
-        self.meters_per_pulse = self.calculate_meters_per_pulse()
+        """Пересчитывает meters_per_pulse при сохранении (если не задано вручную)"""
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        old_value = self.meters_per_pulse
+        
+        # ТОЛЬКО если meters_per_pulse = 0 (новый станок) - автоматический режим
+        if self.meters_per_pulse == Decimal('0'):
+            self.meters_per_pulse = self.calculate_meters_per_pulse()
+            logger.warning(f"🔄 АВТОПЕРЕСЧЕТ meters_per_pulse: 0 → {self.meters_per_pulse}")
+        else:
+            logger.info(f"✅ СОХРАНЯЕМ meters_per_pulse: {old_value} (НЕ пересчитываем)")
+        
+        # Иначе используем заданное вручную значение (НЕ пересчитываем)
         super().save(*args, **kwargs)
+        
+        # Логируем если значение изменилось
+        if old_value != self.meters_per_pulse:
+            logger.error(f"❌ ЗНАЧЕНИЕ ИЗМЕНИЛОСЬ! {old_value} → {self.meters_per_pulse}")
+            import traceback
+            logger.error(f"СТЕК ВЫЗОВОВ:\n{traceback.format_stack()}")
     
     @property
     def current_meters(self):
@@ -99,16 +125,32 @@ class Machine(models.Model):
     
     def start_shift(self, operator):
         """Начать смену"""
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        logger.warning(f"🚀 START_SHIFT вызван для {self.name}")
+        logger.warning(f"   meters_per_pulse ДО: {self.meters_per_pulse}")
+        
         self.current_operator = operator
         self.status = 'working'
         self.current_pulse_count = 0
         self.save()
+        
+        # Перечитываем из БД
+        self.refresh_from_db()
+        logger.warning(f"   meters_per_pulse ПОСЛЕ: {self.meters_per_pulse}")
+        
+        # Проверяем что значение больше 0.01 (наш новый датчик)
+        if self.meters_per_pulse < Decimal('0.01'):
+            logger.error(f"❌ ЗНАЧЕНИЕ СБРОСИЛОСЬ В start_shift()! Стало: {self.meters_per_pulse}")
+        else:
+            logger.info(f"✅ Значение корректное: {self.meters_per_pulse}")
     
     def end_shift(self):
         """Завершить смену"""
         self.current_operator = None
         self.status = 'idle'
-        self.current_pulse_count = 0
+        # НЕ сбрасываем счетчик импульсов - он должен сохраняться
         self.save()
     
     def start_maintenance(self):
@@ -154,6 +196,12 @@ class Shift(models.Model):
         verbose_name = "Смена"
         verbose_name_plural = "Смены"
         ordering = ['-start_time']
+        indexes = [
+            # КРИТИЧНО для быстрого поиска активных смен
+            models.Index(fields=['machine', 'operator', 'status'], name='shift_mach_op_status'),
+            models.Index(fields=['start_time'], name='shift_start_time'),
+            models.Index(fields=['status', 'machine'], name='shift_status_mach'),
+        ]
     
     def __str__(self):
         return f"{self.operator.get_full_name()} - {self.machine.name} ({self.start_time.strftime('%d.%m.%Y %H:%M')})"
@@ -184,6 +232,23 @@ class Shift(models.Model):
         self.end_time = timezone.now()
         self.status = 'completed'
         self.save()
+    
+    def get_current_pulses(self):
+        """Получить текущее количество импульсов за смену"""
+        return PulseLog.objects.filter(
+            machine=self.machine,
+            timestamp__gte=self.start_time
+        ).aggregate(
+            total=Sum('pulse_count')
+        )['total'] or 0
+    
+    def get_efficiency(self):
+        """Получить эффективность смены в процентах"""
+        current_pulses = self.get_current_pulses()
+        target_pulses = 1000  # Можно сделать настраиваемым
+        if target_pulses > 0:
+            return min(100, (current_pulses / target_pulses) * 100)
+        return 0
 
 
 class MaintenanceCall(models.Model):
@@ -290,6 +355,12 @@ class PulseLog(models.Model):
         verbose_name = "Лог импульсов"
         verbose_name_plural = "Логи импульсов"
         ordering = ['-timestamp']
+        indexes = [
+            # КРИТИЧНО для высокоскоростной записи импульсов
+            models.Index(fields=['machine', 'timestamp'], name='pulse_mach_time'),
+            models.Index(fields=['shift', 'timestamp'], name='pulse_shift_time'),
+            models.Index(fields=['timestamp'], name='pulse_timestamp'),
+        ]
     
     def __str__(self):
         return f"{self.machine.name} - {self.timestamp.strftime('%H:%M:%S')} - {self.pulse_count} импульсов"

@@ -347,5 +347,96 @@
         // Для тестирования - двойной клик показывает тестового сотрудника
         document.addEventListener('dblclick', testEmployee);
     </script>
+
+    <script>
+        // WebSocket для реального времени (Security)
+        let securitySocket = null;
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 5;
+        const reconnectDelayMs = 3000;
+
+        function connectSecurityWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws/security/`;
+
+            console.log('🔌 Подключение к Security WebSocket для дисплея:', wsUrl);
+
+            securitySocket = new WebSocket(wsUrl);
+
+            securitySocket.onopen = () => {
+                console.log('✅ Security WebSocket подключен (display)');
+                reconnectAttempts = 0;
+                // Запрашиваем начальные данные
+                requestSecurityData();
+            };
+
+            securitySocket.onmessage = (event) => {
+                try {
+                    const payload = JSON.parse(event.data);
+                    if (payload.type === 'access_event') {
+                        // Показать сотрудника
+                        if (payload.data && payload.data.employee) {
+                            showEmployee(payload.data.employee);
+                            // Обновим статистику если пришла
+                            if (payload.data.stats) {
+                                applyStats(payload.data.stats);
+                            }
+                        }
+                    } else if (payload.type === 'security_data') {
+                        // Применить общие данные безопасности/статистики
+                        applyStats(payload.data);
+                    }
+                } catch (e) {
+                    console.error('❌ Ошибка обработки WS сообщения:', e);
+                }
+            };
+
+            securitySocket.onclose = () => {
+                console.warn('❌ Security WebSocket закрыт (display)');
+                if (reconnectAttempts < maxReconnectAttempts) {
+                    reconnectAttempts += 1;
+                    setTimeout(connectSecurityWebSocket, reconnectDelayMs);
+                }
+            };
+
+            securitySocket.onerror = (err) => {
+                console.error('❌ WS ошибка (display):', err);
+            };
+        }
+
+        function requestSecurityData() {
+            if (securitySocket && securitySocket.readyState === WebSocket.OPEN) {
+                securitySocket.send(JSON.stringify({ type: 'get_security_data' }));
+            }
+        }
+
+        function applyStats(stats) {
+            if (!stats) return;
+            if (typeof stats.today_accesses === 'number') {
+                const el = document.getElementById('todayAccesses');
+                if (el) el.textContent = stats.today_accesses;
+            }
+            if (typeof stats.unique_employees_today === 'number') {
+                const el = document.getElementById('uniqueEmployees');
+                if (el) el.textContent = stats.unique_employees_today;
+            }
+            if (typeof stats.total_active_employees === 'number') {
+                const el = document.getElementById('totalEmployees');
+                if (el) el.textContent = stats.total_active_employees;
+            }
+            if (stats.last_update) {
+                const el = document.getElementById('lastUpdate');
+                if (el) el.textContent = stats.last_update;
+            }
+            // Зеленый индикатор - система отвечает
+            const ind = document.getElementById('statusIndicator');
+            if (ind) ind.style.background = '#4CAF50';
+        }
+
+        // Инициализация WS поверх существующих таймеров (остаются как fallback)
+        document.addEventListener('DOMContentLoaded', function () {
+            connectSecurityWebSocket();
+        });
+    </script>
 </body>
 </html>

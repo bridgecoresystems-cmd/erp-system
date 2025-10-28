@@ -52,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'lohia_monitor.middleware.MasterRedirectMiddleware',  # Автоматическая переадресация мастеров
 ]
 
 REST_FRAMEWORK = {  # Не установлен
@@ -190,8 +191,7 @@ SESSION_SAVE_EVERY_REQUEST = True  # Обновлять время жизни п
 SESSION_COOKIE_SECURE = False  # Для разработки
 SESSION_COOKIE_HTTPONLY = True  # Защита от XSS
 SESSION_COOKIE_SAMESITE = 'Lax'  # Защита от CSRF
-SESSION_ENGINE = 'django.contrib.sessions.backends.file'  # Использовать файлы для сессий
-SESSION_FILE_PATH = '/tmp/django_sessions'  # Путь для файлов сессий
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Использовать базу данных для сессий
 
 # WebSocket Configuration
 ASGI_APPLICATION = 'factory_erp.asgi.application'

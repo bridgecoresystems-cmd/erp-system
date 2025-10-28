@@ -2,165 +2,109 @@
 {% load static %}
 {% load tz %}
 
-{% block title %}Дашборд станка Lohia{% endblock %}
+{% block title %}Мониторинг станков Lohia{% endblock %}
 
 {% block content %}
 <div class="lohia-container">
-    <div class="lohia-card">
-        <div class="lohia-card-header">
-            🏭 Мониторинг станка Lohia
-            <div id="websocket-status" style="float: right; font-size: 12px; padding: 4px 8px; border-radius: 4px; background: #f8d7da; color: #721c24;">
-                🔴 WebSocket отключен
+    <!-- Заголовок -->
+    <div class="lohia-card" style="margin-bottom: 15px;">
+        <div class="lohia-card-header" style="font-size: 16px; padding: 10px 15px;">
+            🏭 Мониторинг станков Lohia
+            <div id="websocket-status" style="float: right; font-size: 11px; padding: 3px 8px; border-radius: 4px; background: #fff3cd; color: #856404;">
+                🟡 Подключение...
             </div>
         </div>
     </div>
 
-    <!-- Статус станка -->
-    <div class="lohia-grid lohia-grid-3">
-        <div class="lohia-card">
-            <div class="lohia-card-header">
-                📊 Статус станка
-            </div>
-            <div class="lohia-card-body">
-                    {% if machine %}
-                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                            <div class="lohia-status-indicator 
-                                {% if machine.status == 'working' %}lohia-status-working
-                                {% elif machine.status == 'maintenance' %}lohia-status-maintenance
-                                {% elif machine.status == 'stopped' %}lohia-status-stopped
-                                {% else %}lohia-status-idle{% endif %}">
-                            </div>
-                            <div>
-                                <h4 style="margin: 0; font-size: 18px;">{{ machine.name }}</h4>
-                                <p style="margin: 0; color: #666; font-size: 14px;">
-                                    {% if machine.status == 'working' %}🟢 Работает
-                                    {% elif machine.status == 'maintenance' %}🟡 В ремонте
-                                    {% elif machine.status == 'stopped' %}🔴 Остановлен
-                                    {% else %}⚪ Простой{% endif %}
-                                </p>
-                            </div>
-                        </div>
-                        
-                        {% if machine.current_operator %}
-                            <p><strong>Оператор:</strong> <span class="current-operator">{{ machine.current_operator.get_full_name }}</span></p>
-                        {% else %}
-                            <p class="text-muted current-operator">Нет оператора</p>
-                        {% endif %}
-                        
-                        <p><strong>Импульсы:</strong> <span class="current-pulses">{{ machine.current_pulse_count }}</span></p>
-                        <p><strong>Метраж:</strong> <span class="current-meters">{{ machine.current_meters|floatformat:6 }} м</span></p>
-                        <p><strong>Коэффициент:</strong> {{ machine.meters_per_pulse|floatformat:6 }} м/импульс</p>
-                    {% else %}
-                        <p class="text-muted">Станок не настроен</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Активная смена -->
-        <div class="lohia-card">
-            <div class="lohia-card-header">
-                ⏰ Активная смена
-            </div>
-            <div class="lohia-card-body">
-                    {% if active_shift %}
-                        <p><strong>Оператор:</strong> {{ active_shift.operator.get_full_name }}</p>
-                        <p><strong>Начало:</strong> {{ active_shift.start_time|localtime|date:"H:i" }}</p>
-                        <p><strong>Длительность:</strong> <span class="shift-duration">{{ active_shift.duration_hours|floatformat:1 }} ч</span></p>
-                        <p><strong>Импульсы:</strong> <span class="shift-pulses">{{ active_shift.total_pulses }}</span></p>
-                        <p><strong>Метраж:</strong> <span class="shift-meters">{{ active_shift.total_meters|floatformat:6 }} м</span></p>
-                    {% else %}
-                        <p class="text-muted">Нет активной смены</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Активный вызов мастера -->
-        <div class="lohia-card">
-            <div class="lohia-card-header">
-                🔧 Вызов мастера
-            </div>
-            <div class="lohia-card-body call-status">
-                    {% if active_call %}
-                        <div class="alert alert-warning">
-                            <p><strong>Статус:</strong> 
-                                {% if active_call.status == 'pending' %}⏳ Ожидает мастера
-                                {% elif active_call.status == 'in_progress' %}🔧 В работе
-                                {% else %}✅ Завершен{% endif %}
-                            </p>
-                            <p><strong>Оператор:</strong> {{ active_call.operator.get_full_name }}</p>
-                            <p><strong>Время вызова:</strong> {{ active_call.call_time|localtime|date:"H:i" }}</p>
-                            
-                            {% if active_call.master %}
-                                <p><strong>Мастер:</strong> {{ active_call.master.get_full_name }}</p>
-                            {% endif %}
-                            
-                            {% if active_call.response_time %}
-                                <p><strong>Время реакции:</strong> {{ active_call.response_time }}</p>
-                            {% endif %}
-                            
-                            {% if active_call.repair_time %}
-                                <p><strong>Время ремонта:</strong> {{ active_call.repair_time }}</p>
-                            {% endif %}
-                        </div>
-                    {% else %}
-                        <p class="text-success">✅ Нет активных вызовов</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- График импульсов -->
+    <!-- Таблица станков -->
     <div class="lohia-card">
-        <div class="lohia-card-header">
-            📈 График импульсов (последние 20 записей)
-        </div>
-        <div class="lohia-card-body">
-            {% if recent_pulses %}
-                <div class="lohia-table-wrapper">
-                    <table class="lohia-table">
-                                <thead>
-                                    <tr>
-                                        <th>Время</th>
-                                        <th>Импульсы</th>
-                                        <th>Всего импульсов</th>
-                                        <th>Метраж</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for pulse in recent_pulses %}
-                                    <tr>
-                                        <td>{{ pulse.timestamp|localtime|date:"H:i:s" }}</td>
-                                        <td>{{ pulse.pulse_count }}</td>
-                                        <td>{{ pulse.total_pulses }}</td>
-                                        <td>{{ pulse.meters_produced|floatformat:6 }} м</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <p class="text-muted">Нет данных об импульсах</p>
-                    {% endif %}
-                </div>
+        <div class="lohia-card-body" style="padding: 15px;">
+            <div class="lohia-table-wrapper">
+                <table class="lohia-table lohia-table-compact">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;">№</th>
+                            <th style="width: 150px;">Имя станка</th>
+                            <th style="width: 100px;">Статус</th>
+                            <th style="width: 180px;">Оператор</th>
+                            <th style="width: 120px;">Метраж (м)</th>
+                            <th style="width: 100px;">Вызов мастера</th>
+                            <th style="width: 180px;">Мастер</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in machines_data %}
+                        <tr class="machine-row" data-machine-id="{{ item.machine.id }}">
+                            <td style="text-align: center; font-size: 12px;">{{ forloop.counter }}</td>
+                            <td style="font-size: 12px; font-weight: 500;">
+                                <a href="{% url 'lohia_monitor:machine_detail' item.machine.id %}" style="color: #007bff; text-decoration: none;">
+                                    {{ item.machine.name }}
+                                </a>
+                            </td>
+                            <td style="font-size: 12px;">
+                                {% if item.machine.status == 'working' %}
+                                    <span style="color: #28a745;">🟢 Работает</span>
+                                {% elif item.machine.status == 'maintenance' %}
+                                    <span style="color: #ffc107;">🟡 Ремонт</span>
+                                {% elif item.machine.status == 'stopped' %}
+                                    <span style="color: #dc3545;">🔴 Остановлен</span>
+                                {% else %}
+                                    <span style="color: #6c757d;">⚪ Простой</span>
+                                {% endif %}
+                            </td>
+                            <td style="font-size: 12px;" class="operator-name">
+                                {% if item.machine.current_operator %}
+                                    {{ item.machine.current_operator.get_full_name }}
+                                {% else %}
+                                    <span style="color: #999;">—</span>
+                                {% endif %}
+                            </td>
+                            <td style="font-size: 12px; text-align: right;" class="meters-value">
+                                {{ item.machine.current_meters|floatformat:4 }}
+                            </td>
+                            <td style="font-size: 12px; text-align: center;" class="call-status">
+                                {% if item.active_call %}
+                                    {% if item.active_call.status == 'pending' %}
+                                        <span style="color: #dc3545; font-weight: 600;">⚠️ Да</span>
+                                    {% elif item.active_call.status == 'in_progress' %}
+                                        <span style="color: #ffc107; font-weight: 600;">🔧 В работе</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span style="color: #28a745;">✓ Нет</span>
+                                {% endif %}
+                            </td>
+                            <td style="font-size: 12px;" class="master-name">
+                                {% if item.active_call and item.active_call.master %}
+                                    {{ item.active_call.master.get_full_name }}
+                                {% else %}
+                                    <span style="color: #999;">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: #999; padding: 30px; font-size: 13px;">
+                                Нет активных станков
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <!-- Навигация -->
-    <div class="lohia-card">
-        <div class="lohia-card-body">
-            <h5 style="margin-bottom: 15px; text-align: center;">📋 Навигация</h5>
+    <div class="lohia-card" style="margin-top: 15px;">
+        <div class="lohia-card-body" style="padding: 15px;">
             <div class="lohia-nav-buttons">
-                <a href="{% url 'lohia_monitor:shifts_history' %}" class="lohia-nav-btn lohia-nav-btn-outline">
+                <a href="{% url 'lohia_monitor:shifts_history' %}" class="lohia-nav-btn lohia-nav-btn-outline" style="font-size: 12px; padding: 8px 15px;">
                     📊 История смен
                 </a>
-                <a href="{% url 'lohia_monitor:maintenance_history' %}" class="lohia-nav-btn lohia-nav-btn-outline">
+                <a href="{% url 'lohia_monitor:maintenance_history' %}" class="lohia-nav-btn lohia-nav-btn-outline" style="font-size: 12px; padding: 8px 15px;">
                     🔧 История вызовов
                 </a>
-                <a href="{% url 'lohia_monitor:machine_stats' %}" class="lohia-nav-btn lohia-nav-btn-outline">
+                <a href="{% url 'lohia_monitor:machine_stats' %}" class="lohia-nav-btn lohia-nav-btn-outline" style="font-size: 12px; padding: 8px 15px;">
                     📈 Статистика
                 </a>
             </div>
@@ -186,7 +130,7 @@ function updateWebSocketStatus(status, message) {
         } else if (status === 'connecting') {
             statusEl.style.background = '#fff3cd';
             statusEl.style.color = '#856404';
-            statusEl.innerHTML = '🟡 WebSocket подключается...';
+            statusEl.innerHTML = '🟡 Подключение...';
         } else {
             statusEl.style.background = '#f8d7da';
             statusEl.style.color = '#721c24';
@@ -197,20 +141,17 @@ function updateWebSocketStatus(status, message) {
 
 function connectWebSocket() {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws/lohia/machine1/`;
+    const wsUrl = `${protocol}//${window.location.host}/ws/lohia/dashboard/`;
     
     console.log('🔌 Подключение к WebSocket:', wsUrl);
-    updateWebSocketStatus('connecting', 'Подключение...');
+    updateWebSocketStatus('connecting');
     
     lohiaSocket = new WebSocket(wsUrl);
     
     lohiaSocket.onopen = function(event) {
-        console.log('✅ WebSocket подключен к Lohia monitor');
-        updateWebSocketStatus('connected', 'Подключен');
+        console.log('✅ WebSocket подключен к Lohia dashboard');
+        updateWebSocketStatus('connected');
         reconnectAttempts = 0;
-        
-        // Запрашиваем начальные данные
-        requestInitialData();
     };
     
     lohiaSocket.onmessage = function(event) {
@@ -218,17 +159,10 @@ function connectWebSocket() {
             const data = JSON.parse(event.data);
             console.log('📨 Получены данные:', data);
             
-            // Обрабатываем разные типы сообщений
-            if (data.type === 'machine_status') {
-                updateMachineStatus(data.data);
-            } else if (data.type === 'shift_data') {
-                updateActiveShift(data.data);
-            } else if (data.type === 'pulse_data') {
-                updatePulseData(data.data);
-            } else if (data.type === 'machine_update') {
-                updateMachineStatus(data.data);
-            } else if (data.type === 'shift_update') {
-                updateActiveShift(data.data);
+            // Обрабатываем ТОЛЬКО machine_status - полные данные
+            if (data.type === 'machine_status' && Array.isArray(data.data)) {
+                console.log('🔄 Обновление всех станков');
+                updateAllMachines(data.data);
             }
         } catch (error) {
             console.error('❌ Ошибка парсинга WebSocket данных:', error);
@@ -237,7 +171,7 @@ function connectWebSocket() {
     
     lohiaSocket.onclose = function(event) {
         console.log('❌ WebSocket отключен:', event.code, event.reason);
-        updateWebSocketStatus('disconnected', 'Отключен');
+        updateWebSocketStatus('disconnected');
         lohiaSocket = null;
         
         // Попытка переподключения
@@ -247,9 +181,6 @@ function connectWebSocket() {
             setTimeout(connectWebSocket, reconnectDelay);
         } else {
             console.error('💥 Превышено максимальное количество попыток переподключения');
-            updateWebSocketStatus('disconnected', 'Ошибка подключения');
-            // Fallback на AJAX
-            startAjaxFallback();
         }
     };
     
@@ -258,103 +189,92 @@ function connectWebSocket() {
     };
 }
 
-function requestInitialData() {
-    if (lohiaSocket && lohiaSocket.readyState === WebSocket.OPEN) {
-        // Запрашиваем все необходимые данные
-        lohiaSocket.send(JSON.stringify({type: 'get_machine_status'}));
-        lohiaSocket.send(JSON.stringify({type: 'get_shift_data'}));
-        lohiaSocket.send(JSON.stringify({type: 'get_pulse_data'}));
-    }
-}
-
-// Fallback на AJAX если WebSocket не работает
-function startAjaxFallback() {
-    console.log('🔄 Переключение на AJAX fallback');
-    updateInterval = setInterval(updateDashboard, 5000);
-}
-
-async function updateDashboard() {
-    try {
-        const response = await fetch('/lohia/api/dashboard-status/');
-        const data = await response.json();
+function updateAllMachines(machines) {
+    console.log('🔄 Обновление данных для', machines.length, 'станков');
+    
+    machines.forEach(machineData => {
+        const row = document.querySelector(`.machine-row[data-machine-id="${machineData.machine_id}"]`);
+        if (!row) {
+            console.warn('⚠️ Строка не найдена для станка ID:', machineData.machine_id);
+            return;
+        }
         
-        if (data.success) {
-            // Обновляем статус станка
-            updateMachineStatus(data.machine);
-            
-            // Обновляем активную смену
-            updateActiveShift(data.active_shift);
-            
-            // Обновляем вызов мастера
-            updateMaintenanceCall(data.active_call);
-        }
-    } catch (error) {
-        console.error('Ошибка обновления дашборда:', error);
-    }
-}
-
-function updateMachineStatus(machine) {
-    if (!machine) return;
-    
-    // Обновляем статус, оператора, импульсы, метраж
-    const operatorEl = document.querySelector('.current-operator');
-    const pulsesEl = document.querySelector('.current-pulses');
-    const metersEl = document.querySelector('.current-meters');
-    
-    if (operatorEl) {
-        operatorEl.textContent = machine.current_operator || 'Нет оператора';
-    }
-    
-    if (pulsesEl) {
-        pulsesEl.textContent = machine.current_pulse_count;
-    }
-    
-    if (metersEl) {
-        metersEl.textContent = machine.current_meters.toFixed(6) + ' м';
-    }
-}
-
-function updateActiveShift(shift) {
-    // Обновляем данные активной смены
-    if (shift) {
-        const durationEl = document.querySelector('.shift-duration');
-        const shiftPulsesEl = document.querySelector('.shift-pulses');
-        const shiftMetersEl = document.querySelector('.shift-meters');
+        console.log(`📊 Обновление станка ${machineData.name}:`, machineData);
         
-        if (durationEl) durationEl.textContent = shift.duration_hours.toFixed(1) + ' ч';
-        if (shiftPulsesEl) shiftPulsesEl.textContent = shift.total_pulses;
-        if (shiftMetersEl) shiftMetersEl.textContent = shift.total_meters.toFixed(6) + ' м';
-    }
+        // Обновляем статус
+        const statusCell = row.querySelector('td:nth-child(3)');
+        if (statusCell) {
+            let statusHtml = '';
+            if (machineData.status === 'working') {
+                statusHtml = '<span style="color: #28a745;">🟢 Работает</span>';
+            } else if (machineData.status === 'maintenance') {
+                statusHtml = '<span style="color: #ffc107;">🟡 Ремонт</span>';
+            } else if (machineData.status === 'stopped') {
+                statusHtml = '<span style="color: #dc3545;">🔴 Остановлен</span>';
+            } else {
+                statusHtml = '<span style="color: #6c757d;">⚪ Простой</span>';
+            }
+            statusCell.innerHTML = statusHtml;
+        }
+        
+        // Обновляем оператора - ВСЕГДА показываем если есть
+        const operatorCell = row.querySelector('.operator-name');
+        if (operatorCell) {
+            if (machineData.current_operator && machineData.current_operator !== null && machineData.current_operator !== 'null') {
+                operatorCell.innerHTML = machineData.current_operator;
+                operatorCell.style.color = '#000';
+                console.log(`👤 Оператор для ${machineData.name}: ${machineData.current_operator}`);
+            } else {
+                operatorCell.innerHTML = '<span style="color: #999;">—</span>';
+                console.log(`👤 Оператор для ${machineData.name}: НЕТ (очищен)`);
+            }
+        }
+        
+        // Обновляем метраж - КРИТИЧНО!
+        const metersCell = row.querySelector('.meters-value');
+        if (metersCell) {
+            const oldValue = metersCell.textContent;
+            // Убедимся что значение точно число
+            const metersValue = parseFloat(machineData.current_meters);
+            const newValue = (isNaN(metersValue) ? 0 : metersValue).toFixed(4);  // 4 знака!
+            metersCell.textContent = newValue;
+            
+            if (oldValue !== newValue) {
+                console.log(`✅ Метраж обновлен для ${machineData.name}: ${oldValue} → ${newValue} м`);
+                
+                // Визуальная подсветка изменения
+                metersCell.style.background = '#fff3cd';
+                setTimeout(() => {
+                    metersCell.style.background = '';
+                }, 1000);
+            }
+        }
+        
+        // Обновляем вызов мастера
+        const callCell = row.querySelector('.call-status');
+        if (callCell) {
+            let callHtml = '<span style="color: #28a745;">✓ Нет</span>';
+            if (machineData.call_status === 'pending') {
+                callHtml = '<span style="color: #dc3545; font-weight: 600;">⚠️ Да</span>';
+            } else if (machineData.call_status === 'in_progress') {
+                callHtml = '<span style="color: #ffc107; font-weight: 600;">🔧 В работе</span>';
+            }
+            callCell.innerHTML = callHtml;
+        }
+        
+        // Обновляем мастера
+        const masterCell = row.querySelector('.master-name');
+        if (masterCell) {
+            if (machineData.master) {
+                masterCell.textContent = machineData.master;
+                masterCell.style.color = '#000';
+            } else {
+                masterCell.innerHTML = '<span style="color: #999;">—</span>';
+            }
+        }
+    });
 }
 
-function updateMaintenanceCall(call) {
-    // Обновляем статус вызова мастера
-    const callStatusEl = document.querySelector('.call-status');
-    
-    if (call) {
-        if (callStatusEl) {
-            callStatusEl.innerHTML = `
-                <div class="alert alert-warning">
-                    <p><strong>Статус:</strong> ${call.status_display}</p>
-                    <p><strong>Время вызова:</strong> ${call.call_time}</p>
-                    ${call.master ? `<p><strong>Мастер:</strong> ${call.master}</p>` : ''}
-                </div>
-            `;
-        }
-    } else {
-        if (callStatusEl) {
-            callStatusEl.innerHTML = '<p class="text-success">✅ Нет активных вызовов</p>';
-        }
-    }
-}
-
-function updatePulseData(pulseData) {
-    // Обновляем данные о пульсах
-    if (pulseData && Array.isArray(pulseData)) {
-        // Здесь можно добавить обновление графика пульсов
-        console.log('📊 Обновлены данные пульсов:', pulseData.length, 'записей');
-    }
-}
 
 // Запускаем WebSocket при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
@@ -366,9 +286,6 @@ document.addEventListener('DOMContentLoaded', function() {
 window.addEventListener('beforeunload', function() {
     if (lohiaSocket) {
         lohiaSocket.close();
-    }
-    if (updateInterval) {
-        clearInterval(updateInterval);
     }
 });
 </script>

@@ -42,48 +42,49 @@
     <div class="lohia-card">
         <div class="lohia-card-header">
             🏭 Информация о станке
+            <div id="websocket-status" style="float: right; font-size: 12px; padding: 4px 8px; border-radius: 4px; background: #fff3cd; color: #856404;">
+                🔄 Загрузка...
+            </div>
         </div>
         <div class="lohia-card-body">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
                 <div>
-                            <p><strong>Название:</strong> {{ machine.name }}</p>
-                            <p><strong>ID ESP32:</strong> {{ machine.esp32_id }}</p>
-                            <p><strong>Метров за импульс:</strong> {{ machine.meters_per_pulse|floatformat:6 }}</p>
-                            <p><strong>Статус:</strong> 
-                                {% if machine.status == 'working' %}🟢 Работает
-                                {% elif machine.status == 'maintenance' %}🟡 В ремонте
-                                {% elif machine.status == 'stopped' %}🔴 Остановлен
-                                {% else %}⚪ Простой{% endif %}
-                            </p>
-                        </div>
-                        <div>
-                            <h6 style="margin-bottom: 10px; color: #667eea;">🔧 Параметры станка:</h6>
-                            <p><strong>Transmit Pulse:</strong> {{ machine.transmit_pulse }}</p>
-                            <p><strong>Gear box ratio:</strong> {{ machine.gear_box_ratio }}</p>
-                            <p><strong>Sprocket gear box:</strong> {{ machine.sprocket_gear_box }}</p>
-                            <p><strong>Sprocket takeup roller:</strong> {{ machine.sprocket_takeup_roller }}</p>
-                            <p><strong>Roller diameter:</strong> {{ machine.roller_diameter_cm }} см</p>
-                            <p><strong>P-Ctrl. Ampl.:</strong> {{ machine.p_ctrl_ampl }}</p>
+                    <p><strong>Название:</strong> {{ machine.name }}</p>
+                    <p><strong>ID ESP32:</strong> {{ machine.esp32_id }}</p>
+                    <p><strong>Метров за импульс:</strong> {{ machine.meters_per_pulse|floatformat:6 }}</p>
+                    <p><strong>Статус:</strong> 
+                        {% if machine.status == 'working' %}🟢 Работает
+                        {% elif machine.status == 'maintenance' %}🟡 В ремонте
+                        {% elif machine.status == 'stopped' %}🔴 Остановлен
+                        {% else %}⚪ Простой{% endif %}
+                    </p>
                 </div>
                 <div>
-                            <p><strong>Текущий оператор:</strong> 
-                                {% if machine.current_operator %}
-                                    {{ machine.current_operator.get_full_name }}
-                                {% else %}
-                                    <span class="text-muted">Нет оператора</span>
-                                {% endif %}
-                            </p>
-                            <p><strong>Текущие импульсы:</strong> {{ machine.current_pulse_count }}</p>
-                            <p><strong>Текущий метраж:</strong> {{ machine.current_meters|floatformat:2 }} м</p>
-                            <p><strong>Активен:</strong> 
-                                {% if machine.is_active %}
-                                    <span class="text-success">✅ Да</span>
-                                {% else %}
-                                    <span class="text-danger">❌ Нет</span>
-                                {% endif %}
-                            </p>
-                        </div>
-                    </div>
+                    <h6 style="margin-bottom: 10px; color: #667eea;">🔧 Параметры станка:</h6>
+                    <p><strong>Transmit Pulse:</strong> {{ machine.transmit_pulse }}</p>
+                    <p><strong>Gear box ratio:</strong> {{ machine.gear_box_ratio }}</p>
+                    <p><strong>Sprocket gear box:</strong> {{ machine.sprocket_gear_box }}</p>
+                    <p><strong>Sprocket takeup roller:</strong> {{ machine.sprocket_takeup_roller }}</p>
+                    <p><strong>Roller diameter:</strong> {{ machine.roller_diameter_cm }} см</p>
+                    <p><strong>P-Ctrl. Ampl.:</strong> {{ machine.p_ctrl_ampl }}</p>
+                </div>
+                <div>
+                    <p><strong>Текущий оператор:</strong> 
+                        {% if machine.current_operator %}
+                            {{ machine.current_operator.get_full_name }}
+                        {% else %}
+                            <span class="text-muted">Нет оператора</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>Текущие импульсы:</strong> {{ machine.current_pulse_count }}</p>
+                    <p><strong>Текущий метраж:</strong> {{ machine.current_meters|floatformat:2 }} м</p>
+                    <p><strong>Активен:</strong> 
+                        {% if machine.is_active %}
+                            <span class="text-success">✅ Да</span>
+                        {% else %}
+                            <span class="text-danger">❌ Нет</span>
+                        {% endif %}
+                    </p>
                 </div>
             </div>
         </div>
@@ -154,4 +155,127 @@
         </div>
     </div>
 </div>
+
+<script>
+// AJAX обновление статистики (каждые 30 секунд)
+let updateInterval = null;
+let lastUpdateTime = null;
+
+function updateStatus(status) {
+    const statusEl = document.getElementById('websocket-status');
+    if (statusEl) {
+        if (status === 'ok') {
+            statusEl.style.background = '#d4edda';
+            statusEl.style.color = '#155724';
+            const timeAgo = lastUpdateTime ? Math.round((Date.now() - lastUpdateTime) / 1000) : 0;
+            statusEl.innerHTML = `🟢 Обновлено ${timeAgo}с назад`;
+        } else if (status === 'updating') {
+            statusEl.style.background = '#fff3cd';
+            statusEl.style.color = '#856404';
+            statusEl.innerHTML = '🔄 Обновление...';
+        } else {
+            statusEl.style.background = '#f8d7da';
+            statusEl.style.color = '#721c24';
+            statusEl.innerHTML = '🔴 Ошибка обновления';
+        }
+    }
+}
+
+function updateStats() {
+    updateStatus('updating');
+    
+    fetch('/lohia/api/machine-stats/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Обновляем общую статистику
+                document.querySelector('.lohia-stat-card:nth-child(1) .lohia-stat-number').textContent = data.total_shifts;
+                document.querySelector('.lohia-stat-card:nth-child(2) .lohia-stat-number').textContent = Math.round(data.total_meters) + ' м';
+                document.querySelector('.lohia-stat-card:nth-child(3) .lohia-stat-number').textContent = data.total_calls;
+                
+                const avgResponseEl = document.querySelector('.lohia-stat-card:nth-child(4) .lohia-stat-number');
+                if (data.avg_response_time) {
+                    avgResponseEl.textContent = data.avg_response_time + ' мин';
+                } else {
+                    avgResponseEl.textContent = '—';
+                }
+                
+                // Обновляем текущие данные станка
+                const currentOperatorEl = document.querySelector('.lohia-card-body p:nth-child(1) strong + *');
+                if (currentOperatorEl) {
+                    if (data.current_operator) {
+                        currentOperatorEl.textContent = data.current_operator;
+                        currentOperatorEl.className = '';
+                    } else {
+                        currentOperatorEl.innerHTML = '<span class="text-muted">Нет оператора</span>';
+                    }
+                }
+                
+                // Обновляем импульсы и метраж
+                const pulsesEl = document.querySelector('.lohia-card-body div > div:nth-child(3) p:nth-child(2) strong');
+                if (pulsesEl && pulsesEl.nextSibling) {
+                    pulsesEl.nextSibling.textContent = ' ' + data.current_pulse_count;
+                }
+                
+                const metersEl = document.querySelector('.lohia-card-body div > div:nth-child(3) p:nth-child(3) strong');
+                if (metersEl && metersEl.nextSibling) {
+                    metersEl.nextSibling.textContent = ' ' + data.current_meters.toFixed(4) + ' м';
+                }
+                
+                // Обновляем производительность
+                const avgMetersPerShiftEl = document.querySelector('.lohia-grid-3 .lohia-stat-card:nth-child(1) .lohia-stat-number');
+                if (avgMetersPerShiftEl) {
+                    if (data.total_shifts > 0) {
+                        avgMetersPerShiftEl.textContent = data.avg_meters_per_shift + ' м/смена';
+                    } else {
+                        avgMetersPerShiftEl.textContent = '—';
+                    }
+                }
+                
+                const callsPerShiftEl = document.querySelector('.lohia-grid-3 .lohia-stat-card:nth-child(3) .lohia-stat-number');
+                if (callsPerShiftEl) {
+                    if (data.total_shifts > 0) {
+                        callsPerShiftEl.textContent = data.calls_per_shift + ' вызовов/смену';
+                    } else {
+                        callsPerShiftEl.textContent = '—';
+                    }
+                }
+                
+                lastUpdateTime = Date.now();
+                updateStatus('ok');
+                console.log('✅ Статистика обновлена');
+            } else {
+                console.error('❌ Ошибка:', data.error);
+                updateStatus('error');
+            }
+        })
+        .catch(error => {
+            console.error('❌ Ошибка загрузки:', error);
+            updateStatus('error');
+        });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Инициализация статистики (AJAX)');
+    
+    // Первое обновление
+    updateStats();
+    
+    // Обновляем каждые 30 секунд
+    updateInterval = setInterval(updateStats, 30000);
+    
+    // Обновляем время в статусе каждую секунду
+    setInterval(() => {
+        if (lastUpdateTime) {
+            updateStatus('ok');
+        }
+    }, 1000);
+});
+
+window.addEventListener('beforeunload', function() {
+    if (updateInterval) {
+        clearInterval(updateInterval);
+    }
+});
+</script>
 {% endblock %}

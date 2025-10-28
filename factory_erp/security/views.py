@@ -17,6 +17,8 @@ from .models import SecurityLog, Shift
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 @csrf_exempt
 def latest_access_api(request):
@@ -127,6 +129,30 @@ def rfid_scan_api(request):
                 timestamp=timezone.now(),
                 notes=f'Автоматическое сканирование RFID: {rfid_uid}'
             )
+            # Broadcast to WebSocket group for security displays
+            try:
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    'security_monitor',
+                    {
+                        'type': 'security_update',
+                        'data': {
+                            'employee': {
+                                'id': employee.id,
+                                'full_name': employee.get_full_name() if hasattr(employee, 'get_full_name') else f"{employee.last_name} {employee.first_name}",
+                                'department': employee.department or '',
+                                'position': employee.position or '',
+                                'employee_id': employee.employee_id or employee.id,
+                                'photo_url': employee.photo.url if getattr(employee, 'photo', None) else '/static/images/no-photo.png'
+                            },
+                            'action': action,
+                            'timestamp': timezone.now().isoformat()
+                        }
+                    }
+                )
+            except Exception as ws_err:
+                # не блокируем API из-за вебсокета
+                pass
             
             return JsonResponse({
                 'success': True,

@@ -15,12 +15,17 @@ urlpatterns = [
     
     # Веб-интерфейс для начальника цеха
     path('dashboard/', views.DashboardView.as_view(), name='dashboard'),
+    path('machine/<int:machine_id>/', views.MachineDetailView.as_view(), name='machine_detail'),
     path('shifts/', views.ShiftsHistoryView.as_view(), name='shifts_history'),
     path('maintenance/', views.MaintenanceHistoryView.as_view(), name='maintenance_history'),
     path('stats/', views.MachineStatsView.as_view(), name='machine_stats'),
+    path('master/', views.master_page, name='master_page'),
     
     # API для AJAX обновления
     path('api/dashboard-status/', views.dashboard_status_api, name='dashboard_status_api'),
+    path('api/dashboard-status-all/', views.dashboard_status_all_api, name='dashboard_status_all_api'),
     path('api/maintenance-history/', views.maintenance_history_api, name='maintenance_history_api'),
     path('api/shifts-history/', views.shifts_history_api, name='shifts_history_api'),
+    path('api/machine/<int:machine_id>/detail/', views.machine_detail_api, name='machine_detail_api'),
+    path('api/machine-stats/', views.machine_stats_api, name='machine_stats_api'),
 ]

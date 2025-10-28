@@ -96,13 +96,36 @@
 </div>
 
 <script>
+// ========== УНИВЕРСАЛЬНАЯ ФУНКЦИЯ ФОРМАТИРОВАНИЯ ВРЕМЕНИ ==========
+function formatDuration(hours) {
+    /**
+     * Форматирует длительность из часов в "X ч Y мин"
+     * @param {number} hours - Длительность в часах (например 8.5)
+     * @returns {string} - Форматированная строка (например "8 ч 30 мин")
+     */
+    if (!hours || hours === 0) return '—';
+    
+    const totalMinutes = Math.round(hours * 60);
+    const h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+    
+    if (h > 0 && m > 0) {
+        return `${h} ч ${m} мин`;
+    } else if (h > 0) {
+        return `${h} ч`;
+    } else {
+        return `${m} мин`;
+    }
+}
+
 // WebSocket подключение для реального времени
 let lohiaSocket = null;
 let reconnectAttempts = 0;
 const maxReconnectAttempts = 5;
 const reconnectDelay = 3000;
+let updateInterval = null;
 
-function updateWebSocketStatus(status, message) {
+function updateWebSocketStatus(status) {
     const statusEl = document.getElementById('websocket-status');
     if (statusEl) {
         if (status === 'connected') {
@@ -112,7 +135,7 @@ function updateWebSocketStatus(status, message) {
         } else if (status === 'connecting') {
             statusEl.style.background = '#fff3cd';
             statusEl.style.color = '#856404';
-            statusEl.innerHTML = '🟡 WebSocket подключается...';
+            statusEl.innerHTML = '🟡 Подключение...';
         } else {
             statusEl.style.background = '#f8d7da';
             statusEl.style.color = '#721c24';
@@ -121,105 +144,73 @@ function updateWebSocketStatus(status, message) {
     }
 }
 
-function connectWebSocket() {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws/lohia/machine1/`;
+// Загрузка истории смен через API (основная функция)
+function loadShiftsHistory() {
+    console.log('📥 Загрузка истории смен через API');
     
-    console.log('🔌 Подключение к WebSocket для истории смен:', wsUrl);
-    updateWebSocketStatus('connecting', 'Подключение...');
-    
-    lohiaSocket = new WebSocket(wsUrl);
-    
-    lohiaSocket.onopen = function(event) {
-        console.log('✅ WebSocket подключен к истории смен');
-        updateWebSocketStatus('connected', 'Подключен');
-        reconnectAttempts = 0;
-        
-        // Запрашиваем данные смен
-        requestShiftsData();
-    };
-    
-    lohiaSocket.onmessage = function(event) {
-        try {
-            const data = JSON.parse(event.data);
-            console.log('📨 Получены данные смен:', data);
-            
-            // Обрабатываем данные смен
-            if (data.type === 'shift_data' || data.type === 'shift_update') {
-                updateShiftsTable(data.data);
+    fetch('/lohia/api/shifts-history/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log(`✅ Загружено ${data.shifts.length} смен`);
+                updateShiftsTable(data.shifts);
+            } else {
+                console.error('❌ Ошибка загрузки истории смен:', data.error);
             }
-        } catch (error) {
-            console.error('❌ Ошибка парсинга WebSocket данных:', error);
-        }
-    };
-    
-    lohiaSocket.onclose = function(event) {
-        console.log('❌ WebSocket отключен:', event.code, event.reason);
-        updateWebSocketStatus('disconnected', 'Отключен');
-        lohiaSocket = null;
-        
-        // Попытка переподключения
-        if (reconnectAttempts < maxReconnectAttempts) {
-            reconnectAttempts++;
-            console.log(`🔄 Попытка переподключения ${reconnectAttempts}/${maxReconnectAttempts} через ${reconnectDelay/1000} сек`);
-            setTimeout(connectWebSocket, reconnectDelay);
-        } else {
-            console.error('💥 Превышено максимальное количество попыток переподключения');
-            updateWebSocketStatus('disconnected', 'Ошибка подключения');
-            // Fallback на AJAX
-            startAjaxFallback();
-        }
-    };
-    
-    lohiaSocket.onerror = function(error) {
-        console.error('❌ WebSocket ошибка:', error);
-    };
+        })
+        .catch(error => {
+            console.error('❌ Ошибка запроса истории смен:', error);
+        });
 }
 
-function requestShiftsData() {
-    if (lohiaSocket && lohiaSocket.readyState === WebSocket.OPEN) {
-        lohiaSocket.send(JSON.stringify({type: 'get_shift_data'}));
-    }
-}
-
-function updateShiftsTable(shiftsData) {
+// Обновление таблицы из данных API
+function updateShiftsTable(shifts) {
     const tbody = document.getElementById('shifts-table-body');
     if (!tbody) return;
     
     tbody.innerHTML = '';
     
-    if (shiftsData && Array.isArray(shiftsData)) {
-        shiftsData.forEach(shift => {
+    if (shifts && Array.isArray(shifts) && shifts.length > 0) {
+        shifts.forEach(shift => {
             const row = document.createElement('tr');
             
-            // Определяем статус badge
+            // Парсим дату/время
+            const startTime = new Date(shift.start_time);
+            const endTime = shift.end_time ? new Date(shift.end_time) : null;
+            
+            // Статус badge
             let statusBadge = '';
-            if (shift.status === 'active' || shift.status === 'Активна') {
+            if (shift.status === 'Активна' || shift.status === 'active') {
                 statusBadge = '<span class="lohia-badge lohia-badge-primary">Активна</span>';
             } else {
                 statusBadge = '<span class="lohia-badge lohia-badge-success">Завершена</span>';
             }
             
-            // Определяем длительность с цветом
-            let durationDisplay = '';
-            if (shift.end_time === null || shift.end_time === 'Активна') {
-                durationDisplay = `<span class="text-primary">${shift.duration || 'Активна'}</span>`;
-            } else {
-                durationDisplay = shift.duration || '—';
+            // Форматируем длительность
+            let durationDisplay = '—';
+            if (shift.duration && shift.duration !== 'Активна') {
+                // Если пришла строка вида "8.5 ч" - парсим часы
+                const hoursMatch = shift.duration.match(/(\d+\.?\d*)\s*ч/);
+                if (hoursMatch) {
+                    const hours = parseFloat(hoursMatch[1]);
+                    durationDisplay = formatDuration(hours);
+                    // Для активных смен - синим цветом
+                    if (shift.status === 'Активна' || shift.status === 'active') {
+                        durationDisplay = `<span style="color: #007bff; font-weight: 500;">${durationDisplay}</span>`;
+                    }
+                } else {
+                    durationDisplay = shift.duration;
+                }
             }
-            
-            // Форматируем время
-            const startTime = new Date(shift.start_time);
-            const endTime = shift.end_time ? new Date(shift.end_time) : null;
             
             row.innerHTML = `
                 <td>${startTime.toLocaleDateString('ru-RU')}</td>
                 <td>${shift.operator || 'Неизвестно'}</td>
-                <td>${shift.machine || 'Станок Lohia #1'}</td>
+                <td>${shift.machine || 'Lohia'}</td>
                 <td>${startTime.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'})}</td>
                 <td>${endTime ? endTime.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}) : '<span class="text-muted">—</span>'}</td>
                 <td>${durationDisplay}</td>
-                <td>${shift.current_pulses || shift.total_pulses || 0}</td>
+                <td>${shift.total_pulses || 0}</td>
                 <td>${(shift.total_meters || 0).toFixed(6)} м</td>
                 <td>${statusBadge}</td>
             `;
@@ -231,32 +222,81 @@ function updateShiftsTable(shiftsData) {
     }
 }
 
-// Fallback на AJAX если WebSocket не работает
+// WebSocket - только как триггер для обновления
+function connectWebSocket() {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws/lohia/dashboard/`;
+    
+    console.log('🔌 Подключение к WebSocket:', wsUrl);
+    updateWebSocketStatus('connecting');
+    
+    lohiaSocket = new WebSocket(wsUrl);
+    
+    lohiaSocket.onopen = function(event) {
+        console.log('✅ WebSocket подключен');
+        updateWebSocketStatus('connected');
+        reconnectAttempts = 0;
+        
+        // Останавливаем AJAX polling если был запущен
+        if (updateInterval) {
+            clearInterval(updateInterval);
+            updateInterval = null;
+        }
+    };
+    
+    lohiaSocket.onmessage = function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            console.log('📨 WebSocket триггер - обновление истории смен');
+            
+            // При любом сообщении от WebSocket - перезагружаем историю через API
+            loadShiftsHistory();
+        } catch (error) {
+            console.error('❌ Ошибка парсинга WebSocket данных:', error);
+        }
+    };
+    
+    lohiaSocket.onclose = function(event) {
+        console.log('❌ WebSocket отключен:', event.code, event.reason);
+        updateWebSocketStatus('disconnected');
+        lohiaSocket = null;
+        
+        // Попытка переподключения
+        if (reconnectAttempts < maxReconnectAttempts) {
+            reconnectAttempts++;
+            console.log(`🔄 Попытка переподключения ${reconnectAttempts}/${maxReconnectAttempts} через ${reconnectDelay/1000} сек`);
+            setTimeout(connectWebSocket, reconnectDelay);
+        } else {
+            console.error('💥 Превышено максимальное количество попыток переподключения');
+            updateWebSocketStatus('disconnected');
+            // Fallback на AJAX polling
+            startAjaxFallback();
+        }
+    };
+    
+    lohiaSocket.onerror = function(error) {
+        console.error('❌ WebSocket ошибка:', error);
+    };
+}
+
+// Fallback на AJAX polling если WebSocket не работает
 function startAjaxFallback() {
-    console.log('🔄 Переключение на AJAX fallback для истории смен');
-    updateInterval = setInterval(updateShiftsHistory, 5000);
+    console.log('🔄 Переключение на AJAX polling (каждые 5 секунд)');
+    updateInterval = setInterval(loadShiftsHistory, 5000);
 }
 
-function updateShiftsHistory() {
-    fetch('/lohia/api/shifts-history/')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                updateShiftsTable(data.shifts);
-            }
-        })
-        .catch(error => {
-            console.error('Error updating shifts history:', error);
-        });
-}
-
-// Запускаем WebSocket при загрузке страницы
+// Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Инициализация истории смен с WebSocket');
+    console.log('🚀 Инициализация истории смен');
+    
+    // 1. Сразу загружаем историю через API
+    loadShiftsHistory();
+    
+    // 2. Подключаем WebSocket для live-обновлений
     connectWebSocket();
 });
 
-// Останавливаем WebSocket при выходе со страницы
+// Очистка при выходе со страницы
 window.addEventListener('beforeunload', function() {
     if (lohiaSocket) {
         lohiaSocket.close();

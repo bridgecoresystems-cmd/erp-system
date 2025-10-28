@@ -1,0 +1,21 @@
+
+Running Gradle task 'assembleRelease'...                        
+/home/batyr/.pub-cache/hosted/pub.dev/flutter_local_notifications-15.1.3/android/src/main/java/com/dexterous/flutterlocalnotifications/FlutterLocalNotificationsPlugin.java:1019: error: reference to bigLargeIcon is ambiguous
+      bigPictureStyle.bigLargeIcon(null);
+                     ^
+  both method bigLargeIcon(Bitmap) in BigPictureStyle and method bigLargeIcon(Icon) in BigPictureStyle match
+1 error
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':flutter_local_notifications:compileReleaseJavaWithJavac'.
+> Compilation failed; see the compiler error output for details.
+
+* Try:
+> Run with --info option to get more log output.
+> Run with --scan to get full insights.
+
+BUILD FAILED in 1s
+Running Gradle task 'assembleRelease'...                         2 296ms
+Gradle task assembleRelease failed with exit code 1

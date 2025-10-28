@@ -828,8 +828,10 @@ function connectWebSocket() {
             console.log('📨 Получены данные рабочего времени:', data);
             
             // Обрабатываем обновления рабочего времени
-            if (data.type === 'worktime_data' || data.type === 'worktime_update') {
+            if (data.type === 'worktime_data') {
                 updateWorktimeTable(data.data);
+            } else if (data.type === 'worktime_update') {
+                upsertWorktimeRow(data.data);
             }
         } catch (error) {
             console.error('❌ Ошибка парсинга WebSocket данных:', error);
@@ -869,15 +871,132 @@ function updateWorktimeTable(worktimeData) {
     if (!worktimeData || !Array.isArray(worktimeData)) return;
     
     console.log(`📊 Данные рабочего времени обновлены: ${worktimeData.length} записей`);
-    
-    // Здесь можно добавить обновление таблицы
-    // Пока просто логируем
+    // При любом обновлении просим последний элемент и обновляем таблицу
+    refreshLatestWorktimeRow();
+}
+// Вставка/обновление строки по событию из WebSocket без F5
+function upsertWorktimeRow(payload) {
+    // Сервер шлёт один объект; если придёт массив — берём первый
+    const item = Array.isArray(payload) ? payload[0] : payload;
+    if (!item) return;
+
+    const tbody = document.querySelector('table.table tbody');
+    if (!tbody) return;
+
+    const existing = tbody.querySelector(`tr[data-entry-id="${item.id}"]`);
+    const html = `
+        <td>
+            <strong>${item.date_display}</strong><br>
+            <small style="color:#666;"></small>
+        </td>
+        <td>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <img src="${item.photo_url || '/static/images/no-photo.png'}" width="40" height="40" style="border-radius:50%;object-fit:cover;">
+                <div>
+                    <strong>${item.employee_name}</strong><br>
+                    <small style="color:#666;">${item.employee_id}</small>
+                </div>
+            </div>
+        </td>
+        <td>
+            <span style="background:#e3f2fd;color:#1976d2;padding:4px 8px;border-radius:4px;font-size:12px;">${item.department || ''}</span>
+        </td>
+        <td class="entry-time">${item.entry_time_display ? `<span style="font-family:monospace;font-size:16px;">${item.entry_time_display}</span>` : '<span style="color:#999;">—</span>'}</td>
+        <td class="exit-time">${item.exit_time_display ? `<span style=\"font-family:monospace;font-size:16px;\">${item.exit_time_display}</span>` : '<span style="color:#999;">—</span>'}</td>
+        <td class="hours-worked">${item.hours_worked ? `<span style="color:${item.is_full_day ? '#4caf50' : '#ff9800'};font-weight:bold;">${item.hours_worked}</span>` : '<span style="color:#999;">—</span>'}</td>
+        <td>
+            <span class="status-badge" style="color:${item.status_color || '#4caf50'};font-weight:bold;">● ${item.status_display || 'Присутствует'}</span>
+            ${item.is_manual_entry ? '<br><small style="color:#666;">✏️ ручной ввод</small>' : ''}
+            ${item.is_corrected ? '<br><small style="color:#666;">✅ скорректировано</small>' : ''}
+        </td>
+        <td>
+            <div style="display:flex;gap:5px;flex-wrap:wrap;">
+                <button onclick="editTimeEntry(${item.id})" class="action-btn" style="background:#ff9800;color:white;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:12px;">✏️ Изменить</button>
+                <button onclick="deleteTimeEntry(${item.id})" class="action-btn" style="background:#f44336;color:white;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:12px;">🗑️ Удалить</button>
+            </div>
+        </td>`;
+
+    if (existing) {
+        existing.innerHTML = html;
+    } else {
+        const tr = document.createElement('tr');
+        tr.setAttribute('data-entry-id', item.id);
+        tr.innerHTML = html;
+        // В начало списка
+        if (tbody.firstChild) tbody.insertBefore(tr, tbody.firstChild); else tbody.appendChild(tr);
+    }
 }
 
 // Fallback на AJAX если WebSocket не работает
 function startAjaxFallback() {
     console.log('🔄 Переключение на AJAX fallback для рабочего времени');
     checkInterval = setInterval(checkForNewEntries, 3000);
+}
+
+// Получить последнюю запись и обновить/добавить строку без F5
+async function refreshLatestWorktimeRow() {
+    try {
+        const res = await fetch('/employees/api/worktime-latest/');
+        const data = await res.json();
+        if (!data.success || !data.entry) return;
+        const entry = data.entry;
+
+        const tbody = document.querySelector('table.table tbody');
+        if (!tbody) return;
+
+        // Удаляем старую строку с тем же id, если есть
+        const existing = tbody.querySelector(`tr[data-entry-id="${entry.id}"]`);
+        if (existing) existing.remove();
+
+        // Создаем новую строку (используем уже форматированные поля)
+        const tr = document.createElement('tr');
+        tr.setAttribute('data-entry-id', entry.id);
+        tr.innerHTML = `
+            <td>
+                <strong>${entry.date}</strong><br>
+                <small style="color: #666;"></small>
+            </td>
+            <td>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <img src="${entry.photo_url || '/static/images/no-photo.png'}" width="40" height="40" style="border-radius:50%;object-fit:cover;">
+                    <div>
+                        <strong>${entry.employee_name}</strong><br>
+                        <small style="color:#666;">${entry.employee_id}</small>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <span style="background:#e3f2fd;color:#1976d2;padding:4px 8px;border-radius:4px;font-size:12px;">
+                    ${entry.department || ''}
+                </span>
+            </td>
+            <td class="entry-time">
+                ${entry.entry_time ? `<span style="font-family: monospace; font-size: 16px;">${entry.entry_time}</span>` : '<span style="color:#999;">—</span>'}
+            </td>
+            <td class="exit-time">
+                ${entry.exit_time ? `<span style=\"font-family: monospace; font-size: 16px;\">${entry.exit_time}</span>` : '<span style="color:#999;">—</span>'}
+            </td>
+            <td class="hours-worked">
+                ${entry.hours_worked ? `<span style="color:${entry.is_full_day ? '#4caf50' : '#ff9800'};font-weight:bold;">${entry.hours_worked}</span>${entry.is_overtime ? '<br><small style="color:#2196f3;">+' + entry.overtime_display + '</small>' : ''}` : '<span style="color:#999;">—</span>'}
+            </td>
+            <td>
+                <span class="status-badge" style="color:${entry.status_color || '#4caf50'};font-weight:bold;">● ${entry.status_display || 'Присутствует'}</span>
+                ${entry.is_manual_entry ? '<br><small style="color:#666;">✏️ ручной ввод</small>' : ''}
+                ${entry.is_corrected ? '<br><small style="color:#666;">✅ скорректировано</small>' : ''}
+            </td>
+            <td>
+                <div style="display:flex;gap:5px;flex-wrap:wrap;">
+                    <button onclick="editTimeEntry(${entry.id})" class="action-btn" style="background:#ff9800;color:white;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:12px;">✏️ Изменить</button>
+                    <button onclick="deleteTimeEntry(${entry.id})" class="action-btn" style="background:#f44336;color:white;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:12px;">🗑️ Удалить</button>
+                </div>
+            </td>
+        `;
+
+        // Вставляем в начало таблицы
+        if (tbody.firstChild) tbody.insertBefore(tr, tbody.firstChild); else tbody.appendChild(tr);
+    } catch (e) {
+        console.warn('Не удалось обновить последнюю запись рабочего времени:', e);
+    }
 }
 
 // ===== ИНИЦИАЛИЗАЦИЯ =====

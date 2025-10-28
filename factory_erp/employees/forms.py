@@ -250,7 +250,7 @@ class EmployeeForm(forms.ModelForm):
     
     def clean_first_name(self):
         """Валидация имени"""
-        first_name = self.cleaned_data.get('first_name', '').strip()
+        first_name = (self.cleaned_data.get('first_name') or '').strip()
         if not first_name:
             raise ValidationError('Имя обязательно для заполнения')
         
@@ -264,7 +264,7 @@ class EmployeeForm(forms.ModelForm):
     
     def clean_last_name(self):
         """Валидация фамилии"""
-        last_name = self.cleaned_data.get('last_name', '').strip()
+        last_name = (self.cleaned_data.get('last_name') or '').strip()
         if not last_name:
             raise ValidationError('Фамилия обязательна для заполнения')
         
@@ -278,7 +278,7 @@ class EmployeeForm(forms.ModelForm):
     
     def clean_middle_name(self):
         """Валидация отчества"""
-        middle_name = self.cleaned_data.get('middle_name', '').strip()
+        middle_name = (self.cleaned_data.get('middle_name') or '').strip()
         if middle_name:
             if len(middle_name) < 2:
                 raise ValidationError('Отчество должно содержать минимум 2 символа')
@@ -291,7 +291,7 @@ class EmployeeForm(forms.ModelForm):
     
     def clean_phone(self):
         """Валидация телефона"""
-        phone = self.cleaned_data.get('phone', '').strip()
+        phone = (self.cleaned_data.get('phone') or '').strip()
         if phone:
             # Убираем все кроме цифр и +
             cleaned_phone = re.sub(r'[^\d+]', '', phone)
@@ -302,7 +302,8 @@ class EmployeeForm(forms.ModelForm):
     
     def clean_rfid_uid(self):
         """Валидация RFID"""
-        rfid_uid = self.cleaned_data.get('rfid_uid', '').strip().upper()
+        raw_value = self.cleaned_data.get('rfid_uid')
+        rfid_uid = str(raw_value or '').strip().upper()
         
         if rfid_uid:
             # Проверяем формат RFID (обычно 8-10 символов hex)
@@ -313,12 +314,15 @@ class EmployeeForm(forms.ModelForm):
             existing_employee = Employee.objects.filter(rfid_uid=rfid_uid).exclude(pk=self.instance.pk).first()
             if existing_employee:
                 raise ValidationError(f'Эта RFID карта уже привязана к сотруднику: {existing_employee.get_full_name()}')
+        else:
+            # Пустое значение сохраняем как NULL, чтобы не нарушать unique
+            return None
         
         return rfid_uid
     
     def clean_employee_id(self):
         """Валидация табельного номера"""
-        employee_id = self.cleaned_data.get('employee_id', '').strip()
+        employee_id = (self.cleaned_data.get('employee_id') or '').strip()
         
         if not employee_id:
             raise ValidationError('Табельный номер обязателен')
@@ -332,7 +336,7 @@ class EmployeeForm(forms.ModelForm):
     
     def clean_position(self):
         """Валидация должности"""
-        position = self.cleaned_data.get('position', '').strip()
+        position = (self.cleaned_data.get('position') or '').strip()
         if not position:
             raise ValidationError('Должность обязательна для заполнения')
         
