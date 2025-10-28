@@ -1,0 +1,13 @@
+run = "cd factory_erp && python manage.py migrate && daphne -b 0.0.0.0 -p 8000 factory_erp.asgi:application"
+
+[nix]
+channel = "stable-23_11"
+
+[deployment]
+run = ["sh", "-c", "cd factory_erp && python manage.py migrate && daphne -b 0.0.0.0 -p 8000 factory_erp.asgi:application"]
+deploymentTarget = "cloudrun"
+
+[env]
+PYTHONUNBUFFERED = "1"
+DJANGO_SETTINGS_MODULE = "factory_erp.settings_replit"
+
