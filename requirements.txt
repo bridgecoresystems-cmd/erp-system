@@ -1,4 +1,4 @@
-Django>=4.2
+Django>=4.2,<5.0
 djangorestframework
 django-filter
 django-crispy-forms
@@ -8,6 +8,7 @@ django-admin-interface
 django-mptt
 django-simple-history
 django-import-export
+django-colorfield
 Pillow
 openpyxl
 xlsxwriter
@@ -22,4 +23,12 @@ django-celery-beat
 psycopg2-binary
 gunicorn
 whitenoise
-django-debug-toolbar
+dj-database-url
+
+# WebSocket support
+channels>=4.0.0
+channels-redis>=4.1.0
+daphne>=4.0.0
+
+# Production
+sentry-sdk

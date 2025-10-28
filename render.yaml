@@ -1,0 +1,47 @@
+services:
+  # PostgreSQL Database
+  - type: pserv
+    name: erp-postgres
+    env: docker
+    plan: free
+    region: frankfurt
+    ipAllowList: []
+
+  # Redis Instance
+  - type: redis
+    name: erp-redis
+    region: frankfurt
+    plan: free
+    maxmemoryPolicy: noeviction
+    ipAllowList: []
+
+  # Web Service (Django with WebSocket support via Daphne)
+  - type: web
+    name: erp-system
+    runtime: python
+    region: frankfurt
+    plan: free
+    branch: main
+    buildCommand: "./build.sh"
+    startCommand: "daphne -b 0.0.0.0 -p $PORT factory_erp.asgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: erp-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: erp-redis
+          type: redis
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: false
+      - key: DJANGO_SETTINGS_MODULE
+        value: factory_erp.settings
+      - key: WEB_CONCURRENCY
+        value: 2
+
