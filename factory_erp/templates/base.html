@@ -49,10 +49,9 @@
                         </form>
                     </div>
                     
-                    <a href="{% url 'home' %}">Главная</a>
-                    
                     {% if user.is_superuser %}
                         <!-- Суперпользователь видит все -->
+                        <a href="{% url 'home' %}">Главная</a>
                         <div class="dropdown">
                             <a href="#">Сотрудники</a>
                             <div class="dropdown-content">
