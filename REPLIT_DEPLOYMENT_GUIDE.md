@@ -76,7 +76,7 @@
 2. Выберите **Import from GitHub**
 3. В URL вставьте:
    ```
-   https://github.com/bridgecoresystems-cmd/erp-system
+    
    ```
 4. **Name**: `erp-system`
 5. **Language**: Python (автоматически определится)
