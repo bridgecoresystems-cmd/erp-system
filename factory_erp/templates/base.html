@@ -199,38 +199,10 @@
                             {% endif %}
                         {% endfor %}
                         
-                        <!-- Проверка для пользователей с Employee профилем -->
-                        {% if user.employee_profile %}
-                            {% if user.employee_profile.department == 'Администрация' or user.employee_profile.department == 'Начальник_цеха' %}
-                                <div class="dropdown">
-                                    <a href="#">🏭 Станок Lohia</a>
-                                    <div class="dropdown-content">
-                                        <a href="{% url 'lohia_monitor:dashboard' %}">Дашборд</a>
-                                        <a href="{% url 'lohia_monitor:shifts_history' %}">История смен</a>
-                                        <a href="{% url 'lohia_monitor:maintenance_history' %}">Вызовы мастера</a>
-                                        <a href="{% url 'lohia_monitor:machine_stats' %}">Статистика</a>
-                                    </div>
-                                </div>
-                            {% endif %}
-                        {% endif %}
-                        
                     {% else %}
-                        <!-- Для пользователей без групп - проверяем Employee -->
-                        {% if user.employee_profile %}
-                            {% if user.employee_profile.department == 'Администрация' or user.employee_profile.department == 'Начальник_цеха' %}
-                                <div class="dropdown">
-                                    <a href="#">🏭 Станок Lohia</a>
-                                    <div class="dropdown-content">
-                                        <a href="{% url 'lohia_monitor:dashboard' %}">Дашборд</a>
-                                        <a href="{% url 'lohia_monitor:shifts_history' %}">История смен</a>
-                                        <a href="{% url 'lohia_monitor:maintenance_history' %}">Вызовы мастера</a>
-                                    </div>
-                                </div>
-                            {% endif %}
-                        {% else %}
-                            <a href="{% url 'employees:employee_list' %}">Сотрудники</a>
-                            <a href="{% url 'employees:security_display' %}">Контроль доступа</a>
-                        {% endif %}
+                        <!-- Для пользователей без групп -->
+                        <a href="{% url 'employees:employee_list' %}">Сотрудники</a>
+                        <a href="{% url 'employees:security_display' %}">Контроль доступа</a>
                     {% endif %}
                 </div>
             {% endif %}
