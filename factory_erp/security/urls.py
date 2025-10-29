@@ -16,4 +16,7 @@ urlpatterns = [
     path('api/latest-access/', views.latest_access_api, name='latest_access_api'),
     path('api/dashboard-stats/', views.dashboard_stats_api, name='dashboard_stats_api'),
     path('api/scan/', views.rfid_scan_api, name='rfid_scan_api'),
+    
+    # AJAX Polling API
+    path('api/access-polling/', views.access_polling_api, name='access_polling'),
 ]

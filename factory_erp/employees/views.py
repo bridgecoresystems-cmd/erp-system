@@ -11,8 +11,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from asgiref.sync import async_to_sync
-from channels.layers import get_channel_layer
 
 import json
 import logging
@@ -567,62 +565,6 @@ def rfid_scan(request):
 
             work_entry.save()  # Статус обновится автоматически
             
-            # Broadcast WebSocket updates
-            try:
-                channel_layer = get_channel_layer()
-                # Worktime update for employee monitors
-                async_to_sync(channel_layer.group_send)(
-                    'employees_monitor',
-                    {
-                        'type': 'worktime_update',
-                        'data': {
-                            'id': work_entry.id,
-                            'employee_pk': employee.id,
-                            'employee_id': employee.employee_id,
-                            'employee_name': employee.get_full_name(),
-                            'department': employee.department,
-                            'photo_url': employee.get_photo_url(),
-                            'date_display': today.strftime('%d.%m.%Y'),
-                            'date_iso': today.isoformat(),
-                            'entry_time_display': work_entry.entry_time.strftime('%H:%M') if work_entry.entry_time else None,
-                            'exit_time_display': work_entry.exit_time.strftime('%H:%M') if work_entry.exit_time else None,
-                            'hours_worked': work_entry.get_hours_display() if work_entry.hours_worked else '00:00',
-                            'status': work_entry.status,
-                            'status_display': work_entry.get_status_display(),
-                            'status_color': work_entry.get_status_display_color(),
-                            'is_full_day': work_entry.is_full_day(),
-                            'is_overtime': work_entry.is_overtime(),
-                            'overtime_display': work_entry.get_overtime_display() if work_entry.is_overtime() else None,
-                            'is_manual_entry': work_entry.is_manual_entry,
-                            'is_corrected': work_entry.is_corrected,
-                            'action': 'in' if action == 'entry' else 'out'
-                        }
-                    }
-                )
-                
-                # Security-style update for displays (if they listen)
-                async_to_sync(channel_layer.group_send)(
-                    'security_monitor',
-                    {
-                        'type': 'security_update',
-                        'data': {
-                            'employee': {
-                                'id': employee.id,
-                                'full_name': employee.get_full_name(),
-                                'department': employee.department,
-                                'position': employee.position,
-                                'employee_id': employee.employee_id,
-                                'photo_url': employee.get_photo_url(),
-                            },
-                            'device_id': device_id,
-                            'timestamp': timezone.now().isoformat(),
-                            'action': 'in' if action == 'entry' else 'out'
-                        }
-                    }
-                )
-            except Exception as ws_err:
-                logger.warning(f"WS broadcast failed: {ws_err}")
-            
             logger.info(f"WorkTime {action} recorded for {employee.get_full_name()}")
             
             logger.info(f"Access logged with ID: {access_log.id}")
@@ -1086,3 +1028,58 @@ class EmployeeDetailView(LoginRequiredMixin, DetailView):
             )
         
         return context
+
+
+# ===== AJAX POLLING API ENDPOINTS =====
+
+@login_required
+def worktime_polling_api(request):
+    """
+    API для AJAX polling - получение обновлений рабочего времени.
+    Возвращает записи за сегодня для отображения на мониторе.
+    """
+    try:
+        today = timezone.now().date()
+        
+        # Получаем все записи за сегодня
+        entries = WorkTimeEntry.objects.filter(
+            date=today
+        ).select_related('employee').order_by('-entry_time')
+        
+        data = []
+        for entry in entries:
+            data.append({
+                'id': entry.id,
+                'employee_pk': entry.employee.id,
+                'employee_id': entry.employee.employee_id,
+                'employee_name': entry.employee.get_full_name(),
+                'department': entry.employee.department,
+                'photo_url': entry.employee.get_photo_url(),
+                'date_display': entry.date.strftime('%d.%m.%Y'),
+                'date_iso': entry.date.isoformat(),
+                'entry_time_display': entry.entry_time.strftime('%H:%M') if entry.entry_time else '',
+                'exit_time_display': entry.exit_time.strftime('%H:%M') if entry.exit_time else '',
+                'hours_worked': entry.get_hours_display() if entry.hours_worked else '00:00',
+                'status': entry.status,
+                'status_display': entry.get_status_display(),
+                'status_color': entry.get_status_display_color(),
+                'is_full_day': entry.is_full_day(),
+                'is_overtime': entry.is_overtime(),
+                'overtime_display': entry.get_overtime_display() if entry.is_overtime() else None,
+                'is_manual_entry': entry.is_manual_entry,
+                'is_corrected': entry.is_corrected,
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'data': data,
+            'count': len(data),
+            'timestamp': timezone.now().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in worktime_polling_api: {e}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)

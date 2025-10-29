@@ -34,11 +34,8 @@ INSTALLED_APPS = [
     'import_export',
     'corsheaders',
     'colorfield',  # Установлен
-    'channels',  # WebSocket support
-    'channels_redis',  # Redis backend for channels
     'employees',
     'security',  # Теперь с openpyxl
-    'django_celery_beat',  # Установлен
     'lohia_monitor',  # Мониторинг станка Lohia
     
 ]
@@ -87,12 +84,8 @@ WSGI_APPLICATION = 'factory_erp.wsgi.application'
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'factory_erp_db',
-        'USER': 'erp_user',
-        'PASSWORD': 'erp_password123',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -192,19 +185,4 @@ SESSION_COOKIE_SECURE = False  # Для разработки
 SESSION_COOKIE_HTTPONLY = True  # Защита от XSS
 SESSION_COOKIE_SAMESITE = 'Lax'  # Защита от CSRF
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Использовать базу данных для сессий
-
-# WebSocket Configuration
-ASGI_APPLICATION = 'factory_erp.asgi.application'
-
-# Channel Layers Configuration
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
-    },
-}
-
-# WebSocket Settings
-WEBSOCKET_URL = '/ws/'
-WEBSOCKET_RECONNECT_DELAY = 3  # seconds
-WEBSOCKET_MAX_RECONNECT_ATTEMPTS = 5
 

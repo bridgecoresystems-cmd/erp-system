@@ -17,8 +17,6 @@ from .models import SecurityLog, Shift
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from asgiref.sync import async_to_sync
-from channels.layers import get_channel_layer
 
 @csrf_exempt
 def latest_access_api(request):
@@ -129,30 +127,6 @@ def rfid_scan_api(request):
                 timestamp=timezone.now(),
                 notes=f'Автоматическое сканирование RFID: {rfid_uid}'
             )
-            # Broadcast to WebSocket group for security displays
-            try:
-                channel_layer = get_channel_layer()
-                async_to_sync(channel_layer.group_send)(
-                    'security_monitor',
-                    {
-                        'type': 'security_update',
-                        'data': {
-                            'employee': {
-                                'id': employee.id,
-                                'full_name': employee.get_full_name() if hasattr(employee, 'get_full_name') else f"{employee.last_name} {employee.first_name}",
-                                'department': employee.department or '',
-                                'position': employee.position or '',
-                                'employee_id': employee.employee_id or employee.id,
-                                'photo_url': employee.photo.url if getattr(employee, 'photo', None) else '/static/images/no-photo.png'
-                            },
-                            'action': action,
-                            'timestamp': timezone.now().isoformat()
-                        }
-                    }
-                )
-            except Exception as ws_err:
-                # не блокируем API из-за вебсокета
-                pass
             
             return JsonResponse({
                 'success': True,
@@ -391,3 +365,48 @@ def logs_report(request):
     }
     
     return render(request, 'security/logs_report.html', context)
+
+
+# ===== AJAX POLLING API ENDPOINTS =====
+
+@login_required
+def access_polling_api(request):
+    """
+    API для AJAX polling - получение последних событий доступа.
+    Возвращает последние 50 записей для отображения на мониторе безопасности.
+    """
+    try:
+        # Получаем последние записи
+        logs = SecurityLog.objects.select_related('employee').order_by('-timestamp')[:50]
+        
+        data = []
+        for log in logs:
+            data.append({
+                'id': log.id,
+                'employee': {
+                    'id': log.employee.id,
+                    'full_name': log.employee.get_full_name() if hasattr(log.employee, 'get_full_name') else f"{log.employee.last_name} {log.employee.first_name}",
+                    'department': log.employee.department or '',
+                    'position': log.employee.position or '',
+                    'employee_id': log.employee.employee_id or log.employee.id,
+                    'photo_url': log.employee.photo.url if getattr(log.employee, 'photo', None) else '/static/images/no-photo.png'
+                },
+                'action': log.action,
+                'action_display': log.get_action_display(),
+                'timestamp': log.timestamp.isoformat(),
+                'timestamp_display': log.timestamp.strftime('%H:%M:%S'),
+                'notes': log.notes or '',
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'data': data,
+            'count': len(data),
+            'timestamp': timezone.now().isoformat()
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)

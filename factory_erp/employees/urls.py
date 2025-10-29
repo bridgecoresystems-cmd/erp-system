@@ -32,4 +32,7 @@ urlpatterns = [
     path('api/dashboard-stats/', views.dashboard_stats, name='dashboard_stats'),
     path('api/latest-access/', views.latest_access_api, name='latest_access_api'),
     path('api/worktime-latest/', views.worktime_latest_api, name='worktime_latest_api'),
+    
+    # AJAX Polling API
+    path('api/worktime-polling/', views.worktime_polling_api, name='worktime_polling'),
 ]

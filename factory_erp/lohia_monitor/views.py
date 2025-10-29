@@ -15,29 +15,6 @@ from employees.models import Employee
 
 logger = logging.getLogger(__name__)
 
-# Вспомогательная функция для WebSocket уведомлений
-def send_websocket_update(machine):
-    """Отправляет триггер через WebSocket. Consumer сам читает данные из БД."""
-    try:
-        from channels.layers import get_channel_layer
-        from asgiref.sync import async_to_sync
-        
-        channel_layer = get_channel_layer()
-        
-        # Отправляем ПРОСТОЙ триггер
-        # Consumer сам запросит свежие данные из БД
-        async_to_sync(channel_layer.group_send)(
-            'lohia_dashboard',
-            {
-                'type': 'machine_update',
-                'machine_id': machine.id
-            }
-        )
-        logger.info(f"📡 WebSocket триггер отправлен для {machine.name}")
-        
-    except Exception as e:
-        logger.error(f"❌ Error sending WebSocket update: {str(e)}")
-
 # ===== API ENDPOINTS ДЛЯ ESP32 =====
 
 @csrf_exempt
@@ -91,10 +68,6 @@ def shift_start_api(request):
         )
         
         logger.info(f"✅ Shift started: {operator.get_full_name()} on {machine.name}")
-        
-        # Отправляем WebSocket обновление
-        send_websocket_update(machine)
-        logger.info(f"📡 WebSocket update sent for machine {machine.name}")
         
         return JsonResponse({
             'success': True,
@@ -175,9 +148,6 @@ def shift_end_api(request):
         # КРИТИЧНО: Перечитываем из БД ПОСЛЕ транзакции
         machine.refresh_from_db()
         logger.info(f"✅ После refresh - meters: {machine.current_meters}, pulses: {machine.current_pulse_count}, operator: {machine.current_operator}")
-        
-        # Отправляем WebSocket с ГАРАНТИРОВАННО свежими данными
-        send_websocket_update(machine)
         
         return JsonResponse({
             'success': True,
@@ -268,11 +238,6 @@ def pulse_update_api(request):
                    f"Всего: {old_pulses}→{machine.current_pulse_count} | "
                    f"Метраж: {old_meters:.6f}→{machine.current_meters:.6f}м")
         
-        # WebSocket уведомление (НЕ блокирующее)
-        try:
-            send_websocket_update(machine)
-        except Exception as ws_error:
-            logger.warning(f"WebSocket error (не критично): {ws_error}")
         
         return JsonResponse({
             'success': True,
@@ -334,9 +299,6 @@ def maintenance_call_api(request):
         
         logger.info(f"Maintenance call created: {machine.name} by {machine.current_operator.get_full_name()}")
         
-        # Отправляем WebSocket уведомление
-        send_websocket_update(machine)
-        
         return JsonResponse({
             'success': True,
             'message': 'Мастер вызван',
@@ -378,9 +340,6 @@ def maintenance_start_api(request):
         active_call.start_maintenance(master)
         
         logger.info(f"Maintenance started: {master.get_full_name()} on {machine.name}")
-        
-        # Отправляем WebSocket уведомление
-        send_websocket_update(machine)
         
         return JsonResponse({
             'success': True,
@@ -425,9 +384,6 @@ def maintenance_end_api(request):
         active_call.complete_maintenance(description)
         
         logger.info(f"Maintenance completed: {master.get_full_name()} on {machine.name}")
-        
-        # Отправляем WebSocket уведомление
-        send_websocket_update(machine)
         
         return JsonResponse({
             'success': True,
@@ -885,3 +841,72 @@ def machine_stats_api(request):
     except Exception as e:
         logger.error(f"Error in machine_stats_api: {str(e)}")
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+# ===== AJAX POLLING API ENDPOINTS =====
+
+@login_required
+def machines_polling_api(request):
+    """
+    API для AJAX polling - получение статуса всех станков.
+    Возвращает данные для обновления дашборда Lohia.
+    """
+    try:
+        machines = Machine.objects.filter(is_active=True).select_related('current_operator')
+        
+        data = []
+        for machine in machines:
+            # Получаем активную смену если есть
+            active_shift = None
+            if machine.current_operator:
+                active_shift = Shift.objects.filter(
+                    machine=machine,
+                    operator=machine.current_operator,
+                    status='active'
+                ).first()
+            
+            # Получаем активный вызов мастера
+            active_call = MaintenanceCall.objects.filter(
+                machine=machine,
+                status='pending'
+            ).first()
+            
+            data.append({
+                'id': machine.id,
+                'name': machine.name,
+                'esp32_id': machine.esp32_id,
+                'status': machine.status,
+                'status_display': machine.get_status_display(),
+                'current_meters': float(machine.current_meters),
+                'current_pulse_count': machine.current_pulse_count,
+                'meters_per_pulse': float(machine.meters_per_pulse),
+                'current_operator': {
+                    'id': machine.current_operator.id,
+                    'name': machine.current_operator.get_full_name(),
+                } if machine.current_operator else None,
+                'shift': {
+                    'id': active_shift.id,
+                    'start_time': active_shift.start_time.isoformat(),
+                    'total_pulses': active_shift.total_pulses,
+                    'total_meters': float(active_shift.total_meters),
+                } if active_shift else None,
+                'maintenance_call': {
+                    'id': active_call.id,
+                    'call_time': active_call.call_time.isoformat(),
+                    'status': active_call.status,
+                } if active_call else None,
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'data': data,
+            'count': len(data),
+            'timestamp': timezone.now().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in machines_polling_api: {e}")
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)

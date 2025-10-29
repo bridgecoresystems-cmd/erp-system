@@ -17,18 +17,9 @@ python-docx
 django-cors-headers
 requests
 python-decouple
-celery
-redis
-django-celery-beat
-psycopg2-binary
 gunicorn
 whitenoise
 dj-database-url
-
-# WebSocket support
-channels>=4.0.0
-channels-redis>=4.1.0
-daphne>=4.0.0
 
 # Production
 sentry-sdk

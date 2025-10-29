@@ -28,4 +28,7 @@ urlpatterns = [
     path('api/shifts-history/', views.shifts_history_api, name='shifts_history_api'),
     path('api/machine/<int:machine_id>/detail/', views.machine_detail_api, name='machine_detail_api'),
     path('api/machine-stats/', views.machine_stats_api, name='machine_stats_api'),
+    
+    # AJAX Polling API
+    path('api/machines-polling/', views.machines_polling_api, name='machines_polling'),
 ]
