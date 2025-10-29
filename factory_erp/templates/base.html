@@ -89,6 +89,47 @@
                         </div>
                         
                     {% elif user.groups.all|length > 0 %}
+                        <!-- Проверяем группу Director (Начальник) -->
+                        {% for group in user.groups.all %}
+                            {% if group.name == "Director" %}
+                                <!-- Начальник видит все модули -->
+                                <div class="dropdown">
+                                    <a href="#">👥 Сотрудники</a>
+                                    <div class="dropdown-content">
+                                        <a href="{% url 'employees:employee_list' %}">Список сотрудников</a>
+                                        <a href="{% url 'employees:employee_add' %}">Добавить сотрудника</a>
+                                    </div>
+                                </div>
+                                <a href="{% url 'employees:worktime_list' %}">⏰ Рабочее время</a>
+                                <div class="dropdown">
+                                    <a href="#">🛡️ Безопасность</a>
+                                    <div class="dropdown-content">
+                                        <a href="{% url 'security:dashboard' %}">Панель охраны</a>
+                                        <a href="{% url 'security:logs_report' %}">Отчеты по логам</a>
+                                        <a href="{% url 'security:export_excel' %}">Экспорт Excel</a>
+                                    </div>
+                                </div>
+                                <div class="dropdown">
+                                    <a href="#">🏭 Станок Lohia</a>
+                                    <div class="dropdown-content">
+                                        <a href="{% url 'lohia_monitor:dashboard' %}">Дашборд</a>
+                                        <a href="{% url 'lohia_monitor:shifts_history' %}">История смен</a>
+                                        <a href="{% url 'lohia_monitor:maintenance_history' %}">Вызовы мастера</a>
+                                        <a href="{% url 'lohia_monitor:machine_stats' %}">Статистика</a>
+                                    </div>
+                                </div>
+                                <div class="dropdown">
+                                    <a href="#">📊 Отчеты</a>
+                                    <div class="dropdown-content">
+                                        <a href="#">По времени</a>
+                                        <a href="#">По отделам</a>
+                                        <a href="#">Экспорт данных</a>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        <!-- Остальные группы -->
                         {% for group in user.groups.all %}
                             {% if group.name == "HR_Admins" %}
                                 <div class="dropdown">

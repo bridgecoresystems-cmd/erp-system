@@ -22384,3 +22384,107 @@ INFO 2025-10-23 13:31:30,884 views Request body: b'{"device_id":"LOHIA-001","rfi
 INFO 2025-10-23 13:31:30,884 views Parsed data - RFID: F1D31804, Device: LOHIA-001
 INFO 2025-10-23 13:31:30,892 views Employee found: Mehanikow Mehanik (ID: 1)
 DEBUG 2025-10-29 10:26:44,781 base Asynchronous handler adapted for middleware lohia_monitor.middleware.MasterRedirectMiddleware.
+WARNING 2025-10-29 11:16:49,809 log Not Found: /api/dashboard-stats/
+WARNING 2025-10-29 11:16:50,813 log Not Found: /api/latest-access/
+WARNING 2025-10-29 11:16:51,823 log Not Found: /api/latest-access/
+WARNING 2025-10-29 11:22:30,348 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:22:33,426 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:22:36,436 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:22:37,565 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:22:40,605 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:22:42,506 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:22:45,535 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:22:48,560 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:22:55,865 log Not Found: /ws/security/
+WARNING 2025-10-29 11:22:58,933 log Not Found: /ws/security/
+WARNING 2025-10-29 11:23:02,109 log Not Found: /ws/security/
+WARNING 2025-10-29 11:23:03,667 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-29 11:23:10,587 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:23:14,183 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:23:17,501 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:23:36,401 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-29 11:23:42,366 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-29 11:23:49,099 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-29 11:23:55,151 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-29 11:24:03,115 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-29 11:24:10,692 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-29 11:25:22,352 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-29 11:30:45,308 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-29 11:30:45,321 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-29 11:30:48,354 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-29 11:30:51,377 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-29 11:30:54,438 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-29 11:30:57,471 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-29 11:31:00,500 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-29 11:32:58,613 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:33:01,675 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:37:58,181 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:38:01,244 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:38:04,984 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:38:08,955 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:38:12,958 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:38:16,987 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:45:37,411 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:45:40,444 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:45:43,468 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:45:46,528 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:45:48,040 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:45:51,076 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:45:54,129 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:45:57,174 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:46:00,231 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:46:03,331 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:46:20,380 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:46:23,612 log Not Found: /ws/employees/
+ERROR 2025-10-29 11:46:24,604 log Internal Server Error: /
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/batyr/projects/erp-system/factory_erp/factory_erp/urls.py", line 44, in redirect_to_employees
+    return redirect('employees:home')
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/shortcuts.py", line 51, in redirect
+    resolve_url(to, *args, **kwargs),
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/shortcuts.py", line 184, in resolve_url
+    return reverse(to, args=args, kwargs=kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/urls/base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/urls/resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'home' not found. 'home' is not a valid view function or pattern name.
+WARNING 2025-10-29 11:46:31,623 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:46:34,255 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-29 11:46:36,541 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:46:42,463 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:46:50,126 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:46:55,959 log Not Found: /employees/api/stats/
+WARNING 2025-10-29 11:47:00,957 log Not Found: /employees/api/stats/
+WARNING 2025-10-29 11:47:05,951 log Not Found: /employees/api/stats/
+WARNING 2025-10-29 11:47:10,984 log Not Found: /employees/api/stats/
+WARNING 2025-10-29 11:47:15,948 log Not Found: /employees/api/stats/
+WARNING 2025-10-29 11:47:20,950 log Not Found: /employees/api/stats/
+WARNING 2025-10-29 11:47:25,959 log Not Found: /employees/api/stats/
+WARNING 2025-10-29 11:47:30,978 log Not Found: /employees/api/stats/
+WARNING 2025-10-29 11:47:35,979 log Not Found: /employees/api/stats/
+WARNING 2025-10-29 11:47:40,951 log Not Found: /employees/api/stats/
+WARNING 2025-10-29 11:48:25,940 log Not Found: /employees/api/stats/
+WARNING 2025-10-29 11:48:54,778 log Not Found: /employees/api/stats/
+WARNING 2025-10-29 11:48:55,149 log Not Found: /employees/api/stats/
+WARNING 2025-10-29 11:49:04,333 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:49:07,367 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:49:08,279 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:49:11,313 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:49:13,287 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:49:16,010 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:49:19,051 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:49:20,279 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:49:27,690 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:49:30,742 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:49:33,834 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:49:37,076 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:49:40,345 log Not Found: /ws/employees/
+WARNING 2025-10-29 11:49:44,370 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:16:07,940 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:16:09,066 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:16:12,096 log Not Found: /ws/employees/

@@ -328,7 +328,10 @@ class HomeView(TemplateView):
         if request.user.is_authenticated:
             user_groups = [g.name for g in request.user.groups.all()]
             
-            if 'HR_Admins' in user_groups:
+            # Начальник (Director) попадает сразу на список сотрудников
+            if 'Director' in user_groups:
+                return redirect('employees:employee_list')
+            elif 'HR_Admins' in user_groups:
                 return redirect('employees:employee_list')
             elif 'HR_Users' in user_groups:
                 return redirect('employees:worktime_list')
