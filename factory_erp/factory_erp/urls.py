@@ -27,7 +27,10 @@ def redirect_to_employees(request):
         user_groups = [g.name for g in user.groups.all()]
         
         # Приоритет перенаправлений по группам
-        if 'HR_Admins' in user_groups:
+        if 'Director' in user_groups:
+            print("DEBUG: Redirecting Director to employees:employee_list")
+            return redirect('employees:employee_list')
+        elif 'HR_Admins' in user_groups:
             print("DEBUG: Redirecting HR_Admins to employees:employee_list")
             return redirect('employees:employee_list')
         elif 'HR_Users' in user_groups:

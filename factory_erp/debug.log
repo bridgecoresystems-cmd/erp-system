@@ -22488,3 +22488,223 @@ WARNING 2025-10-29 11:49:44,370 log Not Found: /ws/employees/
 WARNING 2025-10-29 12:16:07,940 log Not Found: /ws/employees/
 WARNING 2025-10-29 12:16:09,066 log Not Found: /ws/employees/
 WARNING 2025-10-29 12:16:12,096 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:16:23,965 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:16:27,005 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:16:29,490 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-29 12:16:32,527 log Not Found: /ws/lohia/dashboard/
+WARNING 2025-10-29 12:35:27,915 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:35:30,945 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:35:33,976 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:35:37,007 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:35:40,040 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:35:43,066 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:35:48,090 log Not Found: /employees/api/stats/
+WARNING 2025-10-29 12:35:53,099 log Not Found: /employees/api/stats/
+WARNING 2025-10-29 12:35:58,126 log Not Found: /employees/api/stats/
+WARNING 2025-10-29 12:36:06,999 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:36:10,031 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:38:14,107 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:38:17,170 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:38:20,229 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:38:23,289 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:38:26,350 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:38:29,386 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:59:39,187 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:59:39,735 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:59:40,235 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:59:43,270 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:59:46,298 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:59:49,320 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:59:52,355 log Not Found: /ws/employees/
+WARNING 2025-10-29 12:59:55,421 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:13:18,754 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-29 15:13:52,342 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-10-29 15:14:52,435 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:14:55,474 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:14:55,732 log Not Found: /ws/employees/
+ERROR 2025-10-29 15:14:59,481 log Internal Server Error: /
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/batyr/projects/erp-system/factory_erp/factory_erp/urls.py", line 44, in redirect_to_employees
+    return redirect('employees:home')
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/shortcuts.py", line 51, in redirect
+    resolve_url(to, *args, **kwargs),
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/shortcuts.py", line 184, in resolve_url
+    return reverse(to, args=args, kwargs=kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/urls/base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/urls/resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'home' not found. 'home' is not a valid view function or pattern name.
+ERROR 2025-10-29 15:15:00,359 log Internal Server Error: /
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/batyr/projects/erp-system/factory_erp/factory_erp/urls.py", line 44, in redirect_to_employees
+    return redirect('employees:home')
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/shortcuts.py", line 51, in redirect
+    resolve_url(to, *args, **kwargs),
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/shortcuts.py", line 184, in resolve_url
+    return reverse(to, args=args, kwargs=kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/urls/base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/urls/resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'home' not found. 'home' is not a valid view function or pattern name.
+WARNING 2025-10-29 15:15:21,895 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:15:24,945 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:15:25,709 log Not Found: /ws/employees/
+ERROR 2025-10-29 15:19:10,791 log Internal Server Error: /employees/edit/1/
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/base.py", line 220, in _get_response
+    response = response.render()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/response.py", line 114, in render
+    self.content = self.rendered_content
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/loader_tags.py", line 134, in render
+    compiled_parent = self.get_parent(context)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/loader_tags.py", line 131, in get_parent
+    return self.find_template(parent, context)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/loader_tags.py", line 109, in find_template
+    template, origin = context.template.engine.find_template(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/defaulttags.py", line 962, in do_if
+    nodelist = parser.parse(("elif", "else", "endif"))
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 523, in parse
+    self.unclosed_block_tag(parse_until)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 590, in unclosed_block_tag
+    raise self.error(token, msg)
+django.template.exceptions.TemplateSyntaxError: Unclosed tag on line 17: 'if'. Looking for one of: elif, else, endif.
+ERROR 2025-10-29 15:20:09,919 log Internal Server Error: /employees/edit/1/
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/base.py", line 220, in _get_response
+    response = response.render()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/response.py", line 114, in render
+    self.content = self.rendered_content
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/backends/django.py", line 107, in render
+    return self.template.render(context)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 171, in render
+    return self._render(context)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 163, in _render
+    return self.nodelist.render(context)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 1016, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 1016, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 977, in render_annotated
+    return self.render(context)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/loader_tags.py", line 134, in render
+    compiled_parent = self.get_parent(context)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/loader_tags.py", line 131, in get_parent
+    return self.find_template(parent, context)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/loader_tags.py", line 109, in find_template
+    template, origin = context.template.engine.find_template(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 196, in compile_nodelist
+    nodelist = parser.parse()
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 518, in parse
+    raise self.error(token, e)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 516, in parse
+    compiled_result = compile_func(self, token)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/defaulttags.py", line 962, in do_if
+    nodelist = parser.parse(("elif", "else", "endif"))
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 523, in parse
+    self.unclosed_block_tag(parse_until)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/template/base.py", line 590, in unclosed_block_tag
+    raise self.error(token, msg)
+django.template.exceptions.TemplateSyntaxError: Unclosed tag on line 17: 'if'. Looking for one of: elif, else, endif.
+WARNING 2025-10-29 15:23:00,045 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:23:03,111 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:23:06,143 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:23:09,173 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:23:12,233 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:23:16,576 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:23:19,625 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:23:22,663 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:23:25,710 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:23:28,762 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:23:31,962 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:23:36,992 log Not Found: /employees/api/stats/
+WARNING 2025-10-29 15:23:47,182 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:23:50,549 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:23:54,588 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:23:59,297 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:24:03,857 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:24:17,827 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:24:22,591 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:24:27,435 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:24:35,041 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:24:39,654 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:24:46,526 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:25:02,777 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:25:07,767 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:25:14,567 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:25:19,019 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:25:23,196 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:25:29,889 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:25:36,585 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:25:42,438 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:25:47,475 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:25:54,599 log Not Found: /ws/employees/
+WARNING 2025-10-29 15:26:01,086 log Not Found: /ws/employees/
+ERROR 2025-10-29 15:26:04,644 log Internal Server Error: /
+Traceback (most recent call last):
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/batyr/projects/erp-system/factory_erp/factory_erp/urls.py", line 44, in redirect_to_employees
+    return redirect('employees:home')
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/shortcuts.py", line 51, in redirect
+    resolve_url(to, *args, **kwargs),
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/shortcuts.py", line 184, in resolve_url
+    return reverse(to, args=args, kwargs=kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/urls/base.py", line 98, in reverse
+    resolved_url = resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "/home/batyr/projects/erp-system/venv/lib/python3.10/site-packages/django/urls/resolvers.py", line 831, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'home' not found. 'home' is not a valid view function or pattern name.
