@@ -4,7 +4,7 @@
 
 ### 1. Подключение к VPS (2 минуты)
 ```bash
-ssh root@YOUR_VPS_IP
+ssh root@148.230.81.243
 adduser deploy
 usermod -aG sudo deploy
 su - deploy
@@ -82,7 +82,7 @@ sudo supervisorctl status
 sudo nano /etc/nginx/sites-available/erp-system
 ```
 Скопируй из `VPS_DEPLOYMENT_GUIDE.md` секцию Nginx
-Замени `YOUR_DOMAIN_OR_IP`
+(уже настроено: erp.bridgecore.tech и 148.230.81.243)
 
 ```bash
 sudo ln -s /etc/nginx/sites-available/erp-system /etc/nginx/sites-enabled/
@@ -102,7 +102,7 @@ sudo ufw enable
 ### 11. Проверка (2 минуты)
 ```bash
 sudo supervisorctl status
-# Открой в браузере: http://YOUR_VPS_IP
+# Открой в браузере: http://148.230.81.243 или https://erp.bridgecore.tech
 ```
 
 ---
@@ -110,8 +110,8 @@ sudo supervisorctl status
 ## 🎉 Готово за 30 минут!
 
 **Следующие шаги:**
-1. Настрой домен (если есть)
-2. Установи SSL: `sudo certbot --nginx -d your-domain.com`
+1. ✅ Домен настроен: erp.bridgecore.tech
+2. Установи SSL: `sudo certbot --nginx -d erp.bridgecore.tech -d www.erp.bridgecore.tech`
 3. Обнови `settings_production.py`: `SECURE_SSL_REDIRECT = True`
 
 ---

@@ -60,10 +60,10 @@ sudo apt update && sudo apt upgrade -y
 
 # Установка необходимых пакетов
 sudo apt install -y \
-    python3.11 \
-    python3.11-venv \
+    python3 \
+    python3-venv \
     python3-pip \
-    python3.11-dev \
+    python3-dev \
     build-essential \
     git \
     nginx \
@@ -80,7 +80,7 @@ sudo apt install -y \
     vim
 
 # Проверка версий
-python3.11 --version  # Должно быть Python 3.11.x
+python3 --version  # Должно быть Python 3.11.x
 psql --version        # PostgreSQL 16.x
 redis-cli --version   # Redis 7.x
 nginx -v              # nginx/1.24.x
@@ -193,7 +193,7 @@ git branch
 ```bash
 # Создание venv
 cd ~/erp-system
-python3.11 -m venv venv
+python3 -m venv venv
 
 # Активация
 source venv/bin/activate
@@ -234,9 +234,9 @@ DEBUG = False
 
 # Замените на ваш домен или IP
 ALLOWED_HOSTS = [
-    'your-domain.com',
-    'www.your-domain.com',
-    'YOUR_VPS_IP',
+    'erp.bridgecore.tech',
+    'www.erp.bridgecore.tech',
+    '148.230.81.243',
     'localhost',
     '127.0.0.1',
 ]
@@ -247,7 +247,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'factory_erp_db',
         'USER': 'erp_user',
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'ВАШ_ПАРОЛЬ_БД'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'Kepler03lim@'),
         'HOST': 'localhost',
         'PORT': '5432',
         'CONN_MAX_AGE': 600,  # Переиспользование соединений
@@ -283,7 +283,7 @@ SECURE_SSL_REDIRECT = False  # Поставить True после настрой
 
 # CORS (если нужно)
 CORS_ALLOWED_ORIGINS = [
-    "https://your-domain.com",
+    "https://erp.bridgecore.tech",
 ]
 
 # Logging
@@ -437,7 +437,7 @@ upstream daphne {
 
 server {
     listen 80;
-    server_name YOUR_DOMAIN_OR_IP;
+    server_name erp.bridgecore.tech www.erp.bridgecore.tech 148.230.81.243;
 
     client_max_body_size 10M;
 
@@ -527,7 +527,7 @@ sudo ufw status
 
 ```bash
 # Получение сертификата
-sudo certbot --nginx -d your-domain.com -d www.your-domain.com
+sudo certbot --nginx -d erp.bridgecore.tech -d www.erp.bridgecore.tech
 
 # Следуйте инструкциям:
 # 1. Введите email
@@ -601,7 +601,7 @@ sudo tail -f /var/log/nginx/error.log
 ### 3. Проверка сайта:
 
 Откройте в браузере:
-- `http://YOUR_IP/` или `https://your-domain.com/`
+- `http://148.230.81.243/` или `https://erp.bridgecore.tech/`
 - `/admin/` - админка должна работать
 - Проверьте WebSocket в DevTools → Network → WS
 
@@ -722,9 +722,9 @@ sudo journalctl -xe
 
 ### Доступ:
 
-- **Сайт:** `https://your-domain.com`
-- **Админка:** `https://your-domain.com/admin/`
-- **API для ESP32:** `https://your-domain.com/employees/api/rfid-scan/`
+- **Сайт:** `https://erp.bridgecore.tech` или `http://148.230.81.243`
+- **Админка:** `https://erp.bridgecore.tech/admin/`
+- **API для ESP32:** `https://erp.bridgecore.tech/employees/api/rfid-scan/`
 
 ---
 
