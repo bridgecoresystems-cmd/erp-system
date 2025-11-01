@@ -30,7 +30,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'factory_erp_db',
         'USER': 'erp_user',
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'erp_password123'),  # ЗАМЕНИ в .env или здесь!
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'Kepler03lim@'),
         'HOST': 'localhost',
         'PORT': '5432',
         'CONN_MAX_AGE': 600,  # Переиспользование соединений (10 минут)
